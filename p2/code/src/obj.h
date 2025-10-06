@@ -93,19 +93,24 @@ public:
 
 
                 std::array<Vector3<f32>, 3> positions{
-                    Vector3<f32>{attrib.vertices[i0.vertex_index], attrib.vertices[i0.vertex_index+1], attrib.vertices[i0.vertex_index+2]},
-                    Vector3<f32>{attrib.vertices[i1.vertex_index], attrib.vertices[i1.vertex_index+1], attrib.vertices[i1.vertex_index+2]},
-                    Vector3<f32>{attrib.vertices[i2.vertex_index], attrib.vertices[i2.vertex_index+1], attrib.vertices[i2.vertex_index+2]}
+                    Vector3<f32>{attrib.vertices[3*i0.vertex_index], attrib.vertices[3*i0.vertex_index+1], attrib.vertices[3*i0.vertex_index+2]},
+                    Vector3<f32>{attrib.vertices[3*i1.vertex_index], attrib.vertices[3*i1.vertex_index+1], attrib.vertices[3*i1.vertex_index+2]},
+                    Vector3<f32>{attrib.vertices[3*i2.vertex_index], attrib.vertices[3*i2.vertex_index+1], attrib.vertices[3*i2.vertex_index+2]}
                 };
+                for (auto& pos : positions) {
+                    std::cout << "[" << pos.x() << ", " << pos.y() << ", " << pos.z() << "] ";
+                }
+                std::cout << "\n";
+
                 std::array<Vector3<f32>, 3> normals{
-                    Vector3<f32>{attrib.normals[i0.normal_index], attrib.normals[i0.normal_index+1], attrib.normals[i0.normal_index+2]},
-                    Vector3<f32>{attrib.normals[i1.normal_index], attrib.normals[i1.normal_index+1], attrib.normals[i1.normal_index+2]},
-                    Vector3<f32>{attrib.normals[i2.normal_index], attrib.normals[i2.normal_index+1], attrib.normals[i2.normal_index+2]}
+                    Vector3<f32>{attrib.normals[3*i0.normal_index], attrib.normals[3*i0.normal_index+1], attrib.normals[3*i0.normal_index+2]},
+                    Vector3<f32>{attrib.normals[3*i1.normal_index], attrib.normals[3*i1.normal_index+1], attrib.normals[3*i1.normal_index+2]},
+                    Vector3<f32>{attrib.normals[3*i2.normal_index], attrib.normals[3*i2.normal_index+1], attrib.normals[3*i2.normal_index+2]}
                 };
                 std::array<Vector2<f32>, 3> uvs{
-                    Vector2<f32>{attrib.texcoords[i0.texcoord_index], attrib.texcoords[i0.texcoord_index+1]},
-                    Vector2<f32>{attrib.texcoords[i1.texcoord_index], attrib.texcoords[i1.texcoord_index+1]},
-                    Vector2<f32>{attrib.texcoords[i2.texcoord_index], attrib.texcoords[i2.texcoord_index+1]}
+                    Vector2<f32>{attrib.texcoords[2*i0.texcoord_index], attrib.texcoords[2*i0.texcoord_index+1]},
+                    Vector2<f32>{attrib.texcoords[2*i1.texcoord_index], attrib.texcoords[2*i1.texcoord_index+1]},
+                    Vector2<f32>{attrib.texcoords[2*i2.texcoord_index], attrib.texcoords[2*i2.texcoord_index+1]}
                 };
                 faces.emplace_back(Face{
                     positions,
@@ -170,8 +175,8 @@ public:
         };
         auto model = rotation*scale;
         model[{0, 3}] = m_position.x();
-        model[{1, 3}] = m_position.x();
-        model[{2, 3}] = m_position.x();
+        model[{1, 3}] = m_position.y();
+        model[{2, 3}] = m_position.z();
         model[{3, 3}] = 1;
         return model;
     }

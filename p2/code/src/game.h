@@ -15,8 +15,10 @@ class Game {
     FrameBuffer frame_buffer{720, 480};
 
     Game() {
+        // auto id = scene.add_object(Object::load("../assets/cube.obj", resource_store));
         auto id = scene.add_object(Object::load("../assets/head/mariohead.obj", resource_store));
-        scene[id].m_position[2] += 5;
+        scene[id].m_position.z() += 10;
+        scene[id].m_rotation.y() = M_PI;
     }
 
     void update(f32 delta, f64 time) {

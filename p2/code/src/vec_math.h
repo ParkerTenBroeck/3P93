@@ -50,7 +50,7 @@ public:
 
     Matrix(std::initializer_list<T> row) {
         for (auto i = row.begin(), j = 0ull; j < R * C && i != row.end(); j++, ++i) {
-            data[j/R][j%R] = *i;
+            data[j%C][j/C] = *i;
         }
     }
 
@@ -148,12 +148,13 @@ public:
     };
 
     void print() const {
-        for (size_t c = 0; c < C; c++) {
-            for (size_t r = 0; r < R; r++) {
+        for (size_t r = 0; r < R; r++) {
+            for (size_t c = 0; c < C; c++) {
                 std::cout << (*this)[{r, c}] << " ";
             }
             std::cout << std::endl;
         }
+        std::cout << std::endl;
     }
 
     [[nodiscard]]
@@ -217,25 +218,49 @@ public:
     }
 
     [[nodiscard]]
-    T x() const {
+    ref<T> x() const {
         static_assert(R >= 1 && C == 1, "must be a vector with length larger than 0");
         return (*this)[0];
     }
 
     [[nodiscard]]
-    T y() const {
+    ref_mut<T> x() {
+        static_assert(R >= 1 && C == 1, "must be a vector with length larger than 0");
+        return (*this)[0];
+    }
+
+    [[nodiscard]]
+    ref<T> y() const {
         static_assert(R >= 2 && C == 1, "must be a vector with length larger than 1");
         return (*this)[1];
     }
 
     [[nodiscard]]
-    T z() const {
+    ref_mut<T> y() {
+        static_assert(R >= 2 && C == 1, "must be a vector with length larger than 1");
+        return (*this)[1];
+    }
+
+    [[nodiscard]]
+    ref<T> z() const {
         static_assert(R >= 3 && C == 1, "must be a vector with length larger than 2");
         return (*this)[2];
     }
 
     [[nodiscard]]
-    T w() const {
+    ref_mut<T> z() {
+        static_assert(R >= 3 && C == 1, "must be a vector with length larger than 2");
+        return (*this)[2];
+    }
+
+    [[nodiscard]]
+    ref<T> w() const {
+        static_assert(R >= 4 && C == 1, "must be a vector with length larger than 3");
+        return (*this)[3];
+    }
+
+    [[nodiscard]]
+    ref_mut<T> w() {
         static_assert(R >= 4 && C == 1, "must be a vector with length larger than 3");
         return (*this)[3];
     }

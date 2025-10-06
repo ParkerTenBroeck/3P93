@@ -1,17 +1,25 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#undef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-#undef STB_IMAGE_WRITE_IMPLEMENTATION
-#define TINYOBJLOADER_IMPLEMENTATION
+
 #include "tiny_obj_loader.h"
-#undef TINYOBJLOADER_IMPLEMENTATION
+#include "stb_image_write.h"
+#include "stb_image.h"
 
 #include "game.h"
 
 
 int main(){
+    // Matrix<f32, 2, 3> m1{
+    //     1, 2, 3,
+    //     4, 5, 6
+    // };
+    // Matrix<f32, 3, 2> m2{
+    //     10, 11,
+    //     20, 21,
+    //     30, 31,
+    // };
+    // m1.print();
+    // m2.print();
+    //
+    // (m1*m2).print();
     Game game;
     game.update(0, 0);
     game.render();

@@ -289,8 +289,8 @@ struct Renderer {
         }
 
 
-        for (auto y = static_cast<isize>(min_y); y < static_cast<isize>(max_y); y++) {
-            for (auto x = static_cast<isize>(min_x); x < static_cast<isize>(max_x); x++) {
+        for (auto y = static_cast<isize>(min_y); y <= static_cast<isize>(max_y); y++) {
+            for (auto x = static_cast<isize>(min_x); x <= static_cast<isize>(max_x); x++) {
                 Vector2<f32> pf{static_cast<f32>(x), static_cast<f32>(y)};
 
                 auto w0 = ((ss[1].y() - ss[2].y()) * (pf.x() - ss[2].x()) + (ss[2].x() - ss[1].x()) * (pf.y() - ss[2].y())) / denom;
