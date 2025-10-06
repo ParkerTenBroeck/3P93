@@ -5,10 +5,10 @@
 #include <cstdint>
 #include <cstdio>
 
-using u8 = int8_t;
-using u16 = int16_t;
-using u32 = int32_t;
-using u64 = int64_t;
+using u8 = u_int8_t;
+using u16 = u_int16_t;
+using u32 = u_int32_t;
+using u64 = u_int64_t;
 using usize = size_t;
 
 using i8 = int8_t;

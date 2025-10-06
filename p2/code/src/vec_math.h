@@ -58,21 +58,21 @@ public:
 
     template<usize RR, usize CC>
     explicit Matrix(Matrix<T, RR, CC> data) : Matrix() {
-        for (int r = 0; r < std::min(R, RR); r++) {
-            for (int c = 0; c < std::min(C, CC); c++) {
-                this[{r, c}] = data[{r, c}];
+        for (usize r = 0; r < std::min(R, RR); r++) {
+            for (usize c = 0; c < std::min(C, CC); c++) {
+                (*this)[{r, c}] = data[{r, c}];
             }
         }
     }
 
     [[nodiscard]]
-    ref_mut<T> operator[](std::array<usize, 2> row_column) {
-        return data[row_column[1]][row_column[0]];
+    ref_mut<T> operator[](const Vector2<usize> row_column) {
+        return data[row_column.y()][row_column.x()];
     }
 
     [[nodiscard]]
-    ref<T> operator[](std::array<usize, 2> row_column) const {
-        return data[row_column[1]][row_column[0]];
+    ref<T> operator[](const Vector2<usize> row_column) const {
+        return data[row_column.y()][row_column.x()];
     }
 
     [[nodiscard]]
@@ -88,11 +88,12 @@ public:
     }
 
     template<usize P>
+    [[nodiscard]]
     friend auto operator*(ref<Matrix> m1, ref<Matrix<T, C, P>> m2) {
         Matrix<T, R, P> result{};
         for (usize r = 0; r < R; r++) {
-            for (usize c = 0; c < C; c++) {
-                for (usize p = 0; p < P; p++) {
+            for (usize p = 0; p < P; p++) {
+                for (usize c = 0; c < C; c++) {
                     result[{r, p}] += m1[{r, c}] * m2[{c, p}];
                 }
             }
@@ -101,6 +102,7 @@ public:
         return result;
     }
 
+    [[nodiscard]]
     friend auto operator-(ref<Matrix> lhs, ref<Matrix> rhs) {
         Matrix result{};
         for (usize r = 0; r < R; r++) {
@@ -111,6 +113,7 @@ public:
         return result;
     }
 
+    [[nodiscard]]
     friend auto operator+(ref<Matrix> lhs, ref<Matrix> rhs) {
         Matrix result{};
         for (usize r = 0; r < R; r++) {
@@ -121,24 +124,79 @@ public:
         return result;
     }
 
+
+    [[nodiscard]]
+    friend Matrix operator/(ref<Matrix> lhs, T scaler) {
+        Matrix result{lhs};
+        for (usize r = 0; r < R; r++) {
+            for (usize c = 0; c < C; c++) {
+                result[{r, c}] /= scaler;
+            }
+        }
+        return result;
+    };
+
+    [[nodiscard]]
+    friend Matrix operator*(ref<Matrix> lhs, T scaler) {
+        Matrix result{lhs};
+        for (usize r = 0; r < R; r++) {
+            for (usize c = 0; c < C; c++) {
+                result[{r, c}] *= scaler;
+            }
+        }
+        return result;
+    };
+
     void print() const {
-        for (size_t r = 0; r < R; r++) {
-            for (size_t c = 0; c < C; c++) {
+        for (size_t c = 0; c < C; c++) {
+            for (size_t r = 0; r < R; r++) {
                 std::cout << (*this)[{r, c}] << " ";
             }
             std::cout << std::endl;
         }
     }
 
+    [[nodiscard]]
+    Matrix inverse() const {
+        Matrix result{};
+        // for (usize r = 0; r < R; r++) {
+        //     for (usize c = 0; c < C; c++) {
+        //
+        //     }
+        // }
+        return result;
+    }
+
+    [[nodiscard]]
+    Matrix<T, R+1, C> extend(T value) const {
+        static_assert(C == 1, "must be a vector to use this");
+        Matrix<T, R+1, C> extended(*this);
+        extended[{R, 0}] = value;
+        return extended;
+    }
+
+    [[nodiscard]]
+    Matrix<T, C, R> transpose() const {
+        Matrix<T, C, R> result{};
+        for (usize r = 0; r < R; r++) {
+            for (usize c = 0; c < C; c++) {
+                result[{c, r}] = (*this)[{r, c}];
+            }
+        }
+        return result;
+    }
+
+    [[nodiscard]]
     static Matrix4<T> perspective(T near, T far, T aspect, T fov) {
         return {
-            1/aspect*tan(fov/2), 0, 0, 0,
+            1/(aspect*tan(fov/2)), 0, 0, 0,
             0, 1/tan(fov/2), 0, 0,
             0, 0, -(far+near)/(far-near), -2*far*near/(far-near),
             0, 0, -1, 0
         };
     }
 
+    [[nodiscard]]
     static Matrix4<T> look_at(Vector3<T> pos, Vector3<T> target, Vector3<T> up) {
         auto forward = (target-pos).normalize();
         auto right = forward.cross(up).normalize();
@@ -146,7 +204,7 @@ public:
         Matrix4<T> l{
             right.x(), right.y(), right.z(), 0,
             upN.x(), upN.y(), upN.z(), 0,
-            forward.x(), forward.y(), forward.z(), 0,
+            -forward.x(), -forward.y(), -forward.z(), 0,
             0, 0, 0, 1
         };
         Matrix4<T> t{
@@ -158,36 +216,43 @@ public:
         return l*t;
     }
 
+    [[nodiscard]]
     T x() const {
         static_assert(R >= 1 && C == 1, "must be a vector with length larger than 0");
         return (*this)[0];
     }
 
+    [[nodiscard]]
     T y() const {
         static_assert(R >= 2 && C == 1, "must be a vector with length larger than 1");
         return (*this)[1];
     }
 
+    [[nodiscard]]
     T z() const {
         static_assert(R >= 3 && C == 1, "must be a vector with length larger than 2");
         return (*this)[2];
     }
 
+    [[nodiscard]]
     T w() const {
         static_assert(R >= 4 && C == 1, "must be a vector with length larger than 3");
         return (*this)[3];
     }
 
+    [[nodiscard]]
     Vector2<T> xy() const {
         static_assert(R >= 2 && C == 1, "must be a vector with length larger than 1");
-        return {this.x(), this.y()};
+        return {this->x(), this->y()};
     }
 
+    [[nodiscard]]
     Vector3<T> xyz() const {
         static_assert(R >= 3 && C == 1, "must be a vector with length larger than 2");
-        return {this.x(), this.y(), this.z()};
+        return {this->x(), this->y(), this->z()};
     }
 
+    [[nodiscard]]
     Matrix normalize() const {
         Matrix result{};
         T mag = this->magnitude();
@@ -199,6 +264,7 @@ public:
         return result;
     }
 
+    [[nodiscard]]
     T magnitude_squared() const {
         T result = 0;
         for (usize r = 0; r < R; r++) {
@@ -209,10 +275,12 @@ public:
         return result;
     }
 
+    [[nodiscard]]
     T magnitude() const {
         return std::sqrt(this->magnitude_squared());
     }
 
+    [[nodiscard]]
     T dot(ref<Matrix> other) const {
         T result = 0.;
         for (usize r = 0; r < R; r++) {
@@ -223,6 +291,7 @@ public:
         return result;
     }
 
+    [[nodiscard]]
     Vector3<T> cross(ref<Vector3<T>> other) const {
         return {
             (*this).y() * other.z() - (*this).z() * other.y(),
@@ -231,27 +300,30 @@ public:
         };
     }
 
+    [[nodiscard]]
     static Matrix2<T> rotation(T theta) {
-        return Matrix2{
+        return Matrix2<T>{
             cos(theta), -sin(theta),
             sin(theta), cos(theta)
         };
     }
 
+    [[nodiscard]]
     static Matrix3<T> rotation(Vector3<T> ypr) {
         return Matrix::rotation(ypr.x(), ypr.y(), ypr.z());
     }
 
+    [[nodiscard]]
     static Matrix3<T> rotation(T yaw, T pitch, T roll) {
-        return Matrix3{
+        return Matrix3<T>{
             cos(yaw), -sin(yaw), 0,
             sin(yaw), cos(yaw), 0,
             0, 0, 1
-        }*Matrix3{
+        }*Matrix3<T>{
             cos(pitch), 0, sin(pitch),
             0, 1, 0,
             -sin(pitch), 0, cos(pitch),
-        }*Matrix3{
+        }*Matrix3<T>{
             1, 0, 0,
             0, cos(roll), -sin(roll),
             0, sin(roll), cos(roll)

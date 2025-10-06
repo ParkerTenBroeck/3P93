@@ -22,8 +22,8 @@ macro(compile_options target_name)
         target_compile_options(${target_name} PUBLIC -fuse-ld=mold)
     endif ()
 
-    target_compile_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic -Wno-comment -std=gnu++23 -lstdc++exp)
-    target_link_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic -Wno-comment -std=gnu++23 -lstdc++exp)
+    target_compile_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic -Wno-comment -std=gnu++17 -lstdc++exp)
+    target_link_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic -Wno-comment -std=gnu++17 -lstdc++exp)
     sanitizers(${target_name})
 endmacro()
 
@@ -64,14 +64,15 @@ include_directories(include/)
 
 file(GLOB_RECURSE PROJECT_BUILD_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CXX_STANDARD 23)
+set(CXX_STANDARD 17)
 set(CXX_STANDARD_REQUIRED ON)
 
 add_executable(rasterizer ${PROJECT_BUILD_FILES}
-        src/frame_buffer.h)
-set_property(TARGET rasterizer PROPERTY CXX_STANDARD 23)
+        src/frame_buffer.h
+        src/texture.h)
+set_property(TARGET rasterizer PROPERTY CXX_STANDARD 17)
 
 target_include_directories(rasterizer PRIVATE include)
 compile_options(rasterizer)
