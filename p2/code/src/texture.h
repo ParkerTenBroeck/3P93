@@ -10,15 +10,15 @@
 #include "stb_image.h"
 
 template<typename T>
-T euclidean_remainder(T a, T b) {
+INLINE T euclidean_remainder(T a, T b) {
     int r = a % b;
     return r >= 0 ? r : r + std::abs(b);
 }
 
 class TextureId {
     friend class ResourceStore;
-    usize id;
-    explicit TextureId(usize id) : id(id) {}
+    u32 id;
+    explicit TextureId(u32 id) : id(id) {}
 };
 
 class Texture {
@@ -30,8 +30,11 @@ class Texture {
 
 public:
     explicit Texture(ref<std::string> path, TextureId id) : m_width(0), m_height(0), m_transparent(false), m_id(id) {
+
+
         i32 width, height, channels;
         auto result = stbi_loadf(path.c_str(), &width, &height, &channels, 4);
+
 
         if (!result)
             std::cout << "Failed to load texture: " << path << std::endl;
@@ -109,13 +112,13 @@ public:
     }
 
     [[nodiscard]]
-    ref<Vector4<f32>> resolve_uv_wrapping(ref<Vector2<f32>> uv) const {
+    INLINE ref<Vector4<f32>> resolve_uv_wrapping(ref<Vector2<f32>> uv) const {
         const auto x = euclidean_remainder(
-            static_cast<isize>(uv.x() * static_cast<f32>(this->width())),
+            static_cast<isize>(std::round(uv.x() * static_cast<f32>(this->width()))),
             static_cast<isize>(this->width())
             );
         const auto y = euclidean_remainder(
-            static_cast<isize>(uv.y() * static_cast<f32>(this->height())),
+            static_cast<isize>(this->height())-static_cast<isize>(std::round(uv.y() * static_cast<f32>(this->height()))),
             static_cast<isize>(this->height())
             );
         return this->m_pixels[x+y*this->width()];

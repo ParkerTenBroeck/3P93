@@ -80,27 +80,60 @@ public:
             std::cout << err << std::endl;
         }
 
-        std::vector<Object> meshes{};
+        std::vector<Mesh> meshes{};
+        meshes.emplace_back(Mesh{});
+        for (const auto& mat : objmaterials) {
+
+            auto ambient = mat.ambient_texname.empty()
+                ? std::nullopt :
+                std::optional{resource_store.get_texture(parent + mat.ambient_texname)};
+
+            auto diffuse = mat.diffuse_texname.empty()
+                ? std::nullopt :
+                std::optional{resource_store.get_texture(parent + mat.diffuse_texname)};
+
+            auto specular = mat.specular_texname.empty()
+                ? std::nullopt :
+                std::optional{resource_store.get_texture(parent + mat.specular_texname)};
+
+            auto normal = mat.normal_texname.empty()
+                ? std::nullopt :
+                std::optional{resource_store.get_texture(parent + mat.normal_texname)};
+
+            Material material{
+                {mat.ambient[0], mat.ambient[1], mat.ambient[2]},
+                {mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]},
+                {mat.specular[0], mat.specular[1], mat.specular[2]},
+                mat.shininess,
+                ambient,
+                diffuse,
+                specular,
+                normal,
+            };
+
+            meshes.push_back(Mesh{
+                "",
+                {},
+                material,
+            });
+        }
+
+
 
         for (const auto& mesh: shapes) {
             if (mesh.mesh.indices.empty())continue;
-            std::vector<Face> faces{};
+
             for (usize i = 0; i < mesh.mesh.indices.size(); i += 3) {
 
                 const auto i0 = mesh.mesh.indices[i];
                 const auto i1 = mesh.mesh.indices[i + 1];
                 const auto i2 = mesh.mesh.indices[i + 2];
 
-
                 std::array<Vector3<f32>, 3> positions{
                     Vector3<f32>{attrib.vertices[3*i0.vertex_index], attrib.vertices[3*i0.vertex_index+1], attrib.vertices[3*i0.vertex_index+2]},
                     Vector3<f32>{attrib.vertices[3*i1.vertex_index], attrib.vertices[3*i1.vertex_index+1], attrib.vertices[3*i1.vertex_index+2]},
                     Vector3<f32>{attrib.vertices[3*i2.vertex_index], attrib.vertices[3*i2.vertex_index+1], attrib.vertices[3*i2.vertex_index+2]}
                 };
-                for (auto& pos : positions) {
-                    std::cout << "[" << pos.x() << ", " << pos.y() << ", " << pos.z() << "] ";
-                }
-                std::cout << "\n";
 
                 std::array<Vector3<f32>, 3> normals{
                     Vector3<f32>{attrib.normals[3*i0.normal_index], attrib.normals[3*i0.normal_index+1], attrib.normals[3*i0.normal_index+2]},
@@ -112,45 +145,17 @@ public:
                     Vector2<f32>{attrib.texcoords[2*i1.texcoord_index], attrib.texcoords[2*i1.texcoord_index+1]},
                     Vector2<f32>{attrib.texcoords[2*i2.texcoord_index], attrib.texcoords[2*i2.texcoord_index+1]}
                 };
-                faces.emplace_back(Face{
+                auto idx = mesh.mesh.material_ids[i/3]+1;
+
+                meshes[idx].m_faces.push_back(Face{
                     positions,
                     normals,
                     uvs,
                 });
+                if (meshes[idx].name.empty()) {
+                    meshes[idx].name = mesh.name;
+                }
             }
-            Material material;
-
-            if (!mesh.mesh.material_ids.empty() && mesh.mesh.material_ids[0] != -1) {
-                const auto& mat = objmaterials[mesh.mesh.material_ids[0]];
-
-                auto ambient = mat.ambient_texname.empty()
-                    ? std::nullopt :
-                    std::optional{resource_store.get_texture(parent + mat.ambient_texname)};
-
-                auto diffuse = mat.diffuse_texname.empty()
-                    ? std::nullopt :
-                    std::optional{resource_store.get_texture(parent + mat.diffuse_texname)};
-
-                auto specular = mat.specular_texname.empty()
-                    ? std::nullopt :
-                    std::optional{resource_store.get_texture(parent + mat.specular_texname)};
-
-                auto normal = mat.normal_texname.empty()
-                    ? std::nullopt :
-                    std::optional{resource_store.get_texture(parent + mat.normal_texname)};
-                material = Material{
-                    {mat.ambient[0], mat.ambient[1], mat.ambient[2]},
-                    {mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]},
-                    {mat.specular[0], mat.specular[1], mat.specular[2]},
-                    mat.shininess,
-                    ambient,
-                    std::nullopt,
-                    std::nullopt,
-                    std::nullopt,
-                };
-            }
-
-            meshes.emplace_back(Mesh(mesh.name, faces, material));
         }
 
         if (meshes.empty()) {
@@ -159,9 +164,14 @@ public:
         }
         std::cout << "Loaded OBJ file: " << path << std::endl;
         if (meshes.size() == 1) {
-            return Object(std::move(std::get<Mesh>(meshes[0].m_kind)));
+            return Object(std::move(meshes[0]));
         }
-        return Object(std::move(meshes));
+
+        std::vector<Object> children;
+        for (auto& child: meshes) {
+            children.emplace_back(std::move(child));
+        }
+        return Object(std::move(children));
     }
 
     [[nodiscard]]

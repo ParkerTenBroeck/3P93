@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cstdio>
 
+#define INLINE __attribute__((always_inline))
+
 using u8 = u_int8_t;
 using u16 = u_int16_t;
 using u32 = u_int32_t;

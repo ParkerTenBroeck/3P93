@@ -5,31 +5,30 @@
 
 #include "game.h"
 
+#include <chrono>
 
 int main(){
-    // Matrix<f32, 2, 3> m1{
-    //     1, 2, 3,
-    //     4, 5, 6
-    // };
-    // Matrix<f32, 3, 2> m2{
-    //     10, 11,
-    //     20, 21,
-    //     30, 31,
-    // };
-    // m1.print();
-    // m2.print();
-    //
-    // (m1*m2).print();
     Game game;
     game.update(0, 0);
-    game.render();
+
+    for (int i = 0; i < 100; i ++) {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        game.render();
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = end - start;
+        long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+        std::cout << "Render Time: " << milliseconds << " ms" << std::endl;
+    }
+
 
     auto data = new u8[game.frame_buffer.height()*game.frame_buffer.width()*3];
     for (usize i = 0; i < game.frame_buffer.height() * game.frame_buffer.width(); i++) {
-        auto n = game.frame_buffer[i].normal.normalize();
-        data[i*3] = static_cast<u8>((n.x() + 1) / 2 * 255);
-        data[i*3+1] = static_cast<u8>((n.y() + 1) / 2 * 255);
-        data[i*3+2] = static_cast<u8>((n.z() + 1) / 2 * 255);
+        auto color = game.frame_buffer[i].diffuse.color();
+        data[i*3] = static_cast<u8>(std::powf(color.x(), 1/2.2) * 255);
+        data[i*3+1] = static_cast<u8>(std::powf(color.y(), 1/2.2) * 255);
+        data[i*3+2] = static_cast<u8>(std::powf(color.z(), 1/2.2) * 255);
     }
     stbi_write_png("../output.png", game.frame_buffer.width(), game.frame_buffer.height(), 3, data, game.frame_buffer.width() * 3);
     delete[] data;

@@ -13,26 +13,39 @@
 
 struct Renderer {
 
-    static void render(ref_mut<FrameBuffer> frame, ref<Scene> scene) {
+    static void render(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
         clear(frame);
         render_scene(frame, scene);
-        fragment(frame, scene);
+        fragment(frame, scene, resources);
     }
 
-    static void fragment(ref_mut<FrameBuffer> frame, ref<Scene>) {
+    static void fragment(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
         for (auto& pixel: frame.pixels().iter()) {
+            if (pixel.ambient.is_texture()) {
+                pixel.ambient.color() = resources[pixel.ambient.texture_id()]->resolve_uv_wrapping(pixel.uv).xyz();
+            }
+            if (pixel.diffuse.is_texture()) {
+                pixel.diffuse.color() = resources[pixel.diffuse.texture_id()]->resolve_uv_wrapping(pixel.uv).xyz();
+            }
+            if (pixel.specular.is_texture()) {
+                pixel.specular.color() = resources[pixel.specular.texture_id()]->resolve_uv_wrapping(pixel.uv).xyz();
+            }
+
+            if (pixel.normal.magnitude_squared() == 0.) continue;
+            pixel.normal = pixel.normal.normalize();
+            pixel.diffuse.color() = pixel.diffuse.color() * std::min(pixel.normal.normalize().dot({-1, 0, 0})/2 + .5 + 0.2, 1.);
         }
     }
 
     static void clear(ref_mut<FrameBuffer> frame) {
         for (Pixel& pixel: frame.pixels().iter()) {
             pixel = Pixel();
+            pixel.diffuse.color() = {0.2, 0.2, 0.2};
         }
     }
 
     static void render_scene(ref_mut<FrameBuffer> frame, ref<Scene> scene) {
         auto proj_view = scene.proj_view(frame);
-        proj_view.print();
         auto model = Matrix4<f32>{
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -116,7 +129,7 @@ struct Renderer {
         }
     }
 
-    static void render_triangle(
+    INLINE static void render_triangle(
         ref_mut<FrameBuffer> frame,
         ref<Material> material,
 
@@ -164,7 +177,9 @@ struct Renderer {
                // [t0, t1, t2],
                // [bt0, bt1, bt2],
                {uv0, uv1, uv2},
-               **material.diffuse_texture
+               ColorOrTexture::from_or_default(material.ambient_texture, material.ambient),
+               **material.diffuse_texture,
+               ColorOrTexture::from_or_default(material.specular_texture, material.specular)
            );
         }else {
             draw_triangle_filled_textured_deffered(
@@ -174,12 +189,15 @@ struct Renderer {
                {n0, n1, n2},
                // [t0, t1, t2],
                // [bt0, bt1, bt2],
-               {uv0, uv1, uv2}
+               {uv0, uv1, uv2},
+               ColorOrTexture::from_or_default(material.ambient_texture, material.ambient),
+               ColorOrTexture::from_or_default(material.diffuse_texture, material.diffuse),
+               ColorOrTexture::from_or_default(material.specular_texture, material.specular)
            );
         }
     }
 
-    static Vector4<f32> perspective(ref<Vector4<f32>> ps) {
+    INLINE static Vector4<f32> perspective(ref<Vector4<f32>> ps) {
         return {
             ps.x() / ps.w(),
             ps.y() / ps.w(),
@@ -188,7 +206,7 @@ struct Renderer {
        };
     }
 
-    static Vector3<f32> screen_space(ref<Vector4<f32>> ps, ref<Vector2<f32>> screen) {
+    INLINE static Vector3<f32> screen_space(ref<Vector4<f32>> ps, ref<Vector2<f32>> screen) {
         return {
             ps.x() * screen.x() + screen.x() / 2.0f,
             -ps.y() * screen.y() + screen.y() / 2.0f,
@@ -196,13 +214,15 @@ struct Renderer {
        };
     }
 
-    static void draw_triangle_filled_textured(
+    INLINE static void draw_triangle_filled_textured(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
             std::array<Vector3<f32>, 3> ps,
             std::array<Vector3<f32>, 3> n,
             std::array<Vector3<f32>, 3> uv,
-            ref<Texture> diffuse_map
+            ColorOrTexture ambient,
+            ref<Texture> diffuse_map,
+            ColorOrTexture specular
         ) {
         rasterize_triangle(frame, ss, [&](auto pix, auto w0, auto w1, auto w2) {
 
@@ -220,9 +240,9 @@ struct Renderer {
             }
 
             Pixel pixel;
-            pixel.ambient = color.xyz();
-            pixel.diffuse = color.xyz();
-            pixel.specular = color.xyz();
+            pixel.ambient = ambient;
+            pixel.diffuse = ColorOrTexture(color.xyz());
+            pixel.specular = specular;
             pixel.shininess = 0.;
             pixel.uv = pix_uv.xy();
             pixel.normal = (n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w;
@@ -234,13 +254,17 @@ struct Renderer {
         });
     }
 
-    static void draw_triangle_filled_textured_deffered(
+    INLINE static void draw_triangle_filled_textured_deffered(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
             std::array<Vector3<f32>, 3> ps,
             std::array<Vector3<f32>, 3> n,
-            std::array<Vector3<f32>, 3> uv
+            std::array<Vector3<f32>, 3> uv,
+            ColorOrTexture ambient,
+            ColorOrTexture diffuse,
+            ColorOrTexture specular
         ) {
+
         rasterize_triangle(frame, ss, [&](auto pix, auto w0, auto w1, auto w2) {
 
             if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) return;
@@ -252,9 +276,9 @@ struct Renderer {
             pix_uv = pix_uv/frac_1_w;
 
             Pixel pixel;
-            pixel.ambient = {1, 0, 0};
-            pixel.diffuse = {1, 0, 0};
-            pixel.specular = {1, 0, 0};
+            pixel.ambient = ambient;
+            pixel.diffuse = diffuse;
+            pixel.specular = specular;
             pixel.shininess = 0.;
             pixel.uv = pix_uv.xy();
             pixel.normal = (n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w;
@@ -267,20 +291,20 @@ struct Renderer {
     }
 
 
-    static u32 convert_depth(f32 depth) {
+    INLINE static u32 convert_depth(f32 depth) {
         return static_cast<u32>(depth * static_cast<f32>(0xFFFFFFFEull));
     }
 
     template<typename Func>
-    static void rasterize_triangle(
+    INLINE static void rasterize_triangle(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
             Func func
         ) {
         auto min_x = std::max(std::min({ss[0].x(), ss[1].x(), ss[2].x()}), 0.f);
-        auto max_x = std::min(std::max({ss[0].x(), ss[1].x(), ss[2].x()}), static_cast<f32>(frame.width()));
+        auto max_x = std::min(std::max({ss[0].x(), ss[1].x(), ss[2].x()}), static_cast<f32>(frame.width())-1);
         auto min_y = std::max(std::min({ss[0].y(), ss[1].y(), ss[2].y()}), 0.f);
-        auto max_y = std::min(std::max({ss[0].y(), ss[1].y(), ss[2].y()}), static_cast<f32>(frame.height()));
+        auto max_y = std::min(std::max({ss[0].y(), ss[1].y(), ss[2].y()}), static_cast<f32>(frame.height())-1);
 
         auto denom = (ss[1].y() - ss[2].y()) * (ss[0].x() - ss[2].x()) + (ss[2].x() - ss[1].x()) * (ss[0].y() - ss[2].y());
 
