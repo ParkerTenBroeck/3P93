@@ -49,7 +49,8 @@ public:
     }
 
     Matrix(std::initializer_list<T> row) {
-        for (auto i = row.begin(), j = 0ull; j < R * C && i != row.end(); j++, ++i) {
+        usize j  = 0;
+        for (auto i = row.begin(); j < R * C && i != row.end(); j++, ++i) {
             data[j%C][j/C] = *i;
         }
     }
@@ -190,8 +191,8 @@ public:
     [[nodiscard]]
     static Matrix4<T> perspective(T near, T far, T aspect, T fov) {
         return {
-            1/(aspect*tan(fov/2)), 0, 0, 0,
-            0, 1/tan(fov/2), 0, 0,
+            1/(aspect*std::tan(fov/2)), 0, 0, 0,
+            0, 1/std::tan(fov/2), 0, 0,
             0, 0, -(far+near)/(far-near), -2*far*near/(far-near),
             0, 0, -1, 0
         };
@@ -328,8 +329,8 @@ public:
     [[nodiscard]]
     static Matrix2<T> rotation(T theta) {
         return Matrix2<T>{
-            cos(theta), -sin(theta),
-            sin(theta), cos(theta)
+            std::cos(theta), -std::sin(theta),
+            std::sin(theta), std::cos(theta)
         };
     }
 
@@ -341,17 +342,17 @@ public:
     [[nodiscard]]
     static Matrix3<T> rotation(T yaw, T pitch, T roll) {
         return Matrix3<T>{
-            cos(yaw), -sin(yaw), 0,
-            sin(yaw), cos(yaw), 0,
+            std::cos(yaw), -std::sin(yaw), 0,
+            std::sin(yaw), std::cos(yaw), 0,
             0, 0, 1
         }*Matrix3<T>{
-            cos(pitch), 0, sin(pitch),
+            std::cos(pitch), 0, std::sin(pitch),
             0, 1, 0,
-            -sin(pitch), 0, cos(pitch),
+            -std::sin(pitch), 0, std::cos(pitch),
         }*Matrix3<T>{
             1, 0, 0,
-            0, cos(roll), -sin(roll),
-            0, sin(roll), cos(roll)
+            0, std::cos(roll), -std::sin(roll),
+            0, std::sin(roll), std::cos(roll)
         };
     }
 };

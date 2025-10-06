@@ -182,7 +182,7 @@ struct Renderer {
                ColorOrTexture::from_or_default(material.specular_texture, material.specular)
            );
         }else {
-            draw_triangle_filled_textured_deffered(
+            draw_triangle_filled_textured_deferred(
                frame,
                {ss0, ss1, ss2},
                {ps0.xyz(), ps0.xyz(), ps0.xyz()},
@@ -224,7 +224,7 @@ struct Renderer {
             ref<Texture> diffuse_map,
             ColorOrTexture specular
         ) {
-        rasterize_triangle(frame, ss, [&](auto pix, auto w0, auto w1, auto w2) {
+        rasterize_triangle(frame, ss, [=, &frame](auto pix, auto w0, auto w1, auto w2) {
 
             if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) return;
             auto depth = w0 * ss[0].z() + w1 * ss[1].z() + w2 * ss[2].z();
@@ -254,7 +254,7 @@ struct Renderer {
         });
     }
 
-    INLINE static void draw_triangle_filled_textured_deffered(
+    INLINE static void draw_triangle_filled_textured_deferred(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
             std::array<Vector3<f32>, 3> ps,
@@ -265,7 +265,7 @@ struct Renderer {
             ColorOrTexture specular
         ) {
 
-        rasterize_triangle(frame, ss, [&](auto pix, auto w0, auto w1, auto w2) {
+        rasterize_triangle(frame, ss, [=, &frame](auto pix, auto w0, auto w1, auto w2) {
 
             if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) return;
             auto depth = w0 * ss[0].z() + w1 * ss[1].z() + w2 * ss[2].z();
@@ -308,7 +308,7 @@ struct Renderer {
 
         auto denom = (ss[1].y() - ss[2].y()) * (ss[0].x() - ss[2].x()) + (ss[2].x() - ss[1].x()) * (ss[0].y() - ss[2].y());
 
-        if (denom == 0.0) {
+        if (denom == 0.0f) {
             return;
         }
 
@@ -319,7 +319,7 @@ struct Renderer {
 
                 auto w0 = ((ss[1].y() - ss[2].y()) * (pf.x() - ss[2].x()) + (ss[2].x() - ss[1].x()) * (pf.y() - ss[2].y())) / denom;
                 auto w1 = ((ss[2].y() - ss[0].y()) * (pf.x() - ss[2].x()) + (ss[0].x() - ss[2].x()) * (pf.y() - ss[2].y())) / denom;
-                auto w2 = 1.0 - w0 - w1;
+                auto w2 = 1.0f - w0 - w1;
 
                 if (w0 >= 0.0 && w1 >= 0.0 && w2 >= 0.0) {
                     Vector2<usize> pix_coord{static_cast<usize>(x), static_cast<usize>(y)};
