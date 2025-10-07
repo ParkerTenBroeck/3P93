@@ -7,7 +7,7 @@ illum 1
 Ni 0.98
 Pl 1
 Prfl 1
-Ka 1 1 1
+Ka 0 0 0
 Kd 1 1 1
 Ke 0 0 0
 map_Kd Tree.001.png
@@ -19,7 +19,7 @@ illum 1
 Ni 0.98
 Pl 1
 Prfl 1
-Ka 1 1 1
+Ka 0 0 0
 Kd 1 1 1
 Ke 0 0 0
 map_Kd Material.png
@@ -31,7 +31,7 @@ illum 1
 Ni 0.98
 Pl 1
 Prfl 1
-Ka 1 1 1
+Ka 0 0 0
 Kd 1 1 1
 Ke 0 0 0
 map_Kd Windows.001.png
@@ -43,7 +43,7 @@ illum 1
 Ni 0.98
 Pl 1
 Prfl 1
-Ka 1 1 1
+Ka 0 0 0
 Kd 1 1 1
 Ke 0 0 0
 map_Kd Castle.001.png
@@ -55,7 +55,7 @@ illum 1
 Ni 0.98
 Pl 1
 Prfl 1
-Ka 1 1 1
+Ka 0 0 0
 Kd 1 1 1
 Ke 0 0 0
 map_Kd Garden.png

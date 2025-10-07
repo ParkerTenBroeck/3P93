@@ -10,7 +10,7 @@
 #include "stb_image.h"
 
 template<typename T>
-INLINE T euclidean_remainder(T a, T b) {
+INLINE inline T euclidean_remainder(T a, T b) {
     int r = a % b;
     return r >= 0 ? r : r + std::abs(b);
 }
@@ -19,6 +19,13 @@ class TextureId {
     friend class ResourceStore;
     u32 id;
     explicit TextureId(u32 id) : id(id) {}
+public:
+    TextureId() : TextureId(0) {}
+
+    [[nodiscard]]
+    bool exists() const{
+        return id != 0;
+    }
 };
 
 class Texture {

@@ -31,9 +31,9 @@ public:
     Vector3<f32> diffuse;
     Vector3<f32> specular;
     f32 shininess{0};
-    std::optional<std::shared_ptr<const Texture>> ambient_texture;
-    std::optional<std::shared_ptr<const Texture>> diffuse_texture;
-    std::optional<std::shared_ptr<const Texture>> specular_texture;
+    std::optional<std::shared_ptr<const Texture>> ambient_map;
+    std::optional<std::shared_ptr<const Texture>> diffuse_map;
+    std::optional<std::shared_ptr<const Texture>> specular_map;
     std::optional<std::shared_ptr<const Texture>> normal_map;
 };
 

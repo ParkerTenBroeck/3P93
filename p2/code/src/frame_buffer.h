@@ -12,57 +12,15 @@
 #include "slice.h"
 #include "texture.h"
 
-struct ColorOrTexture {
-private:
-    Vector3<f32> data{0, 0, 0};
-
-public:
-    ColorOrTexture() = default;
-    explicit ColorOrTexture(const Vector3<f32> color) : data(color) {}
-    explicit ColorOrTexture(TextureId texture) : data({NAN, *reinterpret_cast<f32*>(&texture), 0}) {
-        u32 value = 0xFFFFFFFF;
-        data.x() = *reinterpret_cast<f32*>(&value);
-    }
-
-    static ColorOrTexture from_or_default(ref<std::optional<std::shared_ptr<const Texture>>> texture, const Vector3<f32> color) {
-
-        if (texture.has_value()) {
-            return ColorOrTexture(texture->get()->get_id());
-        }
-        return ColorOrTexture(color);
-    }
-
-    [[nodiscard]]
-    bool is_texture() const {
-        return !is_color();
-    }
-
-    [[nodiscard]]
-    bool is_color() const {
-        return *reinterpret_cast<const u32*>(&data.x()) != 0xFFFFFFFF;
-    }
-
-    ref<Vector3<f32>> color() const {
-        return data;
-    }
-
-    ref_mut<Vector3<f32>> color() {
-        return data;
-    }
-
-    ref<TextureId> texture_id() const {
-        return *reinterpret_cast<const TextureId *>(&data.y());
-    }
-
-    ref_mut<TextureId> texture_id() {
-        return *reinterpret_cast<TextureId *>(&data.y());
-    }
-};
-
 struct Pixel {
-    ColorOrTexture ambient;
-    ColorOrTexture diffuse;
-    ColorOrTexture specular;
+    Vector3<f32> ambient;
+    Vector3<f32> diffuse;
+    Vector3<f32> specular;
+
+    TextureId ambient_map;
+    TextureId diffuse_map;
+    TextureId specular_map;
+    TextureId normal_map;
 
     f32 shininess{};
 

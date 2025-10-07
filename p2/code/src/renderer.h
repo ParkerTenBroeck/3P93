@@ -21,26 +21,66 @@ struct Renderer {
 
     static void fragment(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
         for (auto& pixel: frame.pixels().iter()) {
-            if (pixel.ambient.is_texture()) {
-                pixel.ambient.color() = resources[pixel.ambient.texture_id()]->resolve_uv_wrapping(pixel.uv).xyz();
-            }
-            if (pixel.diffuse.is_texture()) {
-                pixel.diffuse.color() = resources[pixel.diffuse.texture_id()]->resolve_uv_wrapping(pixel.uv).xyz();
-            }
-            if (pixel.specular.is_texture()) {
-                pixel.specular.color() = resources[pixel.specular.texture_id()]->resolve_uv_wrapping(pixel.uv).xyz();
-            }
 
             if (pixel.normal.magnitude_squared() == 0.) continue;
+
+            if (pixel.normal_map.exists()) {
+                auto n = resources[pixel.normal_map]->resolve_uv_wrapping(pixel.uv).xyz();
+                n = (n * 2.0).add_scalar(-1.0);
+                pixel.normal = pixel.normal.normalize();
+                pixel.tangent = pixel.tangent.normalize();
+                pixel.bitangent = pixel.bitangent.normalize();
+                Matrix3<f32> tbn{
+                    pixel.tangent.x(),
+                    pixel.bitangent.x(),
+                    pixel.normal.x(),
+                    pixel.tangent.y(),
+                    pixel.bitangent.y(),
+                    pixel.normal.y(),
+                    pixel.tangent.z(),
+                    pixel.bitangent.z(),
+                    pixel.normal.z(),
+                };
+                pixel.normal = tbn * n;
+            }
             pixel.normal = pixel.normal.normalize();
-            pixel.diffuse.color() = pixel.diffuse.color() * std::min(pixel.normal.normalize().dot({-1, 0, 0})/2 + .5 + 0.2, 1.);
+
+            if (pixel.ambient_map.exists()) {
+                pixel.ambient = resources[pixel.ambient_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.ambient);
+            }
+
+            if (pixel.diffuse_map.exists()) {
+                pixel.diffuse = resources[pixel.diffuse_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.diffuse);
+            }
+
+            if (pixel.specular_map.exists()) {
+                pixel.specular = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.specular);
+            }
+
+            Vector3<f32> light_pos{2, 2, 0};
+            auto light_dir = -(light_pos - pixel.position).normalize();
+            auto light_power = 1.f;//1.f/(light_pos - pixel.position).magnitude_squared() * 500.0f;
+            auto view_dir = (scene.m_camera.position - pixel.position).normalize();
+            auto reflect_dir = light_dir - 2.0f * pixel.normal.dot(light_dir) * pixel.normal;
+
+            auto specular_scale = std::powf(std::max(0.f, view_dir.dot(reflect_dir)), pixel.shininess);
+            auto diffuse_scale = std::max(0.f, pixel.normal.dot(-light_dir));
+            auto ambient_color = 0.1f;
+
+            auto color =
+                pixel.ambient * ambient_color * light_power
+                + pixel.diffuse * diffuse_scale * light_power
+            + (pixel.diffuse.mult_components(pixel.specular * specular_scale))
+            ;
+
+            pixel.diffuse = color;
         }
     }
 
     static void clear(ref_mut<FrameBuffer> frame) {
         for (Pixel& pixel: frame.pixels().iter()) {
             pixel = Pixel();
-            pixel.diffuse.color() = {0.2, 0.2, 0.2};
+            pixel.diffuse = {0.2, 0.2, 0.2};
         }
     }
 
@@ -133,8 +173,8 @@ struct Renderer {
         ref_mut<FrameBuffer> frame,
         ref<Material> material,
 
-        std::array<Vector4<f32>, 3> /* ms */,
-        std::array<Vector4<f32>, 3> /* ws */,
+        std::array<Vector4<f32>, 3> ms,
+        std::array<Vector4<f32>, 3> ws,
         std::array<Vector4<f32>, 3> cs,
         std::array<Vector3<f32>, 3> n,
         std::array<Vector2<f32>, 3> uv,
@@ -168,31 +208,98 @@ struct Renderer {
         const auto n1 = (normal_matrix * n[1]) / w1;
         const auto n2 = (normal_matrix * n[2]) / w2;
 
-        if (material.diffuse_texture.has_value() && material.diffuse_texture->get()->transparent()) {
+        Vector3<f32> t0{}, t1{}, t2{};
+        Vector3<f32> bt0{}, bt1{}, bt2{};
+
+        if (material.normal_map.has_value()) {
+            auto g0 = tangent_bitangent(
+                {ms[0].xyz(), ms[1].xyz(), ms[2].xyz()},
+                {uv0, uv1, uv2},
+                w0,
+                normal_matrix
+            );
+            t0 = g0[0];
+            bt0 = g0[1];
+
+            auto g1 = tangent_bitangent(
+                {ms[1].xyz(), ms[2].xyz(), ms[0].xyz()},
+                {uv1, uv2, uv0},
+                w1,
+                normal_matrix
+            );
+            t1 = g1[0];
+            bt1 = g1[1];
+
+            auto g2 = tangent_bitangent(
+                {ms[2].xyz(), ms[0].xyz(), ms[1].xyz()},
+                {uv2, uv0, uv1},
+                w2,
+                normal_matrix
+            );
+            t2 = g2[0];
+            bt2 = g2[1];
+
+            n0.print();
+            t0.print();
+            bt0.print();
+
+        }
+
+
+        TextureId ambient_map{};
+        if (material.ambient_map.has_value()) {
+            ambient_map = material.ambient_map.value()->get_id();
+        }
+
+        TextureId diffuse_map{};
+        if (material.diffuse_map.has_value()) {
+            diffuse_map = material.diffuse_map.value()->get_id();
+        }
+
+        TextureId specular_map{};
+        if (material.specular_map.has_value()) {
+            specular_map = material.specular_map.value()->get_id();
+        }
+
+        TextureId normal_map{};
+        if (material.normal_map.has_value()) {
+            normal_map = material.normal_map.value()->get_id();
+        }
+
+        if (material.diffuse_map.has_value() && material.diffuse_map->get()->transparent()) {
             draw_triangle_filled_textured(
                frame,
                {ss0, ss1, ss2},
-               {ps0.xyz(), ps0.xyz(), ps0.xyz()},
-               {n0, n1, n2},
-               // [t0, t1, t2],
-               // [bt0, bt1, bt2],
-               {uv0, uv1, uv2},
-               ColorOrTexture::from_or_default(material.ambient_texture, material.ambient),
-               **material.diffuse_texture,
-               ColorOrTexture::from_or_default(material.specular_texture, material.specular)
+                {ws[0].xyz(), ws[1].xyz(), ws[2].xyz()},
+                {n0, n1, n2},
+                {t0, t1, t2},
+            {bt0, bt1, bt2},
+            {uv0, uv1, uv2},
+                   material.ambient,
+                   material.specular,
+                    material.shininess,
+                   ambient_map,
+                   **material.diffuse_map,
+                   specular_map,
+                   normal_map
            );
         }else {
             draw_triangle_filled_textured_deferred(
                frame,
                {ss0, ss1, ss2},
-               {ps0.xyz(), ps0.xyz(), ps0.xyz()},
+               {ws[0].xyz(), ws[1].xyz(), ws[2].xyz()},
                {n0, n1, n2},
-               // [t0, t1, t2],
-               // [bt0, bt1, bt2],
+               {t0, t1, t2},
+               {bt0, bt1, bt2},
                {uv0, uv1, uv2},
-               ColorOrTexture::from_or_default(material.ambient_texture, material.ambient),
-               ColorOrTexture::from_or_default(material.diffuse_texture, material.diffuse),
-               ColorOrTexture::from_or_default(material.specular_texture, material.specular)
+               material.ambient,
+               material.diffuse,
+               material.specular,
+               material.shininess,
+               ambient_map,
+               diffuse_map,
+               specular_map,
+               normal_map
            );
         }
     }
@@ -214,15 +321,52 @@ struct Renderer {
        };
     }
 
+    INLINE static std::array<Vector3<f32>, 2> tangent_bitangent(
+        ref<std::array<Vector3<f32>, 3>> ws,
+        ref<std::array<Vector3<f32>, 3>> uv,
+        const f32 w,
+        ref<Matrix3<f32>> normal_matrix
+        )  {
+        auto edge1 = ws[1] - ws[0];
+        auto edge2 = ws[2] - ws[0];
+        auto delta_uv1 = uv[1] - uv[0];
+        auto delta_uv2 = uv[2] - uv[0];
+
+        auto f = 1.0f / (delta_uv1.x() * delta_uv2.y() - delta_uv2.x() * delta_uv1.y());
+
+        Vector3<f32> tangent{};
+
+        tangent.x() = f * (delta_uv2.y() * edge1.x() - delta_uv1.y() * edge2.x());
+        tangent.y() = f * (delta_uv2.y() * edge1.y() - delta_uv1.y() * edge2.y());
+        tangent.z() = f * (delta_uv2.y() * edge1.z() - delta_uv1.y() * edge2.z());
+
+        Vector3<f32> bitangent{};
+
+        bitangent.x() = f * (-delta_uv2.x() * edge1.x() + delta_uv1.x() * edge2.x());
+        bitangent.y() = f * (-delta_uv2.x() * edge1.y() + delta_uv1.x() * edge2.y());
+        bitangent.z() = f * (-delta_uv2.x() * edge1.z() + delta_uv1.x() * edge2.z());
+
+        return {
+            (tangent)  / w,
+            (bitangent) / w
+        };
+    }
+
     INLINE static void draw_triangle_filled_textured(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
             std::array<Vector3<f32>, 3> ps,
             std::array<Vector3<f32>, 3> n,
+            std::array<Vector3<f32>, 3> t,
+            std::array<Vector3<f32>, 3> bt,
             std::array<Vector3<f32>, 3> uv,
-            ColorOrTexture ambient,
+            Vector3<f32> ambient,
+            Vector3<f32> specular,
+            f32 shininess,
+            TextureId ambient_map,
             ref<Texture> diffuse_map,
-            ColorOrTexture specular
+            TextureId specular_map,
+            TextureId normal_map
         ) {
         rasterize_triangle(frame, ss, [=, &frame](auto pix, auto w0, auto w1, auto w2) {
 
@@ -241,28 +385,39 @@ struct Renderer {
 
             Pixel pixel;
             pixel.ambient = ambient;
-            pixel.diffuse = ColorOrTexture(color.xyz());
             pixel.specular = specular;
-            pixel.shininess = 0.;
+            pixel.diffuse = color.xyz();
+            pixel.ambient_map = ambient_map;
+            pixel.specular_map = specular_map;
+            pixel.shininess = shininess;
             pixel.uv = pix_uv.xy();
             pixel.normal = (n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w;
-            pixel.tangent = {0, 0, 0, 0,};
-            pixel.bitangent = {0, 0, 0, 0,};
-            pixel.position = (ps[0] * w0 + ps[1] * w1 + ps[2] * w2)/frac_1_w;
+            pixel.tangent = (t[0] * w0 + t[1] * w1 + t[2] * w2)/frac_1_w;
+            pixel.bitangent = (bt[0] * w0 + bt[1] * w1 + bt[2] * w2)/frac_1_w;
+            pixel.position = (ps[0] * w0 + ps[1] * w1 + ps[2] * w2);
+            pixel.normal_map = normal_map;
             pixel.depth = convert_depth(depth);
             frame[pix].set_smaller_depth(pixel);
         });
     }
+
 
     INLINE static void draw_triangle_filled_textured_deferred(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
             std::array<Vector3<f32>, 3> ps,
             std::array<Vector3<f32>, 3> n,
+            std::array<Vector3<f32>, 3> t,
+            std::array<Vector3<f32>, 3> bt,
             std::array<Vector3<f32>, 3> uv,
-            ColorOrTexture ambient,
-            ColorOrTexture diffuse,
-            ColorOrTexture specular
+            Vector3<f32> ambient,
+            Vector3<f32> diffuse,
+            Vector3<f32> specular,
+            f32 shininess,
+            TextureId ambient_map,
+            TextureId diffuse_map,
+            TextureId specular_map,
+            TextureId normal_map
         ) {
 
         rasterize_triangle(frame, ss, [=, &frame](auto pix, auto w0, auto w1, auto w2) {
@@ -279,12 +434,16 @@ struct Renderer {
             pixel.ambient = ambient;
             pixel.diffuse = diffuse;
             pixel.specular = specular;
-            pixel.shininess = 0.;
+            pixel.ambient_map = ambient_map;
+            pixel.diffuse_map = diffuse_map;
+            pixel.specular_map = specular_map;
+            pixel.shininess = shininess;
             pixel.uv = pix_uv.xy();
             pixel.normal = (n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w;
-            pixel.tangent = {0, 0, 0, 0,};
-            pixel.bitangent = {0, 0, 0, 0,};
-            pixel.position = (ps[0] * w0 + ps[1] * w1 + ps[2] * w2)/frac_1_w;
+            pixel.tangent = (t[0] * w0 + t[1] * w1 + t[2] * w2)/frac_1_w;
+            pixel.bitangent = (bt[0] * w0 + bt[1] * w1 + bt[2] * w2)/frac_1_w;
+            pixel.position = (ps[0] * w0 + ps[1] * w1 + ps[2] * w2);
+            pixel.normal_map = normal_map;
             pixel.depth = convert_depth(depth);
             frame[pix].set_smaller_depth(pixel);
         });
@@ -299,7 +458,7 @@ struct Renderer {
     INLINE static void rasterize_triangle(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
-            Func func
+            Func&& func
         ) {
         auto min_x = std::max(std::min({ss[0].x(), ss[1].x(), ss[2].x()}), 0.f);
         auto max_x = std::min(std::max({ss[0].x(), ss[1].x(), ss[2].x()}), static_cast<f32>(frame.width())-1);

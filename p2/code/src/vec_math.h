@@ -115,6 +115,17 @@ public:
     }
 
     [[nodiscard]]
+    friend auto operator-(ref<Matrix> rhs) {
+        Matrix result{};
+        for (usize r = 0; r < R; r++) {
+            for (usize c = 0; c < C; c++) {
+                result[{r, c}] = -rhs[{r, c}];
+            }
+        }
+        return result;
+    }
+
+    [[nodiscard]]
     friend auto operator+(ref<Matrix> lhs, ref<Matrix> rhs) {
         Matrix result{};
         for (usize r = 0; r < R; r++) {
@@ -135,17 +146,33 @@ public:
             }
         }
         return result;
-    };
+    }
 
     [[nodiscard]]
-    friend Matrix operator*(ref<Matrix> lhs, T scaler) {
-        Matrix result{lhs};
+    Matrix add_scalar(T x) {
+        Matrix result{*this};
         for (usize r = 0; r < R; r++) {
             for (usize c = 0; c < C; c++) {
-                result[{r, c}] *= scaler;
+                result[{r, c}] += x;
             }
         }
         return result;
+    }
+
+    [[nodiscard]]
+    friend Matrix operator*(ref<Matrix> lhs, T scaler) {
+        Matrix result{};
+        for (usize r = 0; r < R; r++) {
+            for (usize c = 0; c < C; c++) {
+                result[{r, c}] = lhs[{r, c}]*scaler;
+            }
+        }
+        return result;
+    };
+
+    [[nodiscard]]
+    friend Matrix operator*(T scaler, ref<Matrix> rhs) {
+        return rhs * scaler;
     };
 
     void print() const {
@@ -156,6 +183,17 @@ public:
             std::cout << std::endl;
         }
         std::cout << std::endl;
+    }
+
+    [[nodiscard]]
+    INLINE Matrix mult_components(ref<Matrix> rhs) const {
+        Matrix result{*this};
+        for (usize r = 0; r < R; r++) {
+            for (usize c = 0; c < C; c++) {
+                result[{r, c}] *= rhs[{r, c}];
+            }
+        }
+        return result;
     }
 
     [[nodiscard]]
@@ -284,7 +322,7 @@ public:
         T mag = this->magnitude();
         for (usize r = 0; r < R; r++) {
             for (usize c = 0; c < C; c++) {
-                result[{r, c}] += (*this)[{r, c}] / mag;
+                result[{r, c}] = (*this)[{r, c}] / mag;
             }
         }
         return result;
