@@ -17,6 +17,56 @@ struct Renderer {
         clear(frame);
         render_scene(frame, scene);
         fragment(frame, scene, resources);
+        render_lights(frame, scene);
+    }
+
+    static void render_lights(ref_mut<FrameBuffer> frame, ref<Scene> scene) {
+        auto proj_view = scene.proj_view(frame);
+        Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
+
+        for (const auto& light : scene.m_lights) {
+            auto radius = 0.1f;
+            auto cs = proj_view*light.position.extend(1);
+            auto unit_size = cs.x()-(proj_view*(light.position.extend(1)+Vector4<f32>{radius, 0, 0, 0})).x();
+
+            if (cs.z() > cs.w()) {
+                continue;
+            }
+            if (cs.z() < -cs.w()) {
+                continue;
+            }
+            if (cs.x() < -cs.w()) {
+                continue;
+            }
+            if (cs.x() > cs.w()) {
+                continue;
+            }
+            if (cs.y() < -cs.w()) {
+                continue;
+            }
+            if (cs.y() > cs.w()) {
+                continue;
+            }
+
+            auto ps = perspective(cs);
+            auto ss = screen_space(ps, screen);
+            auto perspective_size = std::min( unit_size / cs.w(), 1.f);
+            isize size = std::max((isize)1, (isize)(perspective_size*frame.width()));
+            std::cout << size << " " << perspective_size << std::endl;
+            for (isize x = -size; x <= size; ++x) {
+                for (isize y = -size; y <= size; ++y) {
+                    if (x*x + y*y > size*size) continue;
+                    auto pos = ss.xy() + Vector2<f32>({static_cast<f32>(x), static_cast<f32>(y)});
+
+                    if (pos.x() < 0 || pos.x() > frame.width() || pos.y() < 0 || pos.y() > frame.height()) continue;
+                    Vector2<usize> pixel_cord{static_cast<usize>(pos.x()), static_cast<usize>(pos.y())};
+                    if (frame[pixel_cord].depth >= convert_depth(ps.z())) {
+                        frame[pixel_cord].diffuse = light.color;
+                    }
+                }
+            }
+        }
+
     }
 
     static void fragment(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
@@ -57,21 +107,39 @@ struct Renderer {
                 pixel.specular = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.specular);
             }
 
-            Vector3<f32> light_pos{2, 2, 0};
-            auto light_dir = -(light_pos - pixel.position).normalize();
-            auto light_power = 1.f;//1.f/(light_pos - pixel.position).magnitude_squared() * 500.0f;
-            auto view_dir = (scene.m_camera.position - pixel.position).normalize();
-            auto reflect_dir = light_dir - 2.0f * pixel.normal.dot(light_dir) * pixel.normal;
+            Vector3<f32> specular_light{};
+            Vector3<f32> diffuse_light{};
+            for (const auto& light: scene.m_lights) {
+                auto light_dir = light.position-pixel.position;
+                auto distance_squared = light_dir.magnitude_squared();
+                light_dir = light_dir.normalize();
 
-            auto specular_scale = std::powf(std::max(0.f, view_dir.dot(reflect_dir)), pixel.shininess);
-            auto diffuse_scale = std::max(0.f, pixel.normal.dot(-light_dir));
-            auto ambient_color = 0.1f;
+                auto lambertian = std::max(0.f, light_dir.dot(pixel.normal));
+
+                auto light_power = light.intensity/distance_squared;
+                // light_power = std::min(light_power, 1.2f);
+
+                if (lambertian > 0.0) {
+                    auto view_dir = (scene.m_camera.position-pixel.position).normalize();
+                    auto half_dir = (light_dir + view_dir).normalize();
+
+                    auto specular = std::powf(std::max(0.f, half_dir.dot(pixel.normal)), pixel.shininess);
+
+                    specular_light = specular_light+light.color*light_power
+                        +pixel.specular.mult_components(light.color)*specular*light_power;
+
+                }
+
+                diffuse_light = diffuse_light+light.color*lambertian*light_power;
+            }
+
+
+            auto ambient_color = 0.0f;
 
             auto color =
-                pixel.ambient * ambient_color * light_power
-                + pixel.diffuse * diffuse_scale * light_power
-            + (pixel.diffuse.mult_components(pixel.specular * specular_scale))
-            ;
+                pixel.ambient * ambient_color
+                + pixel.diffuse.mult_components(diffuse_light)
+                + (pixel.diffuse.mult_components(pixel.specular.mult_components(specular_light)));
 
             pixel.diffuse = color;
         }
@@ -238,11 +306,6 @@ struct Renderer {
             );
             t2 = g2[0];
             bt2 = g2[1];
-
-            n0.print();
-            t0.print();
-            bt0.print();
-
         }
 
 
@@ -304,12 +367,12 @@ struct Renderer {
         }
     }
 
-    INLINE static Vector4<f32> perspective(ref<Vector4<f32>> ps) {
+    INLINE static Vector4<f32> perspective(ref<Vector4<f32>> cs) {
         return {
-            ps.x() / ps.w(),
-            ps.y() / ps.w(),
-            ps.z() / ps.w(),
-            ps.w(),
+            cs.x() / cs.w(),
+            cs.y() / cs.w(),
+            cs.z() / cs.w(),
+            cs.w(),
        };
     }
 

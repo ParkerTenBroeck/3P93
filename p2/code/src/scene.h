@@ -11,14 +11,14 @@
 
 class Camera {
 public:
-    Vector3<f32> target{0, 0, 1};
+    Vector3<f32> target{0, 0, 0};
     Vector3<f32> position{0, 0, 0};
     f32 fov{M_PI/3};
     f32 zoom{1};
 
     [[nodiscard]]
     Matrix4<f32> view() const {
-        return Matrix4<f32>::look_at(this->position, this->position+this->target, {0, 1, 0});
+        return Matrix4<f32>::look_at(this->position, this->target, {0, 1, 0});
     }
 };
 
@@ -28,9 +28,17 @@ class ObjectId {
     explicit ObjectId(const usize idx) : idx(idx) {}
 };
 
+class Light {
+public:
+    Vector3<f32> position;
+    Vector3<f32> color{1, 1, 1};
+    f32 intensity{1.f};
+};
+
 class Scene {
     std::vector<Object> m_objects{};
 public:
+    std::vector<Light> m_lights{};
     Camera m_camera{};
 
     ObjectId add_object(Object&& obj) {
