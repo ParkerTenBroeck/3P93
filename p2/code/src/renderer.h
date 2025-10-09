@@ -62,7 +62,7 @@ struct Renderer {
             auto ps = perspective(cs);
             auto ss = screen_space(ps, screen);
             auto perspective_size = std::min( unit_size / cs.w(), 1.f);
-            isize size = std::max((isize)1, (isize)(perspective_size*frame.width()));
+            isize size = std::max(static_cast<isize>(1), static_cast<isize>(perspective_size * frame.width()));
             std::cout << size << " " << perspective_size << std::endl;
             for (isize x = -size; x <= size; ++x) {
                 for (isize y = -size; y <= size; ++y) {

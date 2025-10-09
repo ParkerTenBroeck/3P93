@@ -22,43 +22,16 @@ macro(compile_options target_name)
         target_compile_options(${target_name} PUBLIC -fuse-ld=mold)
     endif ()
 
-    target_compile_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=gnu++17 -lstdc++exp)
-    target_link_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=gnu++17 -lstdc++exp)
+    target_compile_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -mcpu=native -mtune=native -std=gnu++17 -lstdc++exp)
+    target_link_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -mcpu=native -mtune=native -std=gnu++17 -lstdc++exp)
     sanitizers(${target_name})
 endmacro()
-
-
-#macro(blt_add_project name source type)
-#
-#    project(${name}-${type})
-#
-#    add_executable(${name}-${type} ${source})
-#
-#    target_link_libraries(${name}-${type} PRIVATE BLT blt-gp Threads::Threads)
-#
-#    compile_options(${name}-${type})
-#    target_compile_definitions(${name}-${type} PRIVATE BLT_DEBUG_LEVEL=${DEBUG_LEVEL})
-#
-#    if (${TRACK_ALLOCATIONS})
-#        target_compile_definitions(${name}-${type} PRIVATE BLT_TRACK_ALLOCATIONS=1)
-#    endif ()
-#
-#    add_test(NAME ${name} COMMAND ${name}-${type})
-#
-#    set_property(TEST ${name} PROPERTY FAIL_REGULAR_EXPRESSION "FAIL;ERROR;FATAL;exception")
-#
-#    project(blt-learn)
-#endmacro()
 
 project(rasterizer VERSION 0.0.1)
 
 option(ENABLE_ADDRSAN "Enable the address sanitizer" OFF)
 option(ENABLE_UBSAN "Enable the ub sanitizer" OFF)
 option(ENABLE_TSAN "Enable the thread data race sanitizer" OFF)
-#option(BUILD_BLT_LEARN_EXAMPLES "Build example programs. This will build with CTest" OFF)
-#option(BUILD_BLT_LEARN_TESTS "Build test programs. This will build with CTest" OFF)
-
-#add_subdirectory(lib/blt-with-graphics)
 
 include_directories(include/)
 
@@ -76,10 +49,3 @@ set_property(TARGET rasterizer PROPERTY CXX_STANDARD 17)
 
 target_include_directories(rasterizer PRIVATE include)
 compile_options(rasterizer)
-
-#target_link_libraries(rasterizer PRIVATE BLT_WITH_GRAPHICS)
-
-#if (${BUILD_BLT_LEARN_EXAMPLES})
-#endif()
-#if (BUILD_BLT_LEARN_TESTS)
-#endif()
