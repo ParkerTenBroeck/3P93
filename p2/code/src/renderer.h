@@ -143,8 +143,8 @@ struct Renderer {
 
             auto color =
                 pixel.ambient * ambient_color
-                + diffuse_light
-                + specular_light;
+                + pixel.diffuse.mult_components(diffuse_light)
+                + pixel.ambient.mult_components(specular_light);
 
             pixel.diffuse = color;
         }
