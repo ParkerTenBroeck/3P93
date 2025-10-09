@@ -23,6 +23,11 @@ class Game {
         scene.m_lights.emplace_back(Light{});
         scene.m_lights.emplace_back(Light{});
         scene.m_lights.emplace_back(Light{});
+        scene.m_lights.emplace_back(Light{});
+        scene.m_lights[3].position_or_direction = {-1,1,-1};
+        scene.m_lights[3].color = {1,1,1};
+        scene.m_lights[3].global = true;
+        scene.m_lights[3].intensity = 0.1;
 
         scene.m_camera.target = {0, 0, 0};
 
@@ -47,14 +52,14 @@ class Game {
         scene.m_lights[1].intensity = 40;
         scene.m_lights[2].intensity = 40;
 
-        scene.m_lights[0].position.x() = static_cast<f32>(std::sin(time / max_time * M_PI * 2))*3;
-        scene.m_lights[0].position.z() = static_cast<f32>(std::cos(time / max_time * M_PI * 2))*-3;
+        scene.m_lights[0].position_or_direction.x() = static_cast<f32>(std::sin(time / max_time * M_PI * 2))*3;
+        scene.m_lights[0].position_or_direction.z() = static_cast<f32>(std::cos(time / max_time * M_PI * 2))*-3;
 
-        scene.m_lights[1].position.y() = static_cast<f32>(std::sin(time*2 / max_time * M_PI * 2))*3;
-        scene.m_lights[1].position.z() = static_cast<f32>(std::cos(time*2 / max_time * M_PI * 2))*-3;
+        scene.m_lights[1].position_or_direction.y() = static_cast<f32>(std::sin(time*2 / max_time * M_PI * 2))*3;
+        scene.m_lights[1].position_or_direction.z() = static_cast<f32>(std::cos(time*2 / max_time * M_PI * 2))*-3;
 
-        scene.m_lights[2].position.y() = static_cast<f32>(std::sin(time*3 / max_time * M_PI * 2))*3;
-        scene.m_lights[2].position.x() = static_cast<f32>(std::cos(time*3 / max_time * M_PI * 2))*-3;
+        scene.m_lights[2].position_or_direction.y() = static_cast<f32>(std::sin(time*3 / max_time * M_PI * 2))*3;
+        scene.m_lights[2].position_or_direction.x() = static_cast<f32>(std::cos(time*3 / max_time * M_PI * 2))*-3;
 
     }
 

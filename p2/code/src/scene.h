@@ -30,9 +30,10 @@ class ObjectId {
 
 class Light {
 public:
-    Vector3<f32> position;
+    Vector3<f32> position_or_direction{0,0,0};
     Vector3<f32> color{1, 1, 1};
     f32 intensity{1.f};
+    bool global{false};
 };
 
 class Scene {

@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 #include <variant>
+#include <algorithm>
 
 #include <tiny_obj_loader.h>
 
@@ -157,6 +158,12 @@ public:
                 }
             }
         }
+
+        meshes.erase(std::remove_if(meshes.begin(), meshes.end(), [](const auto& mesh) {
+            if (mesh.m_faces.empty()) return true;
+            std::cout << "Mesh " << mesh.name << " loaded with " << mesh.m_faces.size() << " faces" << "\n";
+            return false;
+        }), meshes.end());
 
         if (meshes.empty()) {
             std::cout << "Failed to load OBJ file: " << path << std::endl;

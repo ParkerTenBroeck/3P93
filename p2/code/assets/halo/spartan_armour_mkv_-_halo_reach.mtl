@@ -1,0 +1,162 @@
+# MTL file - created by a modified js OBJExporter
+
+newmtl lambert2
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pr 1
+Pds 1
+Pl 1
+Ka 1 1 1
+Ks 1 1 1
+Kd 0.4163490854 0.4163490854 0.4163490854
+Ke 0 0 0
+map_Kd lambert2.png
+map_Ps metalnessMap1.png
+map_Pr metalnessMap1.png
+map_Bump normalMap1.png
+Ns 128.0
+
+newmtl Spartan_Ear_Mat
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pm 1
+Pr 1
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+Ke 0 0 0
+map_Kd Spartan_Ear_Mat.png
+map_Ps metalnessMap2.png
+map_Pr metalnessMap2.png
+map_Bump normalMap2.png
+map_Ka metalnessMap2.png
+Ns 128.0
+
+newmtl Spartan_Helmet_Mat
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pm 1
+Pr 1
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+Ke 0 0 0
+map_Kd Spartan_Helmet_Mat.png
+map_Ps metalnessMap3.png
+map_Pr metalnessMap3.png
+map_Bump normalMap3.png
+map_Ka metalnessMap3.png
+Ns 128.0
+
+newmtl Spartan_Chest_Mat
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pm 1
+Pr 1
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+Ke 0 0 0
+map_Kd Spartan_Chest_Mat.png
+map_Ps metalnessMap4.png
+map_Pr metalnessMap4.png
+map_Bump normalMap4.png
+map_Ka metalnessMap4.png
+Ns 128.0
+
+newmtl Spartan_Arms_Mat
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pm 1
+Pr 1
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+Ke 0 0 0
+map_Kd Spartan_Arms_Mat.png
+map_Ps metalnessMap5.png
+map_Pr metalnessMap5.png
+map_Bump normalMap5.png
+map_Ka metalnessMap5.png
+Ns 128.0
+
+newmtl Spartan_Legs_Mat
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pm 1
+Pr 1
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+Ke 0 0 0
+map_Kd Spartan_Legs_Mat.png
+map_Ps metalnessMap6.png
+map_Pr metalnessMap6.png
+map_Bump normalMap6.png
+map_Ka metalnessMap6.png
+Ns 128.0
+
+newmtl Spartan_Shoulders_Mat
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pm 1
+Pr 1
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+Ke 0 0 0
+map_Kd Spartan_Shoulders_Mat.png
+map_Ps metalnessMap7.png
+map_Pr metalnessMap7.png
+map_Bump normalMap7.png
+map_Ka metalnessMap7.png
+Ns 128.0
+
+newmtl lambert1
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pr 0.3370807927
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 0 0.0517662898 0.00347079
+Ke 0.075240467 0.611686772 0.294227766
+
+newmtl Spartan_Undersuit_Mat
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000
+illum 1
+Pm 1
+Pr 1
+Pds 1
+Pl 1
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+Ke 0 0 0
+map_Kd Spartan_Undersuit_Mat.png
+map_Ps metalnessMap9.png
+map_Pr metalnessMap9.png
+map_Bump normalMap9.png
+map_Ka metalnessMap9.png
+Ns 128.0

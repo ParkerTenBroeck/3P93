@@ -37,8 +37,8 @@ struct Renderer {
 
         for (const auto& light : scene.m_lights) {
             auto radius = 0.1f;
-            auto cs = proj_view*light.position.extend(1);
-            auto unit_size = cs.x()-(proj_view*(light.position.extend(1)+Vector4<f32>{radius, 0, 0, 0})).x();
+            auto cs = proj_view*light.position_or_direction.extend(1);
+            auto unit_size = cs.x()-(proj_view*(light.position_or_direction.extend(1)+Vector4<f32>{radius, 0, 0, 0})).x();
 
             if (cs.z() > cs.w()) {
                 continue;
@@ -116,9 +116,16 @@ struct Renderer {
             Vector3<f32> specular_light{};
             Vector3<f32> diffuse_light{};
             for (const auto& light: scene.m_lights) {
-                auto light_dir = light.position-pixel.position;
-                auto distance_squared = light_dir.magnitude_squared();
-                light_dir = light_dir.normalize();
+                Vector3<f32> light_dir;
+                f32 distance_squared;
+                if (light.global) {
+                    distance_squared = 1;
+                    light_dir = light.position_or_direction;
+                }else {
+                    light_dir = light.position_or_direction-pixel.position;
+                    distance_squared = light_dir.magnitude_squared();
+                    light_dir = light_dir.normalize();
+                }
 
                 auto lambertian = std::max(0.f, light_dir.dot(pixel.normal));
 
@@ -139,10 +146,10 @@ struct Renderer {
             }
 
 
-            auto ambient_color = 0.0f;
+            auto ambient_color = 0.1f;
 
             auto color =
-                pixel.ambient * ambient_color
+                pixel.ambient.mult_components(pixel.diffuse) * ambient_color
                 + pixel.diffuse.mult_components(diffuse_light)
                 + pixel.ambient.mult_components(specular_light);
 
