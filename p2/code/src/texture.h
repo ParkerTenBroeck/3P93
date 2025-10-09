@@ -121,11 +121,11 @@ public:
     [[nodiscard]]
     INLINE ref<Vector4<f32>> resolve_uv_wrapping(ref<Vector2<f32>> uv) const {
         const auto x = euclidean_remainder(
-            static_cast<isize>(std::round(uv.x() * static_cast<f32>(this->width()))),
+            static_cast<isize>(uv.x() * static_cast<f32>(this->width())),
             static_cast<isize>(this->width())
             );
         const auto y = euclidean_remainder(
-            static_cast<isize>(this->height())-static_cast<isize>(std::round(uv.y() * static_cast<f32>(this->height()))),
+            static_cast<isize>(uv.y() * static_cast<f32>(this->height())),
             static_cast<isize>(this->height())
             );
         return this->m_pixels[x+y*this->width()];

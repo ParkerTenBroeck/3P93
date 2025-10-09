@@ -90,7 +90,7 @@ public:
 
     template<usize P>
     [[nodiscard]]
-    friend auto operator*(ref<Matrix> m1, ref<Matrix<T, C, P>> m2) {
+    INLINE friend auto operator*(ref<Matrix> m1, ref<Matrix<T, C, P>> m2) {
         Matrix<T, R, P> result{};
         for (usize r = 0; r < R; r++) {
             for (usize p = 0; p < P; p++) {
@@ -104,19 +104,19 @@ public:
     }
 
     [[nodiscard]]
-    friend auto operator-(ref<Matrix> lhs, ref<Matrix> rhs) {
-        Matrix result{};
+    INLINE friend auto operator-(ref<Matrix> lhs, ref<Matrix> rhs) {
+        Matrix result;
         for (usize r = 0; r < R; r++) {
             for (usize c = 0; c < C; c++) {
-                result[{r, c}] += lhs[{r, c}] - rhs[{r, c}];
+                result[{r, c}] = lhs[{r, c}] - rhs[{r, c}];
             }
         }
         return result;
     }
 
     [[nodiscard]]
-    friend auto operator-(ref<Matrix> rhs) {
-        Matrix result{};
+    INLINE friend auto operator-(ref<Matrix> rhs) {
+        Matrix result;
         for (usize r = 0; r < R; r++) {
             for (usize c = 0; c < C; c++) {
                 result[{r, c}] = -rhs[{r, c}];
@@ -126,11 +126,11 @@ public:
     }
 
     [[nodiscard]]
-    friend auto operator+(ref<Matrix> lhs, ref<Matrix> rhs) {
-        Matrix result{};
-        for (usize r = 0; r < R; r++) {
-            for (usize c = 0; c < C; c++) {
-                result[{r, c}] += lhs[{r, c}] + rhs[{r, c}];
+    INLINE friend auto operator+(ref<Matrix> lhs, ref<Matrix> rhs) {
+        Matrix result;
+        for (usize c = 0; c < C; c++) {
+            for (usize r = 0; r < R; r++) {
+                result[{r, c}] = lhs[{r, c}] + rhs[{r, c}];
             }
         }
         return result;
@@ -138,33 +138,33 @@ public:
 
 
     [[nodiscard]]
-    friend Matrix operator/(ref<Matrix> lhs, T scaler) {
-        Matrix result{lhs};
-        for (usize r = 0; r < R; r++) {
-            for (usize c = 0; c < C; c++) {
-                result[{r, c}] /= scaler;
+    INLINE friend Matrix operator/(ref<Matrix> lhs, T scaler) {
+        Matrix result;
+        for (usize c = 0; c < C; c++) {
+            for (usize r = 0; r < R; r++) {
+                result[{r, c}] = lhs[{r, c}] / scaler;
             }
         }
         return result;
     }
 
     [[nodiscard]]
-    Matrix add_scalar(T x) {
-        Matrix result{*this};
-        for (usize r = 0; r < R; r++) {
-            for (usize c = 0; c < C; c++) {
-                result[{r, c}] += x;
+    INLINE Matrix add_scalar(T x) const {
+        Matrix result;
+        for (usize c = 0; c < C; c++) {
+            for (usize r = 0; r < R; r++) {
+                result[{r, c}] = (*this)[{r, c}] + x;
             }
         }
         return result;
     }
 
     [[nodiscard]]
-    friend Matrix operator*(ref<Matrix> lhs, T scaler) {
-        Matrix result{};
-        for (usize r = 0; r < R; r++) {
-            for (usize c = 0; c < C; c++) {
-                result[{r, c}] = lhs[{r, c}]*scaler;
+    friend auto operator*(ref<Matrix> lhs, T scaler) -> Matrix {
+        Matrix result;
+        for (usize c = 0; c < C; c++) {
+            for (usize r = 0; r < R; r++) {
+                result[{r, c}] = lhs[{r, c}] * scaler;
             }
         }
         return result;
@@ -187,10 +187,10 @@ public:
 
     [[nodiscard]]
     INLINE Matrix mult_components(ref<Matrix> rhs) const {
-        Matrix result{*this};
+        Matrix result;
         for (usize r = 0; r < R; r++) {
             for (usize c = 0; c < C; c++) {
-                result[{r, c}] *= rhs[{r, c}];
+                result[{r, c}] = (*this)[{r, c}] * rhs[{r, c}];
             }
         }
         return result;
@@ -217,7 +217,7 @@ public:
 
     [[nodiscard]]
     Matrix<T, C, R> transpose() const {
-        Matrix<T, C, R> result{};
+        Matrix<T, C, R> result;
         for (usize r = 0; r < R; r++) {
             for (usize c = 0; c < C; c++) {
                 result[{c, r}] = (*this)[{r, c}];
@@ -227,7 +227,7 @@ public:
     }
 
     [[nodiscard]]
-    static Matrix4<T> perspective(T near, T far, T aspect, T fov) {
+    static Matrix4<T> projection(T near, T far, T aspect, T fov) {
         return {
             1/(aspect*std::tan(fov/2)), 0, 0, 0,
             0, 1/std::tan(fov/2), 0, 0,
@@ -240,13 +240,13 @@ public:
     static Matrix4<T> look_at(Vector3<T> pos, Vector3<T> target, Vector3<T> up) {
 
         auto forward = (target-pos).normalize();
-        auto side = forward.cross(up).normalize();
-        up = side.cross(forward).normalize();
+        auto right = forward.cross(up).normalize();
+        up = right.cross(forward).normalize();
         return Matrix4<f32>({
-            side.x(), up.x(), -forward.x(), 0,
-            side.y(), up.y(), -forward.y(), 0,
-            side.z(), up.z(), -forward.z(), 0,
-            side.dot(pos), up.dot(pos), forward.dot(pos), 1
+            right.x(), up.x(), -forward.x(), 0,
+            right.y(), up.y(), -forward.y(), 0,
+            right.z(), up.z(), -forward.z(), 0,
+            right.dot(pos), up.dot(pos), forward.dot(pos), 1
         }).transpose();
     }
 
@@ -313,10 +313,10 @@ public:
     [[nodiscard]]
     Matrix normalize() const {
         Matrix result{};
-        T mag = this->magnitude();
+        T mag = 1./this->magnitude();
         for (usize r = 0; r < R; r++) {
             for (usize c = 0; c < C; c++) {
-                result[{r, c}] = (*this)[{r, c}] / mag;
+                result[{r, c}] = (*this)[{r, c}] * mag;
             }
         }
         return result;

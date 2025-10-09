@@ -10,6 +10,17 @@
 
 #include <variant>
 #include <algorithm>
+#include <cmath>
+
+INLINE inline f32 power(f32 base, i32 exp) {
+    f32 res = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) res *= base;
+        base *= base;
+        exp /= 2;
+    }
+    return res;
+}
 
 struct Renderer {
 
@@ -80,18 +91,13 @@ struct Renderer {
                 pixel.normal = pixel.normal.normalize();
                 pixel.tangent = pixel.tangent.normalize();
                 pixel.bitangent = pixel.bitangent.normalize();
-                Matrix3<f32> tbn{
-                    pixel.tangent.x(),
-                    pixel.bitangent.x(),
-                    pixel.normal.x(),
-                    pixel.tangent.y(),
-                    pixel.bitangent.y(),
-                    pixel.normal.y(),
-                    pixel.tangent.z(),
-                    pixel.bitangent.z(),
-                    pixel.normal.z(),
+                Matrix4<f32> tbn{
+                    pixel.tangent.x(), pixel.bitangent.x(), pixel.normal.x(), 0,
+                    pixel.tangent.y(), pixel.bitangent.y(), pixel.normal.y(), 0,
+                    pixel.tangent.z(), pixel.bitangent.z(), pixel.normal.z(), 0,
+                    0, 0, 0, 1
                 };
-                pixel.normal = tbn * n;
+                pixel.normal = (tbn * n.extend(1.)).xyz();
             }
             pixel.normal = pixel.normal.normalize();
 
@@ -123,14 +129,13 @@ struct Renderer {
                     auto view_dir = (scene.m_camera.position-pixel.position).normalize();
                     auto half_dir = (light_dir + view_dir).normalize();
 
-                    auto specular = std::powf(std::max(0.f, half_dir.dot(pixel.normal)), pixel.shininess);
+                    auto specular = power(std::max(0.f, half_dir.dot(pixel.normal)), pixel.shininess);
 
-                    specular_light = specular_light+light.color*light_power
-                        +pixel.specular.mult_components(light.color)*specular*light_power;
+                    specular_light = specular_light+light.color*(specular*light_power);
 
                 }
 
-                diffuse_light = diffuse_light+light.color*lambertian*light_power;
+                diffuse_light = diffuse_light+light.color*(lambertian*light_power);
             }
 
 
@@ -138,8 +143,8 @@ struct Renderer {
 
             auto color =
                 pixel.ambient * ambient_color
-                + pixel.diffuse.mult_components(diffuse_light)
-                + (pixel.diffuse.mult_components(pixel.specular.mult_components(specular_light)));
+                + diffuse_light
+                + specular_light;
 
             pixel.diffuse = color;
         }
@@ -333,7 +338,7 @@ struct Renderer {
             draw_triangle_filled_textured(
                frame,
                {ss0, ss1, ss2},
-                {ws[0].xyz(), ws[1].xyz(), ws[2].xyz()},
+                {ws[0].xyz()/w0, ws[1].xyz()/w1, ws[2].xyz()/w2},
                 {n0, n1, n2},
                 {t0, t1, t2},
             {bt0, bt1, bt2},
@@ -350,11 +355,11 @@ struct Renderer {
             draw_triangle_filled_textured_deferred(
                frame,
                {ss0, ss1, ss2},
-               {ws[0].xyz(), ws[1].xyz(), ws[2].xyz()},
-               {n0, n1, n2},
-               {t0, t1, t2},
-               {bt0, bt1, bt2},
-               {uv0, uv1, uv2},
+                {ws[0]/w0, ws[1]/w1, ws[2]/w2},
+               {n0.extend(0), n1.extend(0), n2.extend(0)},
+               {t0.extend(0), t1.extend(0), t2.extend(0)},
+               {bt0.extend(0), bt1.extend(0), bt2.extend(0)},
+               {uv0.extend(0), uv1.extend(0), uv2.extend(0)},
                material.ambient,
                material.diffuse,
                material.specular,
@@ -410,22 +415,22 @@ struct Renderer {
         bitangent.z() = f * (-delta_uv2.x() * edge1.z() + delta_uv1.x() * edge2.z());
 
         return {
-            (tangent)  / w,
-            (bitangent) / w
+            (normal_matrix * tangent)  / w,
+            (normal_matrix * bitangent) / w
         };
     }
 
     INLINE static void draw_triangle_filled_textured(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
-            std::array<Vector3<f32>, 3> ps,
+            std::array<Vector3<f32>, 3> pws,
             std::array<Vector3<f32>, 3> n,
             std::array<Vector3<f32>, 3> t,
             std::array<Vector3<f32>, 3> bt,
             std::array<Vector3<f32>, 3> uv,
             Vector3<f32> ambient,
             Vector3<f32> specular,
-            f32 shininess,
+            u32 shininess,
             TextureId ambient_map,
             ref<Texture> diffuse_map,
             TextureId specular_map,
@@ -457,7 +462,7 @@ struct Renderer {
             pixel.normal = (n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w;
             pixel.tangent = (t[0] * w0 + t[1] * w1 + t[2] * w2)/frac_1_w;
             pixel.bitangent = (bt[0] * w0 + bt[1] * w1 + bt[2] * w2)/frac_1_w;
-            pixel.position = (ps[0] * w0 + ps[1] * w1 + ps[2] * w2);
+            pixel.position = (pws[0] * w0 + pws[1] * w1 + pws[2] * w2)/frac_1_w;
             pixel.normal_map = normal_map;
             pixel.depth = convert_depth(depth);
             frame[pix].set_smaller_depth(pixel);
@@ -468,20 +473,37 @@ struct Renderer {
     INLINE static void draw_triangle_filled_textured_deferred(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
-            std::array<Vector3<f32>, 3> ps,
-            std::array<Vector3<f32>, 3> n,
-            std::array<Vector3<f32>, 3> t,
-            std::array<Vector3<f32>, 3> bt,
-            std::array<Vector3<f32>, 3> uv,
+            std::array<Vector4<f32>, 3> pws,
+            std::array<Vector4<f32>, 3> n,
+            std::array<Vector4<f32>, 3> t,
+            std::array<Vector4<f32>, 3> bt,
+            std::array<Vector4<f32>, 3> uv,
             Vector3<f32> ambient,
             Vector3<f32> diffuse,
             Vector3<f32> specular,
-            f32 shininess,
+            u32 shininess,
             TextureId ambient_map,
             TextureId diffuse_map,
             TextureId specular_map,
             TextureId normal_map
         ) {
+
+        // black_box(frame);
+        // black_box(ss);
+        // black_box(ps);
+        // black_box(n);
+        // black_box(t);
+        // black_box(bt);
+        // black_box(uv);
+        // black_box(ambient);
+        // black_box(diffuse);
+        // black_box(specular);
+        // black_box(shininess);
+        // black_box(ambient_map);
+        // black_box(diffuse_map);
+        // black_box(specular_map);
+        // black_box(normal_map);
+        // return;
 
         rasterize_triangle(frame, ss, [=, &frame](auto pix, auto w0, auto w1, auto w2) {
 
@@ -502,10 +524,10 @@ struct Renderer {
             pixel.specular_map = specular_map;
             pixel.shininess = shininess;
             pixel.uv = pix_uv.xy();
-            pixel.normal = (n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w;
-            pixel.tangent = (t[0] * w0 + t[1] * w1 + t[2] * w2)/frac_1_w;
-            pixel.bitangent = (bt[0] * w0 + bt[1] * w1 + bt[2] * w2)/frac_1_w;
-            pixel.position = (ps[0] * w0 + ps[1] * w1 + ps[2] * w2);
+            pixel.normal = ((n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w).xyz();
+            pixel.tangent = ((t[0] * w0 + t[1] * w1 + t[2] * w2)/frac_1_w).xyz();
+            pixel.bitangent = ((bt[0] * w0 + bt[1] * w1 + bt[2] * w2)/frac_1_w).xyz();
+            pixel.position = ((pws[0] * w0 + pws[1] * w1 + pws[2] * w2)/frac_1_w).xyz();
             pixel.normal_map = normal_map;
             pixel.depth = convert_depth(depth);
             frame[pix].set_smaller_depth(pixel);
@@ -515,6 +537,14 @@ struct Renderer {
 
     INLINE static u32 convert_depth(f32 depth) {
         return static_cast<u32>(depth * static_cast<f32>(0xFFFFFFFEull));
+    }
+
+    template <typename T>
+    __attribute__ ((noinline)) static void black_box(T& val)
+    {
+        static volatile void* hell;
+        hell = (void*) &val;
+        (void) hell;
     }
 
     template<typename Func>
@@ -544,8 +574,8 @@ struct Renderer {
                 auto w2 = 1.0f - w0 - w1;
 
                 if (w0 >= 0.0 && w1 >= 0.0 && w2 >= 0.0) {
-                    Vector2<usize> pix_coord{static_cast<usize>(x), static_cast<usize>(y)};
-                    func(pix_coord, w0, w1, w2);
+                    Vector2<usize> pix{static_cast<usize>(x), static_cast<usize>(y)};
+                    func(pix, w0, w1, w2);
                 }
             }
         }

@@ -30,7 +30,7 @@ public:
     Vector3<f32> ambient;
     Vector3<f32> diffuse;
     Vector3<f32> specular;
-    f32 shininess{0};
+    u32 shininess{0};
     std::optional<std::shared_ptr<const Texture>> ambient_map;
     std::optional<std::shared_ptr<const Texture>> diffuse_map;
     std::optional<std::shared_ptr<const Texture>> specular_map;
@@ -104,7 +104,7 @@ public:
                 {mat.ambient[0], mat.ambient[1], mat.ambient[2]},
                 {mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]},
                 {mat.specular[0], mat.specular[1], mat.specular[2]},
-                mat.shininess,
+                static_cast<u32>(mat.shininess),
                 ambient,
                 diffuse,
                 specular,
@@ -141,9 +141,9 @@ public:
                     Vector3<f32>{attrib.normals[3*i2.normal_index], attrib.normals[3*i2.normal_index+1], attrib.normals[3*i2.normal_index+2]}
                 };
                 std::array<Vector2<f32>, 3> uvs{
-                    Vector2<f32>{attrib.texcoords[2*i0.texcoord_index], attrib.texcoords[2*i0.texcoord_index+1]},
-                    Vector2<f32>{attrib.texcoords[2*i1.texcoord_index], attrib.texcoords[2*i1.texcoord_index+1]},
-                    Vector2<f32>{attrib.texcoords[2*i2.texcoord_index], attrib.texcoords[2*i2.texcoord_index+1]}
+                    Vector2<f32>{attrib.texcoords[2*i0.texcoord_index], 1.f-attrib.texcoords[2*i0.texcoord_index+1]},
+                    Vector2<f32>{attrib.texcoords[2*i1.texcoord_index], 1.f-attrib.texcoords[2*i1.texcoord_index+1]},
+                    Vector2<f32>{attrib.texcoords[2*i2.texcoord_index], 1.f-attrib.texcoords[2*i2.texcoord_index+1]}
                 };
                 auto idx = mesh.mesh.material_ids[i/3]+1;
 

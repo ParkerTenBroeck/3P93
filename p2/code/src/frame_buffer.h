@@ -22,7 +22,7 @@ struct Pixel {
     TextureId specular_map;
     TextureId normal_map;
 
-    f32 shininess{};
+    i32 shininess{};
 
     Vector2<f32> uv;
 

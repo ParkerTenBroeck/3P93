@@ -82,23 +82,114 @@
 
 \newpage
 
-\section{Group Members}
-Parker TenBroeck 7376726\\
-pt21zs@brocku.ca
+\section{Intro}
 
-%
-\section{Topics}
+\section{Algorithm Overview}
 
-In order from most wanted to least wanted.
+\subsection{Projection}
+\begin{gather}\begin{align}
+	&fov = \text{the field of view for our camera} \notag\\
+	&far = \text{the farthest point our camera can see} \notag\\
+	&near = \text{the closest point our camera can see} \notag\\
+	&M_{projection} = 
+	\begin{bmatrix} 
+		\frac{1}{aspect*\tan(\frac{fov}2)}&0&0&0\\
+		0&\frac{1}{\tan(\frac{fov}2)}&0&0\\
+		0&0&-\frac{far+near}{far-near}&-\frac{2\times far \times near}{far-near}\\
+		0&0&-1&0
+	\end{bmatrix}
+\end{align}\end{gather}
 
-\begin{enumerate}
-\item Graphics / Visualization - Ray Tracing
-\item Graphics / Visualization - Rendering of triangle meshesD
-\end{enumerate}
+
+\subsection{View}
+\begin{gather}\begin{align}
+	&P_{target} = \text{Where the camera is looking} \notag\\
+	&P_{eye} = \text{Where the camera is} \notag\\
+	&\overrightarrow{V_{world\hspace{0.2em}up}} = \text{the up direction of the world }\left\langle \begin{matrix}0&1&0\end{matrix} \right\rangle \notag\\
+	&\overrightarrow{V_{cam\hspace{0.2em}forward}} = \left\langle P_{target}-P_{eye} \right\rangle \notag\\
+	&\overrightarrow{V_{cam\hspace{0.2em}right}} = \left\langle \overrightarrow{V_{cam\hspace{0.2em}forward}}\times  \overrightarrow{V_{world\hspace{0.2em}up}}\right\rangle \notag\\
+	&\overrightarrow{V_{cam\hspace{0.2em}up}} = \left\langle \overrightarrow{V_{cam\hspace{0.2em}right}}\times  \overrightarrow{V_{cam\hspace{0.2em}forward}}\right\rangle \notag\\
+	&M_{view}= 
+	\begin{bmatrix}
+		\overrightarrow{V_{cam\hspace{0.2em}right}}_x&\overrightarrow{V_{cam\hspace{0.2em}right}}_y&\overrightarrow{V_{cam\hspace{0.2em}right}}_z&\overrightarrow{V_{cam\hspace{0.2em}right}}\cdot P_{eye}\\
+		\overrightarrow{V_{cam\hspace{0.2em}up}}_x&\overrightarrow{V_{cam\hspace{0.2em}up}}_y&\overrightarrow{V_{cam\hspace{0.2em}up}}_z&\overrightarrow{V_{cam\hspace{0.2em}up}}\cdot P_{eye}\\
+		-\overrightarrow{V_{cam\hspace{0.2em}forward}}_x&-\overrightarrow{V_{cam\hspace{0.2em}forward}}_y&-\overrightarrow{V_{cam\hspace{0.2em}forward}}_z&\overrightarrow{V_{cam\hspace{0.2em}forward}}\cdot P_{eye}\\
+		0&0&0&1
+	\end{bmatrix}
+\end{align}\end{gather}
+
+\subsection{Model}
+
+\begin{gather}\begin{align}
+		&P_{pos} = \text{world space location of the object} \notag\\
+		&\overrightarrow{V_{scale}} = \text{x, y, z scale of object} \notag\\
+		&A_{rotation} = \text{euler angles of objects rotation, raw,pitch,roll} \notag\\
+		%
+		&M_{yaw} = \begin{bmatrix}
+			\cos(yaw)&-\sin(yaw)&0\\
+			\sin(yaw)&\cos(yaw)&0\\
+			0&0&1
+		\end{bmatrix} \notag\\
+		&M_{pitch} = \begin{bmatrix}
+			\cos{pitch}&0&\sin(pitch)\\
+			0&1&0\\
+			-\sin{pitch}&0&\cos{pitch}
+		\end{bmatrix} \notag\\
+		&M_{roll} = \begin{bmatrix}
+			1&0&0\\
+			0&\cos(roll)&-\sin(roll)\\
+			0&\sin(roll)&\cos(roll)
+		\end{bmatrix} \notag\\
+		%
+		&M_{rot} = M_{yaw} \cdot M_{pitch} \cdot M_{roll} \notag \\
+		%
+		&M_{scale} = \begin{bmatrix}
+			\overrightarrow{V_{scale}}_x&0&0\\
+			0&\overrightarrow{V_{scale}}_y&0\\
+			0&0&\overrightarrow{V_{scale}}_z
+		\end{bmatrix} \notag\\
+		&M_{rot\hspace{0.2em}scale} = M_{rot}\cdot M_{scale} \notag\\
+		&M_{model} = \begin{bmatrix}
+			{M_{rot\hspace{0.2em}scale}}_{11}&{M_{rot\hspace{0.2em}scale}}_{12}&{M_{rot\hspace{0.2em}scale}}_{13}&{P_{pos}}_x\\
+			{M_{rot\hspace{0.2em}scale}}_{21}&{M_{rot\hspace{0.2em}scale}}_{22}&{M_{rot\hspace{0.2em}scale}}_{23}&{P_{pos}}_y\\
+			{M_{rot\hspace{0.2em}scale}}_{31}&{M_{rot\hspace{0.2em}scale}}_{32}&{M_{rot\hspace{0.2em}scale}}_{33}&{P_{pos}}_z\\
+			0&0&0&1
+		\end{bmatrix}
+\end{align}\end{gather}
+
+\subsection{Clip}
+
+\begin{gather}\begin{align*}
+	&V_{world} = M_{model} \cdot V_{local}\\
+	&V_{clip} = M_{projection} \cdot M_{view} \cdot M_{model} \cdot V_{local}\\
+	%
+	&M_{normal} = {{M_{model}}^{-1}}^T \\
+	&\left\langle N_{world} \right\rangle= M_{normal} \cdot \left\langle N_{local} \right\rangle\\
+\end{align*}\end{gather}
+
+\section{Paralization Opportinuty}
 
 
-%\nocite{*}
-%\bibliographystyle{IEEEtran}
-%\bibliography{references}
+
+
+
+\subsection{Per Triangle}
+
+
+
+
+\section{Libraries Used}
+
+Used \texttt{tinyobjloader}\cite{tinyobjloader} for loading and parsing OBJ and MTL files.\\
+\\
+Used \texttt{stb\_image}\cite{stb-image} for loading and parsing texture files into linear RGB.\\
+\\
+Used \texttt{stb\_image\_write}\cite{stb-image-write} for writing rendered frames to disk.
+
+
+
+\nocite{*}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
 
 \end{document}

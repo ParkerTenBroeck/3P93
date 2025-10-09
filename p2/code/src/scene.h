@@ -64,7 +64,7 @@ public:
     [[nodiscard]]
     Matrix4<f32> proj_view(ref<FrameBuffer> frame) const {
         auto aspect = static_cast<f32>(frame.width())/static_cast<f32>(frame.height());
-        return Matrix4<f32>::perspective(0.1, 500, aspect, m_camera.fov)*m_camera.view();
+        return Matrix4<f32>::projection(0.1, 500, aspect, m_camera.fov)*m_camera.view();
     };
 };
 

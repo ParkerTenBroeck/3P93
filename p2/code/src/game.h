@@ -12,9 +12,9 @@ class Game {
     public:
     ResourceStore resource_store{};
     Scene scene{};
-    // FrameBuffer frame_buffer{720, 480};
+    FrameBuffer frame_buffer{720, 480};
 
-    FrameBuffer frame_buffer{1920,1080};
+    // FrameBuffer frame_buffer{1920,1080};
     // FrameBuffer frame_buffer{4096, 2160};
     Game() {
         auto brick = scene.add_object(Object::load("../assets/brick/brick.obj", resource_store));
