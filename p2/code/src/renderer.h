@@ -36,6 +36,7 @@ struct Renderer {
         Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
 
         for (const auto& light : scene.m_lights) {
+            if (light.global) continue;
             auto radius = 0.1f;
             auto cs = proj_view*light.position_or_direction.extend(1);
             auto unit_size = cs.x()-(proj_view*(light.position_or_direction.extend(1)+Vector4<f32>{radius, 0, 0, 0})).x();
