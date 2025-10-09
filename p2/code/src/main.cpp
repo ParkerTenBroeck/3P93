@@ -32,7 +32,7 @@ int main(int argc, char** argv){
     // const auto width = 1920, height = 1080;
     // const auto width = 4096, height = 2160;
 
-    if (argc == 2) {
+    if (argc == 3) {
         width = std::stol(argv[1]);
         height = std::stol(argv[2]);
     }

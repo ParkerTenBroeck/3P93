@@ -16,7 +16,7 @@ class Game {
 
     FrameBuffer frame_buffer;
 
-    Game(FrameBuffer&& frame_buffer) : frame_buffer(frame_buffer) {
+    explicit Game(FrameBuffer&& frame_buffer) : frame_buffer(std::move(frame_buffer)) {
         auto brick = scene.add_object(Object::load("../assets/brick/brick.obj", resource_store));
         scene[brick].m_position.z() = 0;
 

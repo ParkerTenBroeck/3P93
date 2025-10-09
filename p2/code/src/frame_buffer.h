@@ -51,6 +51,10 @@ public:
         this->m_pixels = new Pixel[width * height];
     }
 
+    FrameBuffer(FrameBuffer&& other) noexcept : m_width(other.m_width), m_height(other.m_height), m_pixels(other.m_pixels) {
+        other.m_pixels = nullptr;
+    }
+
     [[nodiscard]]
     ref<Pixel> operator[] (Vector2<usize> xy) const {
         return this->m_pixels[xy[0] + xy[1]*this->m_width];
