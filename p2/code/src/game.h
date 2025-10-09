@@ -8,24 +8,15 @@
 #include "resource_store.h"
 #include "scene.h"
 
-#ifndef FRAME_WIDTH
-#define FRAME_WIDTH 720
-#endif
-
-#ifndef FRAME_HEIGHT
-#define FRAME_HEIGHT 480
-#endif
 
 class Game {
     public:
     ResourceStore resource_store{};
     Scene scene{};
 
-    FrameBuffer frame_buffer{FRAME_WIDTH, FRAME_HEIGHT};
-    // FrameBuffer frame_buffer{1920,1080};
-    // FrameBuffer frame_buffer{4096, 2160};
+    FrameBuffer frame_buffer;
 
-    Game() {
+    Game(FrameBuffer&& frame_buffer) : frame_buffer(frame_buffer) {
         auto brick = scene.add_object(Object::load("../assets/brick/brick.obj", resource_store));
         scene[brick].m_position.z() = 0;
 

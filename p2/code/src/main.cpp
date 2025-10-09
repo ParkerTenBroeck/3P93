@@ -13,9 +13,9 @@ void write_image(ref<Game> game, std::string&& path) {
     for (usize i = 0; i < game.frame_buffer.height() * game.frame_buffer.width(); i++) {
         auto color = game.frame_buffer[i].diffuse;
         // auto color = (game.frame_buffer[i].normal.normalize()*0.5).add_scalar(0.5f);
-        data[i*3] = static_cast<u8>(std::min(255.f, std::powf(color.x(), 1.f/2.2f) * 255));
-        data[i*3+1] = static_cast<u8>(std::min(255.f, std::powf(color.y(), 1.f/2.2f) * 255));
-        data[i*3+2] = static_cast<u8>(std::min(255.f, std::powf(color.z(), 1.f/2.2f) * 255));
+        data[i*3] = static_cast<u8>(std::min(255.f, std::pow(color.x(), 1.f/2.2f) * 255));
+        data[i*3+1] = static_cast<u8>(std::min(255.f, std::pow(color.y(), 1.f/2.2f) * 255));
+        data[i*3+2] = static_cast<u8>(std::min(255.f, std::pow(color.z(), 1.f/2.2f) * 255));
     }
     stbi_write_png(path.c_str(), game.frame_buffer.width(), game.frame_buffer.height(), 3, data, game.frame_buffer.width() * 3);
     delete[] data;
@@ -27,8 +27,16 @@ std::string leading(int value, int total_length) {
     return ss.str();
 }
 
-int main(){
-    Game game;
+int main(int argc, char** argv){
+    usize width = 720, height = 480;
+    // const auto width = 1920, height = 1080;
+    // const auto width = 4096, height = 2160;
+
+    if (argc == 2) {
+        width = std::stol(argv[1]);
+        height = std::stol(argv[2]);
+    }
+    Game game{FrameBuffer{width, height}};
 
 
 
