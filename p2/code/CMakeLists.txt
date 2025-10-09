@@ -48,4 +48,5 @@ add_executable(rasterizer ${PROJECT_BUILD_FILES}
 set_property(TARGET rasterizer PROPERTY CXX_STANDARD 17)
 
 target_include_directories(rasterizer PRIVATE include)
+target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
 compile_options(rasterizer)

@@ -6,7 +6,7 @@
 #include "game.h"
 
 #include <chrono>
-
+#include <iomanip>
 
 void write_image(ref<Game> game, std::string&& path) {
     auto data = new u8[game.frame_buffer.height()*game.frame_buffer.width()*3];
