@@ -37,7 +37,6 @@ struct Renderer {
 
         for (const auto& light : scene.m_lights) {
             if (light.global) continue;
-            auto radius = 0.1f;
             auto cs = proj_view*light.position_or_direction.extend(1);
 
             if (cs.z() > cs.w()) {
@@ -61,7 +60,7 @@ struct Renderer {
 
             auto ps = perspective(cs);
             auto ss = screen_space(ps, screen);
-            auto perspective_size = std::min( radius / cs.w(), 1.f);
+            auto perspective_size = std::min( light.radius / cs.w(), 1.f);
             isize size = std::max(static_cast<isize>(1), static_cast<isize>(perspective_size * frame.width()));
 
             for (isize x = -size; x <= size; ++x) {
@@ -129,13 +128,12 @@ struct Renderer {
                 }else {
                     light_dir = light.position_or_direction-pixel.position;
                     distance_squared = light_dir.magnitude_squared();
-                    light_dir = light_dir.normalize();
+                    light_dir = light_dir/distance_squared;
                 }
 
                 auto lambertian = std::max(0.f, light_dir.dot(pixel.normal));
 
                 auto light_power = light.intensity/distance_squared;
-                if (light_power < 0.01) continue;
 
                 if (lambertian > 0.0) {
                     auto view_dir = (scene.m_camera.position-pixel.position).normalize();
@@ -151,12 +149,10 @@ struct Renderer {
             }
 
 
-            auto ambient_color = 0.1f;
-
             auto color =
-                pixel.ambient.mult_components(pixel.diffuse) * ambient_color
+                pixel.ambient.mult_components(pixel.diffuse)
                 + pixel.diffuse.mult_components(diffuse_light)
-                + pixel.ambient.mult_components(specular_light);
+                + pixel.specular.mult_components(specular_light);
 
             pixel.diffuse = color;
         }
@@ -374,11 +370,11 @@ struct Renderer {
             draw_triangle_filled_textured_deferred(
                frame,
                {ss0, ss1, ss2},
-                {ws[0]/w0, ws[1]/w1, ws[2]/w2},
-               {n0.extend(0), n1.extend(0), n2.extend(0)},
-               {t0.extend(0), t1.extend(0), t2.extend(0)},
-               {bt0.extend(0), bt1.extend(0), bt2.extend(0)},
-               {uv0.extend(0), uv1.extend(0), uv2.extend(0)},
+                {ws[0].xyz()/w0, ws[1].xyz()/w1, ws[2].xyz()/w2},
+               {n0, n1, n2},
+               {t0, t1, t2},
+               {bt0, bt1, bt2},
+               {uv0, uv1, uv2},
                material.ambient,
                material.diffuse,
                material.specular,
@@ -442,7 +438,7 @@ struct Renderer {
     INLINE static void draw_triangle_filled_textured(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
-            std::array<Vector3<f32>, 3> pws,
+            std::array<Vector3<f32>, 3> ws,
             std::array<Vector3<f32>, 3> n,
             std::array<Vector3<f32>, 3> t,
             std::array<Vector3<f32>, 3> bt,
@@ -481,7 +477,7 @@ struct Renderer {
             pixel.normal = (n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w;
             pixel.tangent = (t[0] * w0 + t[1] * w1 + t[2] * w2)/frac_1_w;
             pixel.bitangent = (bt[0] * w0 + bt[1] * w1 + bt[2] * w2)/frac_1_w;
-            pixel.position = (pws[0] * w0 + pws[1] * w1 + pws[2] * w2)/frac_1_w;
+            pixel.position = (ws[0] * w0 + ws[1] * w1 + ws[2] * w2)/frac_1_w;
             pixel.normal_map = normal_map;
             pixel.depth = convert_depth(depth);
             frame[pix].set_smaller_depth(pixel);
@@ -492,11 +488,11 @@ struct Renderer {
     INLINE static void draw_triangle_filled_textured_deferred(
             ref_mut<FrameBuffer> frame,
             std::array<Vector3<f32>, 3> ss,
-            std::array<Vector4<f32>, 3> pws,
-            std::array<Vector4<f32>, 3> n,
-            std::array<Vector4<f32>, 3> t,
-            std::array<Vector4<f32>, 3> bt,
-            std::array<Vector4<f32>, 3> uv,
+            std::array<Vector3<f32>, 3> ws,
+            std::array<Vector3<f32>, 3> n,
+            std::array<Vector3<f32>, 3> t,
+            std::array<Vector3<f32>, 3> bt,
+            std::array<Vector3<f32>, 3> uv,
             Vector3<f32> ambient,
             Vector3<f32> diffuse,
             Vector3<f32> specular,
@@ -545,7 +541,7 @@ struct Renderer {
             pixel.normal = ((n[0] * w0 + n[1] * w1 + n[2] * w2)/frac_1_w).xyz();
             pixel.tangent = ((t[0] * w0 + t[1] * w1 + t[2] * w2)/frac_1_w).xyz();
             pixel.bitangent = ((bt[0] * w0 + bt[1] * w1 + bt[2] * w2)/frac_1_w).xyz();
-            pixel.position = ((pws[0] * w0 + pws[1] * w1 + pws[2] * w2)/frac_1_w).xyz();
+            pixel.position = (ws[0] * w0 + ws[1] * w1 + ws[2] * w2)/frac_1_w;
             pixel.normal_map = normal_map;
             pixel.depth = convert_depth(depth);
             frame[pix].set_smaller_depth(pixel);

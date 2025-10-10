@@ -49,6 +49,7 @@ struct Scenes {
     enum Kind {
         Halo,
         Brick,
+        Test,
     } kind;
 
     Scenes(Kind kind) : kind(kind) {} // NOLINT
@@ -58,16 +59,18 @@ struct Scenes {
     std::string_view str() const { // NOLINT
         switch (kind) {
             case Halo:
-                return "Halo";
+                return "halo";
             case Brick:
-                return "Brick";
+                return "brick";
+            case Test:
+                return "test";
         }
     }
 };
 
 struct Arguments {
-    usize width = 720, height = 480;
-    Scenes scene = Scenes::Halo;
+    usize width = 480, height = 720;
+    Scenes scene = Scenes::Test;
     bool write_frames = true;
 
     explicit Arguments(slice<char*> args) {
@@ -91,6 +94,8 @@ struct Arguments {
                     scene = Scenes::Halo;
                 } else if (name == "brick") {
                     scene = Scenes::Brick;
+                } else if (name == "test") {
+                    scene = Scenes::Test;
                 }else {
                     std::cout << "Invalid scene argument expected a string: " << name << std::endl;
                 }
@@ -130,6 +135,9 @@ int main(int argc, char** argv){
             break;
         case Scenes::Brick:
             game = new BrickGame(FrameBuffer{args.width, args.height});
+            break;
+        case Scenes::Test:
+            game = new TestGame(FrameBuffer{args.width, args.height});
             break;
         default:
             std::cout << "Invalid scene argument passed" << std::endl;

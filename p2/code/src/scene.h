@@ -14,7 +14,7 @@ public:
     Vector3<f32> target{0, 0, 0};
     Vector3<f32> position{0, 0, 0};
     f32 fov{M_PI/3};
-    f32 zoom{1};
+    f32 zoom{1.f};
 
     [[nodiscard]]
     Matrix4<f32> view() const {
@@ -34,6 +34,7 @@ public:
     Vector3<f32> color{1, 1, 1};
     f32 intensity{1.f};
     bool global{false};
+    f32 radius{0.5f};
 };
 
 class Scene {
