@@ -5,6 +5,10 @@
 
 #define PAR
 
+#ifdef PAR
+#include <omp.h>
+#endif
+
 #include "game.h"
 
 #include <chrono>
@@ -13,6 +17,9 @@
 void write_image(ref<Game> game, std::string&& path) {
     auto channels = 4;
     auto data = new u8[game.frame_buffer.height()*game.frame_buffer.width()*channels];
+    #ifdef PAR
+    #pragma omp parallel for
+    #endif
     for (usize i = 0; i < game.frame_buffer.height() * game.frame_buffer.width(); i++) {
         auto color = game.frame_buffer[i].diffuse;
         auto normal = game.frame_buffer[i].normal;
@@ -22,7 +29,11 @@ void write_image(ref<Game> game, std::string&& path) {
         data[i*channels+2] = static_cast<u8>(std::min(255.f, std::pow(color.z(), 1.f/2.2f) * 255));
         data[i*channels+3] = normal.magnitude_squared() != 0 ? 255 : 0;
     }
-    stbi_write_png(path.c_str(), game.frame_buffer.width(), game.frame_buffer.height(), channels, data, game.frame_buffer.width() * channels);
+
+    auto width = game.frame_buffer.width();
+    auto height = game.frame_buffer.height();
+
+    stbi_write_png(path.c_str(), width, height, channels, data, width * channels);
     delete[] data;
 }
 
@@ -33,10 +44,11 @@ std::string leading(int value, int total_length) {
 }
 
 int main(int argc, char** argv){
-    usize width = 1920, height = 1080;
-    bool halo = false;
     // const auto width = 1920, height = 1080;
     // const auto width = 4096, height = 2160;
+    usize width = 1920, height = 1080;
+    bool halo = false;
+    bool write_frames = true;
 
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -52,7 +64,16 @@ int main(int argc, char** argv){
             } else if (scene == "brick") {
                 halo = false;
             }
+        }else if (arg.rfind("--write_frames=")==0) {
+            std::string value = arg.substr(1+arg.find_first_of('='));
+            std::cout << value;
+            if (value == "true") {
+                write_frames = true;
+            } else if (value == "false") {
+                write_frames = false;
+            }
         }
+
     }
     std::cout << "width: " << width << " height: " << height << " scene: " << std::endl;
 
@@ -74,7 +95,8 @@ int main(int argc, char** argv){
         long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
         std::cout << "Frame: " << (i+1) << " Render Time: " << milliseconds << " ms" << std::endl;
 
-        write_image(game, "../animation/frame_" + leading(i, 3) + ".png");
+        if (write_frames)
+            write_image(game, "../animation/frame_" + leading(i, 3) + ".png");
     }
 
 

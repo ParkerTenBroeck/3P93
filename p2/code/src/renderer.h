@@ -12,8 +12,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include <omp.h>
-
 INLINE inline f32 power(f32 base, i32 exp) {
     f32 res = 1;
     while (exp > 0) {

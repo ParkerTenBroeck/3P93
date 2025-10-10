@@ -14,8 +14,8 @@ class Game {
     ResourceStore resource_store{};
     Scene scene{};
 
-    bool halo;
     FrameBuffer frame_buffer;
+    bool halo;
 
     explicit Game(FrameBuffer&& frame_buffer, bool halo) : frame_buffer(std::move(frame_buffer)), halo(halo) {
         if (halo) {
