@@ -7,15 +7,12 @@ illum 1
 Pr 1
 Pds 1
 Pl 1
-Ka 1 1 1
-Ks 1 1 1
-Kd 0.4163490854 0.4163490854 0.4163490854
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+Ns 1.0
 Ke 0 0 0
-map_Kd lambert2.png
-map_Ps metalnessMap1.png
-map_Pr metalnessMap1.png
-map_Bump normalMap1.png
-Ns 128.0
+
 
 newmtl Spartan_Ear_Mat
 Tr 0.0000

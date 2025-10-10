@@ -1,0 +1,580 @@
+2025-10-09 20:16:43,166 [    179]   WARN - sun.util.locale.provider.LocaleProviderAdapter - COMPAT locale provider will be removed in a future release
+Installation home directory: file:////nix/store/g7f19mqcgcshhj53fad3xdk05wswzz2k-clion-2025.1.2/clion
+System directory: file:////home/may/.cache/JetBrains/CLion2025.1
+Config directory: file:////home/may/.config/JetBrains/CLion2025.1
+Log directory: file:////home/may/.cache/JetBrains/CLion2025.1/log
+Debug | ByteBufferAsyncProcessor  | 49:DefaultDispatcher-worker-10 | PAUSE ('Socket not connected') :: {id = FrontendToBackend/Sender, state = 'Initialized'} 
+Debug | Server                    | 57:FrontendToBackend | FrontendToBackend: listening /127.0.0.1:36513 
+2025-10-09 20:16:44,311 [   1324]   WARN - #c.i.o.v.n.p.FSRecords - Records storage [/home/may/.cache/JetBrains/CLion2025.1/caches/records.dat] was in use by process [OwnershipInfo{owner pid: 126731, acquired at: 1760049596342}] which is not exist now (wasn't closed properly/crashed?) -> re-acquiring forcibly
+2025-10-09 20:16:44,349 [   1362]   WARN - #c.i.o.v.n.p.PersistentFSLoader - [VFS load problem]: VFS wasn't safely shut down: records.wasClosedProperly is false
+2025-10-09 20:16:45,175 [   2188]   WARN - #c.i.o.v.n.p.PersistentFSLoader - [VFS load problem]: NOT_CLOSED_PROPERLY recovered, no problems remain
+2025-10-09 20:16:52,489 [   9502]   WARN - #c.j.r.e.RiderTextControlHost - The editor EditorImpl[file:///home/may/Documents/GitHub/3P93/p2/code/src/main.cpp] doesn't implement RdFileDocumentId
+2025-10-09 20:16:52,669 [   9682]   WARN - #c.j.r.e.RiderTextControlHost - The editor EditorImpl[file:///home/may/Documents/GitHub/3P93/p2/code/src/meow.cpp] doesn't implement RdFileDocumentId
+2025-10-09 20:16:52,736 [   9749]   WARN - #c.j.r.e.RiderTextControlHost - The editor EditorImpl[file:///home/may/Documents/GitHub/3P93/p2/code/src/scene.h] doesn't implement RdFileDocumentId
+2025-10-09 20:16:53,539 [  10552]   WARN - #c.j.r.e.RiderTextControlHost - The editor EditorImpl[file:///home/may/Documents/GitHub/3P93/p2/code/src/texture.h] doesn't implement RdFileDocumentId
+2025-10-09 20:16:53,596 [  10609]   WARN - #c.j.r.e.RiderTextControlHost - The editor EditorImpl[file:///home/may/Documents/GitHub/3P93/p2/code/src/game.h] doesn't implement RdFileDocumentId
+2025-10-09 20:16:53,634 [  10647]   WARN - #c.j.r.e.RiderTextControlHost - The editor EditorImpl[file:///home/may/Documents/GitHub/3P93/p2/code/src/types.h] doesn't implement RdFileDocumentId
+2025-10-09 20:16:53,676 [  10689]   WARN - #c.j.r.e.RiderTextControlHost - The editor EditorImpl[file:///home/may/Documents/GitHub/3P93/p2/code/src/renderer.h] doesn't implement RdFileDocumentId
+2025-10-09 20:16:53,721 [  10734]   WARN - #c.j.r.e.RiderTextControlHost - The editor EditorImpl[file:///home/may/Documents/GitHub/3P93/p2/code/src/vec_math.h] doesn't implement RdFileDocumentId
+2025-10-09 20:16:54,995 [  12008]   WARN - #c.i.s.c.i.StationSocketConnectionLoop - Discovery connection failed with NoSuchFileException (/run/user/1000/jb.station.sock)
+2025-10-09 20:16:57,979 [  14992]   WARN - #c.i.c.navigation - Failed to move /home/may/.cache/JetBrains/CLion2025.1/vcs-log/rasteri_1b00bbac_8143bde5/index to /home/may/.cache/JetBrains/CLion2025.1/vcs-log/rasteri_1b00bbac_8143bde5/index
+java.nio.file.NoSuchFileException: /home/may/.cache/JetBrains/CLion2025.1/vcs-log/rasteri_1b00bbac_8143bde5/index
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileSystem.move(UnixFileSystem.java:892)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.move(UnixFileSystemProvider.java:309)
+	at java.base/java.nio.file.Files.move(Files.java:1431)
+	at com.intellij.vcs.log.util.StorageId.cleanupAllStorageFiles(PersistentUtil.kt:58)
+	at com.intellij.vcs.log.data.VcsLogStorageImpl.lambda$createStorageAndIndexBackend$4(VcsLogStorageImpl.java:341)
+	at com.intellij.util.io.IOUtil.openCleanOrResetBroken(IOUtil.java:310)
+	at com.intellij.vcs.log.data.VcsLogStorageImpl.createStorageAndIndexBackend(VcsLogStorageImpl.java:324)
+	at com.intellij.vcs.log.data.VcsLogData.createStorageAndIndex(VcsLogData.java:149)
+	at com.intellij.vcs.log.data.VcsLogData.<init>(VcsLogData.java:92)
+	at com.intellij.vcs.log.impl.VcsLogManager.<init>(VcsLogManager.java:81)
+	at com.intellij.vcs.log.impl.VcsProjectLogManager.<init>(VcsProjectLogManager.kt:17)
+	at com.intellij.vcs.log.impl.VcsProjectLog.getOrCreateLogManager(VcsProjectLog.kt:222)
+	at com.intellij.vcs.log.impl.VcsProjectLog.access$getOrCreateLogManager(VcsProjectLog.kt:59)
+	at com.intellij.vcs.log.impl.VcsProjectLog$createLogInternal$2.invokeSuspend(VcsProjectLog.kt:210)
+	at com.intellij.vcs.log.impl.VcsProjectLog$createLogInternal$2.invoke(VcsProjectLog.kt)
+	at com.intellij.vcs.log.impl.VcsProjectLog$createLogInternal$2.invoke(VcsProjectLog.kt)
+	at com.intellij.platform.backend.observation.PlatformActivityTrackerService$trackConfigurationActivity$2$1.invokeSuspend(PlatformActivityTrackerService.kt:72)
+	at com.intellij.platform.backend.observation.PlatformActivityTrackerService$trackConfigurationActivity$2$1.invoke(PlatformActivityTrackerService.kt)
+	at com.intellij.platform.backend.observation.PlatformActivityTrackerService$trackConfigurationActivity$2$1.invoke(PlatformActivityTrackerService.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:62)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:163)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at com.intellij.platform.backend.observation.PlatformActivityTrackerService.trackConfigurationActivity(PlatformActivityTrackerService.kt:71)
+	at com.intellij.platform.backend.observation.TrackingUtil.trackActivity(util.kt:23)
+	at com.intellij.vcs.log.impl.VcsProjectLog.createLogInternal(VcsProjectLog.kt:209)
+	at com.intellij.vcs.log.impl.VcsProjectLog.access$createLogInternal(VcsProjectLog.kt:59)
+	at com.intellij.vcs.log.impl.VcsProjectLog$launchRecreateLog$1.invokeSuspend(VcsProjectLog.kt:190)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+2025-10-09 20:16:58,239 [  15252]   WARN - #c.j.c.r.p.RadProjectSnapshotBuilder - Could not convert compiler settings to R++ format for file:///home/may/Documents/GitHub/3P93/p2/code/build/CMakeFiles/3.31.6/CompilerIdC/CMakeCCompilerId.c
+2025-10-09 20:16:59,149 [  16162]   WARN - #c.j.c.r.p.RadProjectSnapshotBuilder - Could not convert compiler settings to R++ format for file:///home/may/Documents/GitHub/3P93/p2/code/build/CMakeFiles/3.31.6/CompilerIdC/CMakeCCompilerId.c
+2025-10-09 20:17:03,540 [  20553]   WARN - #c.j.c.r.p.RadProjectSnapshotBuilder - Could not convert compiler settings to R++ format for file:///home/may/Documents/GitHub/3P93/p2/code/build/CMakeFiles/3.31.6/CompilerIdC/CMakeCCompilerId.c
+2025-10-09 20:17:03,659 [  20672]   WARN - #c.j.c.r.p.RadProjectSnapshotBuilder - Could not convert compiler settings to R++ format for file:///home/may/Documents/GitHub/3P93/p2/code/cmake-build-relwithdebinfo-clang/CMakeFiles/3.31.6/CompilerIdC/CMakeCCompilerId.c
+2025-10-09 20:17:21,089 [  38102]   WARN - c.j.c.r.u.RadIconPatcher - No mapped CLion icon for /resharper/PsiServices/TypeConversionHint.svg
+2025-10-09 20:17:21,090 [  38103]   WARN - c.j.c.r.u.RadIconPatcher - No mapped CLion icon for /resharper/PsiServices/TypeConversionHint.svg
+2025-10-09 20:21:05,170 [ 262183]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@7fdffe6f
+java.lang.Throwable: Control-flow exceptions (e.g. this class com.intellij.openapi.progress.CeProcessCanceledException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.smartContextComposition(FullLineCompletionInputBuilder.kt:69)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.build(FullLineCompletionInputBuilder.kt:53)
+	at org.jetbrains.completion.full.line.impl.providers.LocalFullLineCompletionClient.composeContext(LocalFullLineCompletionClient.kt:44)
+	at org.jetbrains.completion.full.line.impl.providers.LocalFullLineCompletionClient$composeContext$1.invokeSuspend(LocalFullLineCompletionClient.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: com.intellij.openapi.progress.CeProcessCanceledException: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@7fdffe6f
+	at com.intellij.serviceContainer.ComponentManagerImplKt.runBlockingInitialization$lambda$10(ComponentManagerImpl.kt:1689)
+	at com.intellij.openapi.progress.ContextKt.prepareThreadContext(context.kt:81)
+	at com.intellij.serviceContainer.ComponentManagerImplKt.runBlockingInitialization(ComponentManagerImpl.kt:1674)
+	at com.intellij.serviceContainer.ComponentManagerImplKt.doGetOrCreateInstanceBlocking(ComponentManagerImpl.kt:1564)
+	at com.intellij.serviceContainer.ComponentManagerImplKt.getOrCreateInstanceBlocking(ComponentManagerImpl.kt:1559)
+	at com.intellij.serviceContainer.ComponentManagerImpl.doGetService(ComponentManagerImpl.kt:752)
+	at com.intellij.serviceContainer.ComponentManagerImpl.getService(ComponentManagerImpl.kt:696)
+	at org.jetbrains.completion.full.line.local.generation.RecentContextRetriever$Companion.getInstance(RecentContextRetriever.kt:132)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:142)
+	... 10 more
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@7fdffe6f
+2025-10-09 20:21:05,568 [ 262581]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - LazyStandaloneCoroutine was cancelled
+java.lang.Throwable: Control-flow exceptions (e.g. this class kotlinx.coroutines.JobCancellationException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.access$buildRecentContext(FullLineCompletionInputBuilder.kt:29)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder$buildRecentContext$1.invokeSuspend(FullLineCompletionInputBuilder.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:99)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:102)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@79ee380c
+2025-10-09 20:21:05,684 [ 262697]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:21:05.684410 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:21:24,208 [ 281221]   WARN - c.j.c.r.u.RadIconPatcher - No mapped CLion icon for /resharper/AlteringFeatu/CodeCleanupOptionPage.svg
+2025-10-09 20:21:24,209 [ 281222]   WARN - c.j.c.r.u.RadIconPatcher - No mapped CLion icon for /resharper/AlteringFeatu/CodeCleanupOptionPage.svg
+2025-10-09 20:21:56,174 [ 313187]   WARN - #c.i.u.i.p.ProjectIndexableFilesFilterHealthCheck - Following files are indexable but they were NOT found in filter. Errors count: 1. Examples:
+file id=7994 path=/home/may/Documents/GitHub/3P93/p2/code/animation/out.webp
+2025-10-09 20:22:09,012 [ 326025]   WARN - c.j.c.r.u.RadIconPatcher - No mapped CLion icon for /resharper/PsiSymbols/ModifiersPublic.svg
+2025-10-09 20:22:09,017 [ 326030]   WARN - c.j.c.r.u.RadIconPatcher - No mapped CLion icon for /resharper/PsiSymbols/ModifiersPublic.svg
+1000
+2025-10-09 20:26:56,142 [ 613155]   WARN - #c.i.u.i.p.ProjectIndexableFilesFilterHealthCheck - Following files are indexable but they were NOT found in filter. Errors count: 1. Examples:
+file id=7994 path=/home/may/Documents/GitHub/3P93/p2/code/animation/out.webp
+2025-10-09 20:31:56,148 [ 913161]   WARN - #c.i.u.i.p.ProjectIndexableFilesFilterHealthCheck - Following files are indexable but they were NOT found in filter. Errors count: 1. Examples:
+file id=7994 path=/home/may/Documents/GitHub/3P93/p2/code/animation/out.webp
+2025-10-09 20:34:45,657 [1082670]   WARN - #c.i.u.i.CachedImageIcon - Cannot get reflective icon (path=RiderIcons.FileTypes.CppHeader)
+java.lang.ClassNotFoundException: icons.RiderIcons$FileTypes
+	at com.intellij.util.lang.UrlClassLoader.findClass(UrlClassLoader.java:235)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:593)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	at com.intellij.ui.icons.ImageDataByPathLoaderKt.getReflectiveIcon(ImageDataByPathLoader.kt:149)
+	at com.intellij.ui.icons.ImageDataByPathLoaderKt.findIconByPath(ImageDataByPathLoader.kt:25)
+	at com.intellij.openapi.util.IconLoaderKt.findIconUsingNewImplementation(IconLoader.kt:343)
+	at com.intellij.openapi.util.IconLoaderKt.findIconUsingNewImplementation$default(IconLoader.kt:341)
+	at com.intellij.util.ui.IconExtension.getIcon(ExtendableHTMLViewFactory.kt:217)
+	at com.intellij.util.ui.IconExtension.invoke(ExtendableHTMLViewFactory.kt:201)
+	at com.intellij.util.ui.IconExtension.invoke(ExtendableHTMLViewFactory.kt:192)
+	at com.intellij.util.ui.ExtendableHTMLViewFactory.create(ExtendableHTMLViewFactory.kt:47)
+	at java.desktop/javax.swing.text.CompositeView.loadChildren(CompositeView.java:110)
+	at java.desktop/javax.swing.text.FlowView$LogicalView.loadChildren(FlowView.java:731)
+	at java.desktop/javax.swing.text.CompositeView.setParent(CompositeView.java:137)
+	at java.desktop/javax.swing.text.FlowView.loadChildren(FlowView.java:147)
+	at java.desktop/javax.swing.text.CompositeView.setParent(CompositeView.java:137)
+	at java.desktop/javax.swing.text.FlowView.setParent(FlowView.java:306)
+	at java.desktop/javax.swing.text.html.ParagraphView.setParent(ParagraphView.java:75)
+	at java.desktop/javax.swing.text.CompositeView.replace(CompositeView.java:217)
+	at java.desktop/javax.swing.text.BoxView.replace(BoxView.java:182)
+	at java.desktop/javax.swing.text.CompositeView.loadChildren(CompositeView.java:112)
+	at java.desktop/javax.swing.text.CompositeView.setParent(CompositeView.java:137)
+	at java.desktop/javax.swing.text.html.BlockView.setParent(BlockView.java:72)
+	at java.desktop/javax.swing.text.CompositeView.replace(CompositeView.java:217)
+	at java.desktop/javax.swing.text.BoxView.replace(BoxView.java:182)
+	at java.desktop/javax.swing.text.CompositeView.loadChildren(CompositeView.java:112)
+	at java.desktop/javax.swing.text.CompositeView.setParent(CompositeView.java:137)
+	at java.desktop/javax.swing.text.html.BlockView.setParent(BlockView.java:72)
+	at java.desktop/javax.swing.text.html.HTMLEditorKit$HTMLFactory$BodyBlockView.setParent(HTMLEditorKit.java:1548)
+	at java.desktop/javax.swing.text.CompositeView.replace(CompositeView.java:217)
+	at java.desktop/javax.swing.text.BoxView.replace(BoxView.java:182)
+	at java.desktop/javax.swing.text.View.updateChildren(View.java:1129)
+	at java.desktop/javax.swing.text.View.insertUpdate(View.java:708)
+	at java.desktop/javax.swing.plaf.basic.BasicTextUI$RootView.insertUpdate(BasicTextUI.java:1711)
+	at java.desktop/javax.swing.plaf.basic.BasicTextUI$UpdateHandler.insertUpdate(BasicTextUI.java:1993)
+	at java.desktop/javax.swing.text.AbstractDocument.fireInsertUpdate(AbstractDocument.java:227)
+	at java.desktop/javax.swing.text.DefaultStyledDocument.create(DefaultStyledDocument.java:160)
+	at java.desktop/javax.swing.text.html.HTMLDocument.create(HTMLDocument.java:500)
+	at java.desktop/javax.swing.text.html.HTMLDocument$HTMLReader.flushBuffer(HTMLDocument.java:4059)
+	at java.desktop/javax.swing.text.html.HTMLDocument$HTMLReader.flush(HTMLDocument.java:2767)
+	at java.desktop/javax.swing.text.html.HTMLEditorKit.read(HTMLEditorKit.java:320)
+	at java.desktop/javax.swing.JEditorPane.setText(JEditorPane.java:1475)
+	at com.intellij.ui.components.JBHtmlPane.setText(JBHtmlPane.kt:232)
+	at com.intellij.codeInsight.documentation.DocumentationEditorPane.setText(DocumentationEditorPane.java:78)
+	at com.intellij.lang.documentation.ide.ui.DocumentationUI.updateContent(DocumentationUI.kt:275)
+	at com.intellij.lang.documentation.ide.ui.DocumentationUI.handleContent(DocumentationUI.kt:236)
+	at com.intellij.lang.documentation.ide.ui.DocumentationUI.handleContent(DocumentationUI.kt:226)
+	at com.intellij.lang.documentation.ide.ui.DocumentationUI.access$handleContent(DocumentationUI.kt:53)
+	at com.intellij.lang.documentation.ide.ui.DocumentationUI$handlePage$2.invokeSuspend(DocumentationUI.kt:198)
+	at com.intellij.lang.documentation.ide.ui.DocumentationUI$handlePage$2.invoke(DocumentationUI.kt)
+	at com.intellij.lang.documentation.ide.ui.DocumentationUI$handlePage$2.invoke(DocumentationUI.kt)
+	at kotlinx.coroutines.flow.FlowKt__MergeKt$mapLatest$1.invokeSuspend(Merge.kt:213)
+	at kotlinx.coroutines.flow.FlowKt__MergeKt$mapLatest$1.invoke(Merge.kt)
+	at kotlinx.coroutines.flow.FlowKt__MergeKt$mapLatest$1.invoke(Merge.kt)
+	at kotlinx.coroutines.flow.internal.ChannelFlowTransformLatest$flowCollect$3$1$2.invokeSuspend(Merge.kt:30)
+	at kotlinx.coroutines.flow.internal.ChannelFlowTransformLatest$flowCollect$3$1$2.invoke(Merge.kt)
+	at kotlinx.coroutines.flow.internal.ChannelFlowTransformLatest$flowCollect$3$1$2.invoke(Merge.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startCoroutineUndispatched(Undispatched.kt:27)
+	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:90)
+	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:123)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:52)
+	at kotlinx.coroutines.BuildersKt.launch(Unknown Source)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:43)
+	at kotlinx.coroutines.BuildersKt.launch$default(Unknown Source)
+	at kotlinx.coroutines.flow.internal.ChannelFlowTransformLatest$flowCollect$3$1.emit(Merge.kt:29)
+	at kotlinx.coroutines.flow.internal.FlowValueWrapperInternalKt.emitInternal(FlowValueWrapperInternal.kt:39)
+	at kotlinx.coroutines.flow.StateFlowImpl.collect(StateFlow.kt:397)
+	at kotlinx.coroutines.flow.ReadonlySharedFlow.collect(Share.kt)
+	at kotlinx.coroutines.flow.internal.ChannelFlowTransformLatest$flowCollect$3.invokeSuspend(Merge.kt:23)
+	at kotlinx.coroutines.flow.internal.ChannelFlowTransformLatest$flowCollect$3.invoke(Merge.kt)
+	at kotlinx.coroutines.flow.internal.ChannelFlowTransformLatest$flowCollect$3.invoke(Merge.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:62)
+	at kotlinx.coroutines.CoroutineScopeKt.coroutineScope(CoroutineScope.kt:261)
+	at kotlinx.coroutines.flow.internal.ChannelFlowTransformLatest.flowCollect(Merge.kt:21)
+	at kotlinx.coroutines.flow.internal.ChannelFlowOperator.collectTo$suspendImpl(ChannelFlow.kt:153)
+	at kotlinx.coroutines.flow.internal.ChannelFlowOperator.collectTo(ChannelFlow.kt)
+	at kotlinx.coroutines.flow.internal.ChannelFlow$collectToFun$1.invokeSuspend(ChannelFlow.kt:56)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)
+	at com.intellij.openapi.application.impl.EdtCoroutineDispatcher$wrapWithLocking$2$1.run(EdtCoroutineDispatcher.kt:71)
+	at com.intellij.openapi.application.WriteIntentReadAction.lambda$run$0(WriteIntentReadAction.java:24)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWriteIntentReadAction$lambda$6(AnyThreadWriteThreadingSupport.kt:274)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWithTemporaryThreadLocal(AnyThreadWriteThreadingSupport.kt:204)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWriteIntentReadAction(AnyThreadWriteThreadingSupport.kt:274)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWriteIntentReadAction(AnyThreadWriteThreadingSupport.kt:222)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWriteIntentReadAction(ApplicationImpl.java:1009)
+	at com.intellij.openapi.application.WriteIntentReadAction.compute(WriteIntentReadAction.java:55)
+	at com.intellij.openapi.application.WriteIntentReadAction.run(WriteIntentReadAction.java:23)
+	at com.intellij.openapi.application.impl.EdtCoroutineDispatcher$wrapWithLocking$$inlined$Runnable$2.run(Runnable.kt:15)
+	at com.intellij.openapi.application.impl.DispatchedRunnable.run(DispatchedRunnable.kt:42)
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:240)
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:25)
+	at com.intellij.openapi.application.TransactionGuardImpl$2.run(TransactionGuardImpl.java:222)
+	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:117)
+	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:43)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:781)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:728)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:722)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:750)
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:585)
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:482)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12$lambda$11$lambda$10$lambda$9(IdeEventQueue.kt:307)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:864)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12$lambda$11$lambda$10(IdeEventQueue.kt:306)
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$3(IdeEventQueue.kt:958)
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:109)
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:958)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12(IdeEventQueue.kt:301)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:341)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
+2025-10-09 20:34:51,642 [1088655]   WARN - c.i.r.d.i.s.SummaryEvaluator - DFA analysis failed, reason: Timeout: 5 sec spent
+2025-10-09 20:36:56,144 [1213157]   WARN - #c.i.u.i.p.ProjectIndexableFilesFilterHealthCheck - Following files are indexable but they were NOT found in filter. Errors count: 1. Examples:
+file id=7994 path=/home/may/Documents/GitHub/3P93/p2/code/animation/out.webp
+2025-10-09 20:39:09,378 [1346391]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - LazyStandaloneCoroutine was cancelled
+java.lang.Throwable: Control-flow exceptions (e.g. this class kotlinx.coroutines.JobCancellationException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.access$buildRecentContext(FullLineCompletionInputBuilder.kt:29)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder$buildRecentContext$1.invokeSuspend(FullLineCompletionInputBuilder.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:99)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:102)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@407b2ea0
+2025-10-09 20:39:11,671 [1348684]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - LazyStandaloneCoroutine was cancelled
+java.lang.Throwable: Control-flow exceptions (e.g. this class kotlinx.coroutines.JobCancellationException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.access$buildRecentContext(FullLineCompletionInputBuilder.kt:29)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder$buildRecentContext$1.invokeSuspend(FullLineCompletionInputBuilder.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:99)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:102)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@4bf1d17f
+2025-10-09 20:39:11,766 [1348779]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - LazyStandaloneCoroutine was cancelled
+java.lang.Throwable: Control-flow exceptions (e.g. this class kotlinx.coroutines.JobCancellationException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.access$buildRecentContext(FullLineCompletionInputBuilder.kt:29)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder$buildRecentContext$1.invokeSuspend(FullLineCompletionInputBuilder.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:99)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:102)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@57d860a1
+2025-10-09 20:39:11,863 [1348876]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:39:11.863303 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:39:17,618 [1354631]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - LazyStandaloneCoroutine was cancelled
+java.lang.Throwable: Control-flow exceptions (e.g. this class kotlinx.coroutines.JobCancellationException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.access$buildRecentContext(FullLineCompletionInputBuilder.kt:29)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder$buildRecentContext$1.invokeSuspend(FullLineCompletionInputBuilder.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:99)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:102)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@7354d987
+2025-10-09 20:39:27,068 [1364081]   WARN - c.i.r.d.i.s.SummaryEvaluator - DFA analysis failed, reason: Timeout: 5 sec spent
+1000
+1000
+1000
+2025-10-09 20:46:56,137 [1813150]   WARN - #c.i.u.i.p.ProjectIndexableFilesFilterHealthCheck - Following files are indexable but they were NOT found in filter. Errors count: 1. Examples:
+file id=7994 path=/home/may/Documents/GitHub/3P93/p2/code/animation/out.webp
+2025-10-09 20:51:11,895 [2068908]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:11.882777 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:12,149 [2069162]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:12.147986 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:12,320 [2069333]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:12.320504 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:12,558 [2069571]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:12.558194 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:12,682 [2069695]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:12.681957 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:12,963 [2069976]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:12.963290 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:13,392 [2070405]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:13.391932 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:14,259 [2071272]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:14.259240 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:14,922 [2071935]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 
+2025-10-09 20:51:14,922 [2071935]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 00:51:14.922018 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:15,578 [2072591]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:51:15.577921 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:51:30,352 [2087365]   WARN - #c.i.o.a.i.ActionToolbarImpl - 'LookupSummaryInfo' toolbar by default uses any focused component to update its actions. Toolbar actions that need local UI context would be incorrectly disabled. Please call toolbar.setTargetComponent() explicitly.
+java.lang.Throwable: 'LookupSummaryInfo' toolbar by default uses any focused component to update its actions. Toolbar actions that need local UI context would be incorrectly disabled. Please call toolbar.setTargetComponent() explicitly.
+	at com.intellij.openapi.actionSystem.impl.ActionToolbarImpl.getDataContext(ActionToolbarImpl.java:1290)
+	at com.intellij.openapi.actionSystem.impl.ActionToolbarImpl.updateActionsImpl(ActionToolbarImpl.java:1022)
+	at com.intellij.openapi.actionSystem.impl.ActionToolbarImpl$1.updateActionsImpl(ActionToolbarImpl.java:208)
+	at com.intellij.openapi.actionSystem.impl.ToolbarUpdater$MyUpdateRunnable.run(ToolbarUpdater.java:181)
+	at com.intellij.openapi.actionSystem.impl.ToolbarUpdater.updateActions(ToolbarUpdater.java:81)
+	at com.intellij.openapi.actionSystem.impl.ActionToolbarImpl.updateActionsWithoutLoadingIcon(ActionToolbarImpl.java:1014)
+	at com.intellij.openapi.actionSystem.impl.ActionToolbarImpl.updateActionsImmediately(ActionToolbarImpl.java:1008)
+	at com.intellij.openapi.actionSystem.impl.ActionToolbarImpl.updateActionsImmediately(ActionToolbarImpl.java:986)
+	at com.intellij.openapi.actionSystem.impl.ActionToolbarImpl.lambda$updateActionsOnAdd$4(ActionToolbarImpl.java:360)
+	at com.intellij.util.ui.update.UiNotifyConnector$Companion$doWhenFirstShown$2.showNotify(UiNotifyConnector.kt:164)
+	at com.intellij.util.ui.update.UiNotifyConnector$ContextActivatable.showNotify$lambda$1$lambda$0(UiNotifyConnector.kt:82)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:102)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:102)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:108)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:102)
+	at com.intellij.util.ui.update.UiNotifyConnector$ContextActivatable.showNotify(UiNotifyConnector.kt:82)
+	at com.intellij.util.ui.update.UiNotifyConnector.showNotify(UiNotifyConnector.kt:249)
+	at com.intellij.util.ui.update.UiNotifyConnector$Companion$doWhenFirstShown$connector$1.showNotify(UiNotifyConnector.kt:174)
+	at com.intellij.util.ui.update.UiNotifyConnector.hierarchyChanged$lambda$1(UiNotifyConnector.kt:223)
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:240)
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:25)
+	at com.intellij.openapi.application.TransactionGuardImpl$1.run(TransactionGuardImpl.java:202)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runIntendedWriteActionOnCurrentThread$lambda$7(AnyThreadWriteThreadingSupport.kt:319)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWriteIntentReadAction$lambda$6(AnyThreadWriteThreadingSupport.kt:274)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWithTemporaryThreadLocal(AnyThreadWriteThreadingSupport.kt:204)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWriteIntentReadAction(AnyThreadWriteThreadingSupport.kt:274)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runWriteIntentReadAction(AnyThreadWriteThreadingSupport.kt:222)
+	at com.intellij.openapi.application.impl.AnyThreadWriteThreadingSupport.runIntendedWriteActionOnCurrentThread(AnyThreadWriteThreadingSupport.kt:318)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:928)
+	at com.intellij.openapi.application.impl.ApplicationImpl$4.run(ApplicationImpl.java:501)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:102)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:102)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:108)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:102)
+	at com.intellij.util.concurrency.ContextRunnable.run(ContextRunnable.java:27)
+	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:117)
+	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:43)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:781)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:728)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:722)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:750)
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:585)
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:482)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12$lambda$11$lambda$10$lambda$9(IdeEventQueue.kt:307)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:864)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12$lambda$11$lambda$10(IdeEventQueue.kt:306)
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$3(IdeEventQueue.kt:958)
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:109)
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:958)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12(IdeEventQueue.kt:301)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:341)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
+Caused by: java.lang.Throwable: toolbar creation trace
+	at com.intellij.openapi.actionSystem.impl.ActionToolbarImpl.<init>(ActionToolbarImpl.java:130)
+	at com.intellij.openapi.actionSystem.impl.ActionManagerImplKt.createActionToolbarImpl(ActionManagerImpl.kt:1611)
+	at com.intellij.openapi.actionSystem.impl.ActionManagerImplKt.access$createActionToolbarImpl(ActionManagerImpl.kt:1)
+	at com.intellij.openapi.actionSystem.impl.ActionManagerImpl.createActionToolbar(ActionManagerImpl.kt:313)
+	at com.intellij.openapi.actionSystem.impl.ActionManagerImpl.createActionToolbar(ActionManagerImpl.kt:297)
+	at com.jetbrains.rdclient.completion.summaryInfo.ParameterInfoListView.createButtonComponent(ParameterInfoListView.kt:279)
+	at com.jetbrains.rdclient.completion.summaryInfo.ParameterInfoListView.<init>(ParameterInfoListView.kt:231)
+	at com.jetbrains.rdclient.completion.summaryInfo.FrontendLookupSummaryInfoUtilKt.showSummaryInfoPopup(frontendLookupSummaryInfoUtil.kt:26)
+	at com.jetbrains.rider.completion.summaryInfo.RiderLookupSummaryInfosLocal.showHint(RiderLookupSummaryInfosLocal.kt:55)
+	at com.jetbrains.rider.completion.summaryInfo.RiderLookupSummaryInfosLocal.beginShowSummaryInfo$lambda$0(RiderLookupSummaryInfosLocal.kt:50)
+	at com.jetbrains.rider.completion.summaryInfo.RiderLookupSummaryInfosLocal.getSummaryInfo$lambda$1(RiderLookupSummaryInfosLocal.kt:105)
+	at com.jetbrains.rd.framework.impl.RdTaskKt$startAndAdviseSuccess$1.invoke(RdTask.kt:24)
+	at com.jetbrains.rd.framework.impl.RdTaskKt$startAndAdviseSuccess$1.invoke(RdTask.kt:23)
+	at com.jetbrains.rd.util.reactive.Signal.fire(Signal.kt:32)
+	at com.jetbrains.rd.util.reactive.WriteOnceProperty$WriteOnceSignal.fire(Property.kt:122)
+	at com.jetbrains.rd.util.reactive.WriteOnceProperty.setIfEmpty(Property.kt:86)
+	at com.jetbrains.rd.framework.impl.CallSiteWiredRdTask$onWireReceived$4.invoke(RdTask.kt:134)
+	at com.jetbrains.rd.framework.impl.CallSiteWiredRdTask$onWireReceived$4.invoke(RdTask.kt:133)
+	at com.jetbrains.rd.framework.MessageBroker$RdWireableDispatchHelper$doDispatch$2.invoke(MessageBroker.kt:126)
+	at com.jetbrains.rd.framework.MessageBroker$RdWireableDispatchHelper$doDispatch$2.invoke(MessageBroker.kt:119)
+	at com.intellij.concurrency.ThreadContext.captureThreadContext$lambda$10(threadContext.kt:425)
+	at com.intellij.util.concurrency.ContextCallable.lambda$call$0(ContextCallable.java:74)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:108)
+	at com.intellij.util.concurrency.ContextCallable.call(ContextCallable.java:72)
+	at com.intellij.concurrency.ThreadContext$captureThreadContext$3.invoke(threadContext.kt:426)
+	at com.jetbrains.rdclient.protocol.RdDispatcher.flushAllInternal(RdDispatcher.kt:122)
+	at com.jetbrains.rdclient.protocol.RdDispatcher.flushAll(RdDispatcher.kt:99)
+	at com.jetbrains.rdclient.protocol.RdDispatcher.flushAllRunnable$lambda$0(RdDispatcher.kt:34)
+	... 41 more
+2025-10-09 20:51:56,156 [2113169]   WARN - #c.i.u.i.p.ProjectIndexableFilesFilterHealthCheck - Following files are indexable but they were NOT found in filter. Errors count: 1. Examples:
+file id=8644 path=/home/may/Documents/GitHub/3P93/p2/code/halo.webp
+1000
+2025-10-09 20:55:25,995 [2323008]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:55:25.994933 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:26,168 [2323181]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:55:26.168306 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:27,674 [2324687]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10
+2025-10-09 20:55:27,674 [2324687]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion -  
+2025-10-09 20:55:27,674 [2324687]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 00:55:27.674440 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:28,116 [2325129]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:55:28.115941 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:28,653 [2325666]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:55:28.652781 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:28,806 [2325819]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10
+2025-10-09 20:55:28,806 [2325819]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion -  
+2025-10-09 20:55:28,807 [2325820]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 00:55:28.806636 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:29,083 [2326096]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:55:29.83402 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:29,367 [2326380]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:55:29.366627 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:29,729 [2326742]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10
+2025-10-09 20:55:29,729 [2326742]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion -  00:55:29.729266 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:30,483 [2327496]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:55:30.482967 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:55:30,622 [2327635]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:55:30.622367 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+1000
+1000
+1000
+1000
+1000
+1000
+1000
+1000
+1000
+2025-10-09 20:59:00,608 [2537621]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:59:00.608747 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:59:00,728 [2537741]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:59:00.728008 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 20:59:01,083 [2538096]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 00:59:01.82927 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+1000
+1000
+2025-10-09 21:00:37,539 [2634552]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:37.539003 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:38,723 [2635736]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:38.722949 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:39,395 [2636408]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:39.394770 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:39,496 [2636509]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:39.496044 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:39,658 [2636671]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - LazyStandaloneCoroutine was cancelled
+java.lang.Throwable: Control-flow exceptions (e.g. this class kotlinx.coroutines.JobCancellationException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.access$buildRecentContext(FullLineCompletionInputBuilder.kt:29)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder$buildRecentContext$1.invokeSuspend(FullLineCompletionInputBuilder.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:99)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:102)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@670372ca
+2025-10-09 21:00:39,755 [2636768]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - LazyStandaloneCoroutine was cancelled
+java.lang.Throwable: Control-flow exceptions (e.g. this class kotlinx.coroutines.JobCancellationException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.access$buildRecentContext(FullLineCompletionInputBuilder.kt:29)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder$buildRecentContext$1.invokeSuspend(FullLineCompletionInputBuilder.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:99)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:102)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@769c612d
+2025-10-09 21:00:39,855 [2636868]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:39.855424 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:41,067 [2638080]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:41.67472 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:41,266 [2638279]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:41.264796 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:41,428 [2638441]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:41.427925 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:41,647 [2638660]   WARN - #o.j.c.f.l.l.s.c.FullLineCompletionInputBuilder - LazyStandaloneCoroutine was cancelled
+java.lang.Throwable: Control-flow exceptions (e.g. this class kotlinx.coroutines.JobCancellationException) should never be logged. Instead, these should have been rethrown if caught.
+	at com.intellij.openapi.diagnostic.Logger.ensureNotControlFlow(Logger.java:503)
+	at com.intellij.idea.IdeaLogger.warn(IdeaLogger.java:124)
+	at com.intellij.openapi.diagnostic.Logger.warn(Logger.java:353)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.buildRecentContext(FullLineCompletionInputBuilder.kt:148)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder.access$buildRecentContext(FullLineCompletionInputBuilder.kt:29)
+	at org.jetbrains.completion.full.line.local.suggest.collector.FullLineCompletionInputBuilder$buildRecentContext$1.invokeSuspend(FullLineCompletionInputBuilder.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:99)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:102)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:608)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:873)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:763)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:750)
+Caused by: kotlinx.coroutines.JobCancellationException: LazyStandaloneCoroutine was cancelled; job=LazyStandaloneCoroutine{Cancelling}@1d35887e
+2025-10-09 21:00:41,813 [2638826]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:41.813583 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:42,241 [2639254]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10 01:00:42.241031 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:43,565 [2640578]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10
+2025-10-09 21:00:43,567 [2640580]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion -  
+2025-10-09 21:00:43,567 [2640580]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 01:00:43
+2025-10-09 21:00:43,567 [2640580]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - .
+2025-10-09 21:00:43,567 [2640580]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 565163 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+2025-10-09 21:00:44,709 [2641722]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion - 2025-10-10
+2025-10-09 21:00:44,710 [2641723]   WARN - #o.j.c.f.l.i.p.d.a.n.NativeServerDiagnostic$Companion -  01:00:44.709491 [flcc_grpc_inference_service.cpp:121:prefill] call ended, got an exception 'std::future_error: Broken promise' during execution
+
+1000
+1000
+1000
+2025-10-09 21:08:49,024 [3126037]   WARN - #c.j.c.r.p.RadProjectSnapshotBuilder - Could not convert compiler settings to R++ format for file:///home/may/Documents/GitHub/3P93/p2/code/build/CMakeFiles/3.31.6/CompilerIdC/CMakeCCompilerId.c
+2025-10-09 21:08:49,034 [3126047]   WARN - #c.j.c.r.p.RadProjectSnapshotBuilder - Could not convert compiler settings to R++ format for file:///home/may/Documents/GitHub/3P93/p2/code/cmake-build-relwithdebinfo-clang/CMakeFiles/3.31.6/CompilerIdC/CMakeCCompilerId.c
+2025-10-09 21:11:56,137 [3313150]   WARN - #c.i.u.i.p.ProjectIndexableFilesFilterHealthCheck - Following files are indexable but they were NOT found in filter. Errors count: 6. Examples:
+file id=7994 path=/home/may/Documents/GitHub/3P93/p2/code/animation/out.webp
+file id=8211 path=/home/may/Documents/GitHub/3P93/p2/code/animation/out.mp4
+file id=8647 path=/home/may/Documents/GitHub/3P93/p2/code/examples/halo.mp4
+file id=8648 path=/home/may/Documents/GitHub/3P93/p2/code/examples/halo.webp
+file id=8649 path=/home/may/Documents/GitHub/3P93/p2/code/examples/brick.webp
+...

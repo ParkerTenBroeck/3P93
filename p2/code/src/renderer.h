@@ -39,7 +39,6 @@ struct Renderer {
             if (light.global) continue;
             auto radius = 0.1f;
             auto cs = proj_view*light.position_or_direction.extend(1);
-            auto unit_size = cs.x()-(proj_view*(light.position_or_direction.extend(1)+Vector4<f32>{radius, 0, 0, 0})).x();
 
             if (cs.z() > cs.w()) {
                 continue;
@@ -62,7 +61,7 @@ struct Renderer {
 
             auto ps = perspective(cs);
             auto ss = screen_space(ps, screen);
-            auto perspective_size = std::min( unit_size / cs.w(), 1.f);
+            auto perspective_size = std::min( radius / cs.w(), 1.f);
             isize size = std::max(static_cast<isize>(1), static_cast<isize>(perspective_size * frame.width()));
 
             for (isize x = -size; x <= size; ++x) {
@@ -74,6 +73,7 @@ struct Renderer {
                     Vector2<usize> pixel_cord{static_cast<usize>(pos.x()), static_cast<usize>(pos.y())};
                     if (frame[pixel_cord].depth >= convert_depth(ps.z())) {
                         frame[pixel_cord].diffuse = light.color;
+                        frame[pixel_cord].normal = {1,1,1}; // lmao
                     }
                 }
             }
@@ -131,7 +131,7 @@ struct Renderer {
                 auto lambertian = std::max(0.f, light_dir.dot(pixel.normal));
 
                 auto light_power = light.intensity/distance_squared;
-                // light_power = std::min(light_power, 1.2f);
+                if (light_power < 0.01) continue;
 
                 if (lambertian > 0.0) {
                     auto view_dir = (scene.m_camera.position-pixel.position).normalize();
@@ -161,7 +161,7 @@ struct Renderer {
     static void clear(ref_mut<FrameBuffer> frame) {
         for (Pixel& pixel: frame.pixels().iter()) {
             pixel = Pixel();
-            pixel.diffuse = {0.2, 0.2, 0.2};
+            // pixel.diffuse = {0.02, 0.02, 0.02};
         }
     }
 
@@ -229,9 +229,11 @@ struct Renderer {
                 continue;
             }
 
-            // auto b0 = cs0.z() < -cs0.w();
-            // auto b1 = cs1.z() < -cs1.w();
-            // auto b2 = cs2.z() < -cs2.w();
+            auto b0 = cs0.z() < -cs0.w();
+            auto b1 = cs1.z() < -cs1.w();
+            auto b2 = cs2.z() < -cs2.w();
+
+            if (b0||b1||b2)continue;
 
             render_triangle(
                 frame,
@@ -444,7 +446,7 @@ struct Renderer {
             TextureId specular_map,
             TextureId normal_map
         ) {
-        rasterize_triangle(frame, ss, [=, &frame](auto pix, auto w0, auto w1, auto w2) {
+        rasterize_triangle(frame, ss, [&](auto pix, auto w0, auto w1, auto w2) {
 
             if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) return;
             auto depth = w0 * ss[0].z() + w1 * ss[1].z() + w2 * ss[2].z();
@@ -511,9 +513,8 @@ struct Renderer {
         // black_box(diffuse_map);
         // black_box(specular_map);
         // black_box(normal_map);
-        // return;
 
-        rasterize_triangle(frame, ss, [=, &frame](auto pix, auto w0, auto w1, auto w2) {
+        rasterize_triangle(frame, ss, [&](auto pix, auto w0, auto w1, auto w2) {
 
             if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) return;
             auto depth = w0 * ss[0].z() + w1 * ss[1].z() + w2 * ss[2].z();
@@ -565,6 +566,7 @@ struct Renderer {
         auto max_x = std::min(std::max({ss[0].x(), ss[1].x(), ss[2].x()}), static_cast<f32>(frame.width())-1);
         auto min_y = std::max(std::min({ss[0].y(), ss[1].y(), ss[2].y()}), 0.f);
         auto max_y = std::min(std::max({ss[0].y(), ss[1].y(), ss[2].y()}), static_cast<f32>(frame.height())-1);
+
 
         auto denom = (ss[1].y() - ss[2].y()) * (ss[0].x() - ss[2].x()) + (ss[2].x() - ss[1].x()) * (ss[0].y() - ss[2].y());
 

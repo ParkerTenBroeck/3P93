@@ -45,6 +45,7 @@ pkgs.mkShell
 		pngpp
 		brotli
 		brotli.dev
+		ffmpeg
 		pulseaudio.dev
 		git
 		libGL

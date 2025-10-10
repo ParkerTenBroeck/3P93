@@ -30,6 +30,7 @@
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
 
+
 % --- Title and TOC ---
 
 \begin{document}
@@ -87,7 +88,7 @@
 \section{Algorithm Overview}
 
 \subsection{Projection}
-\begin{gather}\begin{align}
+\begin{gather*}\begin{align}
 	&fov = \text{the field of view for our camera} \notag\\
 	&far = \text{the farthest point our camera can see} \notag\\
 	&near = \text{the closest point our camera can see} \notag\\
@@ -98,11 +99,11 @@
 		0&0&-\frac{far+near}{far-near}&-\frac{2\times far \times near}{far-near}\\
 		0&0&-1&0
 	\end{bmatrix}
-\end{align}\end{gather}
+\end{align}\end{gather*}
 
 
 \subsection{View}
-\begin{gather}\begin{align}
+\begin{gather*}\begin{align}
 	&P_{target} = \text{Where the camera is looking} \notag\\
 	&P_{eye} = \text{Where the camera is} \notag\\
 	&\overrightarrow{V_{world\hspace{0.2em}up}} = \text{the up direction of the world }\left\langle \begin{matrix}0&1&0\end{matrix} \right\rangle \notag\\
@@ -116,7 +117,7 @@
 		-\overrightarrow{V_{cam\hspace{0.2em}forward}}_x&-\overrightarrow{V_{cam\hspace{0.2em}forward}}_y&-\overrightarrow{V_{cam\hspace{0.2em}forward}}_z&\overrightarrow{V_{cam\hspace{0.2em}forward}}\cdot P_{eye}\\
 		0&0&0&1
 	\end{bmatrix}
-\end{align}\end{gather}
+\end{align}\end{gather*}
 
 \subsection{Model}
 
@@ -159,21 +160,125 @@
 
 \subsection{Clip}
 
-\begin{gather}\begin{align*}
-	&V_{world} = M_{model} \cdot V_{local}\\
-	&V_{clip} = M_{projection} \cdot M_{view} \cdot M_{model} \cdot V_{local}\\
+\begin{gather*}\begin{aligned}
+	V_{world} &= M_{model} \cdot V_{local} \notag\\
+	V_{clip} &= M_{projection} \cdot M_{view} \cdot M_{model} \cdot V_{local} \notag\\
 	%
-	&M_{normal} = {{M_{model}}^{-1}}^T \\
-	&\left\langle N_{world} \right\rangle= M_{normal} \cdot \left\langle N_{local} \right\rangle\\
-\end{align*}\end{gather}
+	M_{normal} &= {{M_{model}}^{-1}}^T \notag\\
+	\left\langle N_{world} \right\rangle &= M_{normal} \cdot \left\langle N_{local} \right\rangle \notag
+\end{aligned}\end{gather*}
 
-\section{Paralization Opportinuty}
+\begin{gather*}\begin{aligned}
+		-{V_{clip}}_w \leq &{V_{clip}}_x \leq {V_{clip}}_w \notag\\
+		-{V_{clip}}_w \leq &{V_{clip}}_y \leq {V_{clip}}_w \notag\\
+		-{V_{clip}}_w \leq &{V_{clip}}_z \leq {V_{clip}}_w \notag
+\end{aligned}\end{gather*}
 
 
 
+\section{Performance}
 
+
+
+the average time to render 300 frames for the animation linked here
+
+PUT THE FUCKING YOUTUBE VIDEO LINK HERE
+
+is as follows 
+
+\begin{table}[]
+	\caption{Performance Bench Brick 1080p}
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Resolution& 1080x1920\\\hline
+		Time& 186.68 ms/frame\\\hline
+		CPU&AMD Ryzen 7 3800X (16) @ 3.900GHz\\\hline
+		OS&Debian GNU/Linux 12 (bookworm) x86\_64\\\hline
+		RAM&64GiB\\\hline
+		Compiler&clang version 14.0.6\\\hline
+		Triangles&40337\\\hline
+	\end{tabular}
+	\label{table:performance-1080-brick}
+\end{table}
+
+\begin{table}[]
+	\caption{Performance Bench Brick 720p}
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Resolution& 480x720\\\hline
+		Time& 36.47 ms/frame\\\hline
+		CPU&AMD Ryzen 7 3800X (16) @ 3.900GHz\\\hline
+		OS&Debian GNU/Linux 12 (bookworm) x86\_64\\\hline
+		RAM&64GiB\\\hline
+		Compiler&clang version 14.0.6\\\hline
+		Triangles&40337\\\hline
+	\end{tabular}
+	\label{table:performance-720-brick}
+\end{table}
+
+\begin{table}[]
+	\caption{Performance Bench Halo 1080p}
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Resolution& 1080x1920\\\hline
+		Time& 186.68 ms/frame\\\hline
+		CPU&AMD Ryzen 7 3800X (16) @ 3.900GHz\\\hline
+		OS&Debian GNU/Linux 12 (bookworm) x86\_64\\\hline
+		RAM&64GiB\\\hline
+		Compiler&clang version 14.0.6\\\hline
+		Triangles&42600\\\hline
+	\end{tabular}
+	\label{table:performance-1080-halo}
+\end{table}
+
+\begin{table}[]
+	\caption{Performance Bench Halo 720p}
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Resolution& 480x720\\\hline
+		Time& 36.47 ms/frame\\\hline
+		CPU&AMD Ryzen 7 3800X (16) @ 3.900GHz\\\hline
+		OS&Debian GNU/Linux 12 (bookworm) x86\_64\\\hline
+		RAM&64GiB\\\hline
+		Compiler&clang version 14.0.6\\\hline
+		Triangles&42600\\\hline
+	\end{tabular}
+	\label{table:performance-720-halo}
+\end{table}
+
+
+
+\section{Paralization Opportunity}
+The code has been setup in a way such that paralization 
+
+\begin{enumerate}
+	\item Mesh data is immutable and stored behind a shared pointer allowing access from multiple threads
+	\item Texture data is immutable and stored behind a shared pointer as well.
+	\item Scene data is light weight and can be copied with little cost if needed.
+	\subitem Scene data is the \texttt{Camera}, \texttt{Light}s, and \texttt{Object}s.
+	\subitem \texttt{Object}s only contain a shared pointer to their meshes and material textures so copying them is not costly.
+	\item When rendering everything aside from the frame buffer and local calculations are immutable and do not depend on eachother for computation.
+\end{enumerate}
+
+\subsection{Per Frame}
+The easiest approach is to render each frame in parallel. Because Mesh and Texture data is immutable it can be shared across any number of renderers running in parallel. The only cost would be creating the scene data for each frame running in parallel.
+
+The major downside is each individual frame would still take the same amount of time. This is an issue if we want to use the renderer for real time applications like games.
+
+Additionally each renderer would need its own frame buffer which can be quite large since each fragment(pixel) needs a significant amount of information like ambient, diffuse, specular color and texture data, world position, normal, tangent, bitangent. and more. A 1080x1920 frame buffer is $\sim 250MB$.
 
 \subsection{Per Triangle}
+
+
+\subsection{Per Fragment (Pixel)}
+
+
+\subsection{Combined}
+Because Triangle 
 
 
 
@@ -186,6 +291,20 @@ Used \texttt{stb\_image}\cite{stb-image} for loading and parsing texture files i
 \\
 Used \texttt{stb\_image\_write}\cite{stb-image-write} for writing rendered frames to disk.
 
+These libraries are only used in the setup of the program when loading the 3D objects and material textures. They have no impact on the rendering performance.
+
+\section{Building and Runing}
+
+It is \underline{Highly} reccomended to use Clang when building this project. Clang has much better instruction vectorization optimizations than GCC typically runs 5 times faster (this is only a rough estimate). 
+\\
+
+Two seperate build files are provided for each respective compiler \texttt{build\_clang.sh} and \texttt{build\_gcc.sh}. \\
+\\
+\underline{Important}: to switch between building with gcc or clang you \texttt{must} completely delete the build folder if it has been created previously with the other build script.\\
+
+Once the project has been built you can run it with the \texttt{run.sh} script. Which will run the same scene used in \ref{table:performance-1080-brick}. 300 frames will be written to \texttt{/animation} which can be combined into a animated video with either \texttt{make\_mp4.sh} or \texttt{make\_webp.sh} (optional). \\
+
+You can specify the resolution of the animation by changing the parameters to the program in \texttt{run.sh}.
 
 
 \nocite{*}
