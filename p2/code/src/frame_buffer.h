@@ -86,6 +86,11 @@ public:
     }
 
     [[nodiscard]]
+    usize size() const {
+        return m_width*m_height;
+    }
+
+    [[nodiscard]]
     slice<const Pixel> pixels() const {
         return slice<const Pixel>::from_raw(this->m_pixels, this->m_width*this->m_height);
     }

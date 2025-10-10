@@ -84,10 +84,28 @@
 \newpage
 
 \section{Intro}
+My topic is the rendering of triangle meshes. \\
+
+This topic is explored in great depth and has a wide array of different techniques and optimizations to produce varying levels of realism. Additionally parallelization often goes hand in hand when talking about these techniques as they are designed for GPUs. \\
+
+I wanted to implement a set of rendering techniques which offer a good balance between being practical to implement, possible to parallelize, low cost enough to potentially run in real time (30-60 FPS), and be visually interesting. I decided to implement Blinn-Phong shading with the option for ambient/diffuse/specular maps. as well as normal maps. As you will see in some of the demo animations the results are quite visually appealing. 
+
+I heavily relied on material and techniques talked about on the Learn OpenGL\cite{learn-open-gl} website.
 
 \section{Algorithm Overview}
 
+There are a 4 major steps involved in this process
+
+\begin{enumerate}
+	\item Transforming from local space to clip space through the Projection, View, and Model matrices
+	\item Clipping out of view verticies and triangles.
+	\item Rasterizing triangles to the frame buffer
+	\item Performing per fragment(pixel) lighting 
+\end{enumerate}
+
+
 \subsection{Projection}
+the projection matrix translates coordinates into clip space \eqref{clip-bounds}.
 \begin{gather*}\begin{align}
 	&fov = \text{the field of view for our camera} \notag\\
 	&far = \text{the farthest point our camera can see} \notag\\
@@ -103,6 +121,7 @@
 
 
 \subsection{View}
+The view matrix transforms world space coordinates into view space coordinates where x is left and right, y is up and down, and z is depth.
 \begin{gather*}\begin{align}
 	&P_{target} = \text{Where the camera is looking} \notag\\
 	&P_{eye} = \text{Where the camera is} \notag\\
@@ -121,6 +140,7 @@
 
 \subsection{Model}
 
+The model matrix transforms coordinates from their local model positions to world space. 
 \begin{gather}\begin{align}
 		&P_{pos} = \text{world space location of the object} \notag\\
 		&\overrightarrow{V_{scale}} = \text{x, y, z scale of object} \notag\\
@@ -160,6 +180,7 @@
 
 \subsection{Clip}
 
+
 \begin{gather*}\begin{aligned}
 	V_{world} &= M_{model} \cdot V_{local} \notag\\
 	V_{clip} &= M_{projection} \cdot M_{view} \cdot M_{model} \cdot V_{local} \notag\\
@@ -168,31 +189,79 @@
 	\left\langle N_{world} \right\rangle &= M_{normal} \cdot \left\langle N_{local} \right\rangle \notag
 \end{aligned}\end{gather*}
 
+If the resulting vertex is outside this range it is not visible and can be clipped.
+\begin{gather}
+		-{V_{clip}}_w \leq {V_{clip}}_x \leq {V_{clip}}_w \label{clip-bounds}\\
+		-{V_{clip}}_w \leq {V_{clip}}_y \leq {V_{clip}}_w \notag\\
+		-{V_{clip}}_w \leq {V_{clip}}_z \leq {V_{clip}}_w \notag
+\end{gather}
+
+\subsection{Depth Perspective}
+After clipping each vertexs $x,y,z$ components are divided by their $w$ component to give depth perspective. 
+
+\subsection{Screen Space}
+After depth perspective the $x,y$ components are shifted over by $\frac12$ then scaled to the screen width and height.
+
+
+\subsection{Rasterization}
+The rasterizer first finds a bounding box around the screen space coordinates. Then iterates over each pixel in the box finding the barycentric coordinates at that pixel. It uses these to determine if the point is actually in the triangle or not. and if it is find the liniarly interpreted world position, uv, normal, tangent, and bitangent at that point from the three points defining the triangle.
+
+\subsubsection{Perspective Correction}
+World position, uv, normal, tangent, and bitangent all need to be perspective corrected when being linearly interpolated during rasterization. This is done by scaling each vector type by $\frac1w$, doing the linear interpolation between face points. then scaling the resulting interpolated vector again by a linearly interpolated $\frac1w$.
+
+\subsection{Fragment}
+The fragment uses Binn-Phong shading 
 \begin{gather*}\begin{aligned}
-		-{V_{clip}}_w \leq &{V_{clip}}_x \leq {V_{clip}}_w \notag\\
-		-{V_{clip}}_w \leq &{V_{clip}}_y \leq {V_{clip}}_w \notag\\
-		-{V_{clip}}_w \leq &{V_{clip}}_z \leq {V_{clip}}_w \notag
+		\left\langle \overrightarrow{V_{light\hspace{0.2em}dir}} \right\rangle
+			&=
+			\left\langle P_{light}-P_{fragment}\right\rangle \notag\\
+		%
+		\text{light power} 
+			&= 
+			\frac{\text{light intensity}}{| P_{light}-P_{fragment}|^2}\\
+		%
+		\text{lambertian} 
+			&= \max(0, \left\langle 
+			\overrightarrow{V_{light\hspace{0.2em}dir}} \right\rangle \cdot   \left\langle N_{fragment}\right\rangle) \\
+		%
+		\left\langle\overrightarrow{V_{view\hspace{0.2em}dir}} \right\rangle 
+		&= 
+		\left\langle P_{eye}-P_{fragment}\right\rangle\\
+		%
+		\left\langle\overrightarrow{V_{half\hspace{0.2em}dir}} \right\rangle 
+		&= 
+			\left\langle 
+				\left\langle\overrightarrow{V_{view\hspace{0.2em}dir}} \right\rangle
+				+
+				\left\langle \overrightarrow{V_{light\hspace{0.2em}dir}}  \right\rangle
+			\right\rangle \\
+		%
+		\text{specular} &= \max(0, 
+			\left\langle\overrightarrow{V_{half\hspace{0.2em}dir}} \right\rangle
+			\cdot
+			\left\langle N_{fragment}\right\rangle			
+		)^{\text{fragment shininess}}\\
+		%
+		C_{\text{spec}} &= C_{light}\times \text{specular} \times \text{light power}\\
+		%
+		C_{\text{diff}} &= C_{light}\times \text{lambertian} \times \text{light power}
 \end{aligned}\end{gather*}
 
 
-
 \section{Performance}
+The following tables are the performance tests for 2 different scenes each at 720p and 1080p. The rendered animations can be found here
+\href{https://github.com/ParkerTenBroeck/3P93/blob/dff1995021a7f66e8c5a2a137551acbd2b20739f/p2/code/examples/brick.webp}{brick.webp}
+and here
+\href{https://github.com/ParkerTenBroeck/3P93/blob/dff1995021a7f66e8c5a2a137551acbd2b20739f/p2/code/examples/halo.webp}{halo.webp}. (please look at the halo one its really cool)
 
 
-
-the average time to render 300 frames for the animation linked here
-
-PUT THE FUCKING YOUTUBE VIDEO LINK HERE
-
-is as follows 
-
-\begin{table}[]
+\begin{table}[H]
 	\caption{Performance Bench Brick 1080p}
 	\centering
 	\begin{tabular}{|c|c|}
 		\hline
 		Resolution& 1080x1920\\\hline
-		Time& 186.68 ms/frame\\\hline
+		Time& 187.95 ms/frame\\\hline
 		CPU&AMD Ryzen 7 3800X (16) @ 3.900GHz\\\hline
 		OS&Debian GNU/Linux 12 (bookworm) x86\_64\\\hline
 		RAM&64GiB\\\hline
@@ -202,50 +271,53 @@ is as follows
 	\label{table:performance-1080-brick}
 \end{table}
 
-\begin{table}[]
+\begin{table}[H]
 	\caption{Performance Bench Brick 720p}
 	\centering
 	\begin{tabular}{|c|c|}
 		\hline
 		Resolution& 480x720\\\hline
-		Time& 36.47 ms/frame\\\hline
+		Time& 37.59 ms/frame\\\hline
 		CPU&AMD Ryzen 7 3800X (16) @ 3.900GHz\\\hline
 		OS&Debian GNU/Linux 12 (bookworm) x86\_64\\\hline
 		RAM&64GiB\\\hline
 		Compiler&clang version 14.0.6\\\hline
 		Triangles&40337\\\hline
+		Frames&300\\\hline
 	\end{tabular}
 	\label{table:performance-720-brick}
 \end{table}
 
-\begin{table}[]
+\begin{table}[H]
 	\caption{Performance Bench Halo 1080p}
 	\centering
 	\begin{tabular}{|c|c|}
 		\hline
 		Resolution& 1080x1920\\\hline
-		Time& 186.68 ms/frame\\\hline
+		Time& 71.72 ms/frame\\\hline
 		CPU&AMD Ryzen 7 3800X (16) @ 3.900GHz\\\hline
 		OS&Debian GNU/Linux 12 (bookworm) x86\_64\\\hline
 		RAM&64GiB\\\hline
 		Compiler&clang version 14.0.6\\\hline
 		Triangles&42600\\\hline
+		Frames&300\\\hline
 	\end{tabular}
 	\label{table:performance-1080-halo}
 \end{table}
 
-\begin{table}[]
+\begin{table}[H]
 	\caption{Performance Bench Halo 720p}
 	\centering
 	\begin{tabular}{|c|c|}
 		\hline
 		Resolution& 480x720\\\hline
-		Time& 36.47 ms/frame\\\hline
+		Time& 17.62 ms/frame\\\hline
 		CPU&AMD Ryzen 7 3800X (16) @ 3.900GHz\\\hline
 		OS&Debian GNU/Linux 12 (bookworm) x86\_64\\\hline
 		RAM&64GiB\\\hline
 		Compiler&clang version 14.0.6\\\hline
 		Triangles&42600\\\hline
+		Frames&300\\\hline
 	\end{tabular}
 	\label{table:performance-720-halo}
 \end{table}

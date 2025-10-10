@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <omp.h>
+
 INLINE inline f32 power(f32 base, i32 exp) {
     f32 res = 1;
     while (exp > 0) {
@@ -82,7 +84,11 @@ struct Renderer {
     }
 
     static void fragment(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
-        for (auto& pixel: frame.pixels().iter()) {
+        #ifdef PAR
+        #pragma omp parallel for
+        #endif
+        for (usize i = 0; i < frame.size(); i ++) {
+            auto& pixel = frame[i];
 
             if (pixel.normal.magnitude_squared() == 0.) continue;
 
@@ -159,9 +165,11 @@ struct Renderer {
     }
 
     static void clear(ref_mut<FrameBuffer> frame) {
-        for (Pixel& pixel: frame.pixels().iter()) {
-            pixel = Pixel();
-            // pixel.diffuse = {0.02, 0.02, 0.02};
+        #ifdef PAR
+        #pragma omp parallel for
+        #endif
+        for (usize i = 0; i < frame.size(); i ++) {
+            frame[i] = Pixel();
         }
     }
 
@@ -192,6 +200,9 @@ struct Renderer {
         Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
         // Matrix3<f32> normal_matrix{model.inverse().transpose()};
         Matrix3<f32> normal_matrix{model_matrix};
+        #ifdef PAR
+        #pragma omp parallel for
+        #endif
         for (const auto& face: mesh.m_faces) {
             auto ms0 = face.points[0].extend(1);
             auto ms1 = face.points[1].extend(1);
@@ -393,8 +404,8 @@ struct Renderer {
 
     INLINE static Vector3<f32> screen_space(ref<Vector4<f32>> ps, ref<Vector2<f32>> screen) {
         return {
-            ps.x() * screen.x() + screen.x() / 2.0f,
-            -ps.y() * screen.y() + screen.y() / 2.0f,
+            (ps.x()+0.5f) * screen.x(),
+            (-ps.y()+0.5f) * screen.y(),
             ps.z(),
        };
     }

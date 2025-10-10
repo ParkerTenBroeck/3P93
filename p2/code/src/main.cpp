@@ -3,6 +3,8 @@
 #include "stb_image_write.h"
 #include "stb_image.h"
 
+#define PAR
+
 #include "game.h"
 
 #include <chrono>
@@ -31,7 +33,7 @@ std::string leading(int value, int total_length) {
 }
 
 int main(int argc, char** argv){
-    usize width = 720, height = 480;
+    usize width = 1920, height = 1080;
     bool halo = false;
     // const auto width = 1920, height = 1080;
     // const auto width = 4096, height = 2160;
