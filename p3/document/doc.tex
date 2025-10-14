@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+
+
+\usepackage[pdftex,pdfpagelabels,bookmarks,hyperindex,hyperfigures]{hyperref}
+
+
+\usepackage[margin=1in]{geometry}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage[table]{xcolor}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{listings}
+
+\setlength{\parskip}{1em} % Add spacing between paragraphs
+\setlength{\parindent}{0em} % Remove indentation at the start of paragraphs
+
+
+\pagestyle{fancy}
+\fancyhf{} % Clear all headers/footers
+\lhead{Project Step 3}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+
+% --- Title and TOC ---
+
+\begin{document}
+
+\title{4P78 Project Step 3}
+\author{
+    Parker TenBroeck 7376726\\
+    pt21zs@brocku.ca
+}
+\date{\today}
+
+\makeatletter
+\begin{titlepage}
+	\def \LOGOPATH {brock.jpg}
+	\def \UNIVERSITY {Brock University}
+	\def \FACULTY {Faculty of Mathematics \& Science}
+	\def \DEPARTMENT {Department of Computer Science}
+	\def \COURSETITLE {COSC 3P93: Parallel Computing}
+	\def \SUPERVISOR {Robson De Grande}
+	
+	
+	\vfill
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{brock.jpg}
+		\fontsize{14pt}{14pt}\selectfont
+		\vfill
+		\UNIVERSITY \\
+		\FACULTY \\
+		\DEPARTMENT \\
+		\vfill
+		\fontsize{18pt}{18pt}\selectfont
+		\textbf{\COURSETITLE} \\[0.5cm]
+		\textbf{\@title}
+		\vfill
+		\fontsize{14pt}{14pt}\selectfont
+		Prepared By: \\[0.5cm]
+		
+		\begin{tabular}[t]{c}
+			\@author
+		\end{tabular}\par
+	
+	    \vfill
+		Instructor: \\
+		\SUPERVISOR
+		\vfill
+		\@date
+	\end{center}
+\end{titlepage}
+\makeatother
+
+\newpage
+
+\section{Intro}
+
+\nocite{*}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
