@@ -198,13 +198,51 @@ public:
 
     [[nodiscard]]
     Matrix inverse() const {
-        Matrix result{};
-        // for (usize r = 0; r < R; r++) {
-        //     for (usize c = 0; c < C; c++) {
-        //
-        //     }
-        // }
-        return result;
+        static_assert(R==C, "Matrix must have the same size");
+        Matrix A = *this;
+        Matrix I;
+
+        for (usize i = 0; i < R; ++i) {
+            for (usize j = 0; j < C; ++j) {
+                I.data[j][i] = (i == j) ? static_cast<T>(1) : static_cast<T>(0);
+            }
+        }
+
+        for (usize i = 0; i < R; ++i) {
+            T pivot = A.data[i][i];
+            if (std::abs(pivot) < static_cast<T>(1e-12)) {
+                bool swapped = false;
+                for (usize k = i + 1; k < R; ++k) {
+                    if (std::abs(A.data[i][k]) > static_cast<T>(1e-12)) {
+                        for (usize c = 0; c < C; ++c) {
+                            std::swap(A.data[c][i], A.data[c][k]);
+                            std::swap(I.data[c][i], I.data[c][k]);
+                        }
+                        pivot = A.data[i][i];
+                        swapped = true;
+                        break;
+                    }
+                }
+                if (!swapped) {
+                    throw std::runtime_error("Matrix is singular and cannot be inverted.");
+                }
+            }
+
+            for (usize c = 0; c < C; ++c) {
+                A.data[c][i] /= pivot;
+                I.data[c][i] /= pivot;
+            }
+
+            for (usize r = 0; r < R; ++r) {
+                if (r == i) continue;
+                T factor = A.data[i][r];
+                for (usize c = 0; c < C; ++c) {
+                    A.data[c][r] -= factor * A.data[c][i];
+                    I.data[c][r] -= factor * I.data[c][i];
+                }
+            }
+        }
+        return I;
     }
 
     [[nodiscard]]

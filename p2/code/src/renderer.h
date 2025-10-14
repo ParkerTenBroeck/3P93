@@ -91,17 +91,16 @@ struct Renderer {
 
             if (pixel.normal_map.exists()) {
                 auto n = resources[pixel.normal_map]->resolve_uv_wrapping(pixel.uv).xyz();
-                n = (n * 2.0).add_scalar(-1.0);
+                n = (n * 2.0).add_scalar(-1.0).normalize();
                 pixel.normal = pixel.normal.normalize();
                 pixel.tangent = pixel.tangent.normalize();
                 pixel.bitangent = pixel.bitangent.normalize();
-                Matrix4<f32> tbn{
-                    pixel.tangent.x(), pixel.bitangent.x(), pixel.normal.x(), 0,
-                    pixel.tangent.y(), pixel.bitangent.y(), pixel.normal.y(), 0,
-                    pixel.tangent.z(), pixel.bitangent.z(), pixel.normal.z(), 0,
-                    0, 0, 0, 1
+                Matrix3<f32> tbn{
+                    pixel.tangent.x(), pixel.bitangent.x(), pixel.normal.x(),
+                    pixel.tangent.y(), pixel.bitangent.y(), pixel.normal.y(),
+                    pixel.tangent.z(), pixel.bitangent.z(), pixel.normal.z(),
                 };
-                pixel.normal = (tbn * n.extend(1.)).xyz();
+                pixel.normal = tbn * n;
             }
             pixel.normal = pixel.normal.normalize();
 
@@ -193,8 +192,7 @@ struct Renderer {
 
     static void render_mesh(ref_mut<FrameBuffer> frame, ref<Mesh> mesh, ref<Matrix4<f32>> model_matrix, ref<Matrix4<f32>> proj_view) {
         Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
-        // Matrix3<f32> normal_matrix{model.inverse().transpose()};
-        Matrix3<f32> normal_matrix{model_matrix};
+        Matrix3<f32> normal_matrix{model_matrix.inverse().transpose()};
         #ifdef PAR
         #pragma omp parallel for
         #endif
@@ -504,22 +502,6 @@ struct Renderer {
             TextureId normal_map
         ) {
 
-        // black_box(frame);
-        // black_box(ss);
-        // black_box(ps);
-        // black_box(n);
-        // black_box(t);
-        // black_box(bt);
-        // black_box(uv);
-        // black_box(ambient);
-        // black_box(diffuse);
-        // black_box(specular);
-        // black_box(shininess);
-        // black_box(ambient_map);
-        // black_box(diffuse_map);
-        // black_box(specular_map);
-        // black_box(normal_map);
-
         rasterize_triangle(frame, ss, [&](auto pix, auto w0, auto w1, auto w2) {
 
             if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) return;
@@ -552,14 +534,6 @@ struct Renderer {
 
     INLINE static u32 convert_depth(f32 depth) {
         return static_cast<u32>(depth * static_cast<f32>(0xFFFFFFFEull));
-    }
-
-    template <typename T>
-    __attribute__ ((noinline)) static void black_box(T& val)
-    {
-        static volatile void* hell;
-        hell = (void*) &val;
-        (void) hell;
     }
 
     template<typename Func>

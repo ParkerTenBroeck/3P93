@@ -15,6 +15,9 @@ INLINE inline T euclidean_remainder(T a, T b) {
     return r >= 0 ? r : r + std::abs(b);
 }
 
+/**
+ * A unique ID that references already loaded textures
+ */
 class TextureId {
     friend class ResourceStore;
     u32 id;
@@ -28,6 +31,9 @@ public:
     }
 };
 
+/**
+ * A texture with 4 channels each in the range [0.0f, 1.0f]
+ */
 class Texture {
     usize m_width;
     usize m_height;

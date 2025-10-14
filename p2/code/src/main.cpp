@@ -23,7 +23,7 @@ void write_image(ref<Game> game, std::string&& path) {
     #endif
     for (usize i = 0; i < game.frame_buffer.height() * game.frame_buffer.width(); i++) {
         auto color = game.frame_buffer[i].diffuse;
-        auto normal = game.frame_buffer[i].diffuse;
+        auto normal = game.frame_buffer[i].normal;
         // auto color = (game.frame_buffer[i].normal.normalize()*0.5).add_scalar(0.5f);
 
         data[i*channels] = static_cast<u8>(std::min(255.f, std::pow(color.x(), 1.f/2.2f) * 255));

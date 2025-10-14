@@ -129,9 +129,10 @@ public:
 };
 
 class TestGame final : public Game {
+    ObjectId brick{};
 public:
     explicit TestGame(FrameBuffer&& frame_buffer) : Game(std::move(frame_buffer)) {
-        const auto brick = scene.add_object(Object::load("../assets/brick/brick.obj", resource_store));
+        this->brick = scene.add_object(Object::load("../assets/brick/brick.obj", resource_store));
         // scene[brick].m_position.x() = 0.5;
         // scene[brick].m_position.y() = 0.5;
         // scene[brick].m_position.z() = 0.5;
@@ -168,6 +169,8 @@ public:
         scene.m_camera.position.y() = 3;
         scene.m_camera.position.z() = std::sin(percent * M_PIf*2)*5;
         scene.m_camera.position.x() = std::cos(percent * M_PIf*2)*5;
+
+        // this->scene[this->brick].m_rotation.y() = percent * M_PIf*2;
 
         const auto scale = 3.f;
         scene.m_lights[0].position_or_direction.x() = std::sin(percent * M_PIf * 2)*scale;

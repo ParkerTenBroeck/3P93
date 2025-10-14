@@ -26,6 +26,8 @@ class ObjectId {
     friend class Scene;
     usize idx;
     explicit ObjectId(const usize idx) : idx(idx) {}
+public:
+    explicit ObjectId() : idx(0) {}
 };
 
 class Light {
@@ -37,6 +39,9 @@ public:
     f32 radius{0.5f};
 };
 
+/**
+ * All the objects and lights in the scene as well as the camera
+ */
 class Scene {
     std::vector<Object> m_objects{};
 public:

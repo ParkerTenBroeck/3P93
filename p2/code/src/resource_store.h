@@ -9,6 +9,9 @@
 
 #include "scene.h"
 
+/**
+ * Stores already loaded textures to prevent loading the same textures multiple times and also allow us to get a texture from a texture_id
+ */
 class ResourceStore {
     std::vector<std::shared_ptr<const Texture>> textures{};
     std::map<std::string, std::shared_ptr<const Texture>> textures_map{};
