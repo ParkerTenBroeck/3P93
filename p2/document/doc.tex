@@ -325,6 +325,21 @@ and here
 	\label{table:performance-720-halo}
 \end{table}
 
+As you can see the number of pixels drawn in the frame has a much greater performance impact compared to triangle count. 
+
+1080x1920 has 6 times as many pixels as 720x480 and in the bricks bench was 3 times slower at 1080p compared to 720p
+the halo demo was 3.8 times slower. 
+
+the bricks demo rasterized 9724 triangles per ms at 720p\\
+the bricks demo rasterized 3278 triangles per ms at 1080p\\
+the halo demo rasterized 2958 triangles per ms at 720p\\
+the halo demo rasterized 788 triangles per ms at 1080p\\
+
+This makes sense because each individual triangle takes up less pixels in our higher resolution model. \\
+
+While the triangle count has a significant impact on performance, the cost per pixel drawn, even if discarded is much greater. Because of this it would be greatly benificial to parallelize rasterization and fragment shader computation over per vertex calculations. though if possible parallelizing all would be the best.
+
+
 As you can see from the performance data the cost per frame relies much more on the number of pixels present and much less on the number of triangles being drawn. This gives us a clear target for parallelization being the rasterization stage and fragment shader stage. Though parallelizing both would be ideal.
 
 
