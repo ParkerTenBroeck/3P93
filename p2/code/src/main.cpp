@@ -23,11 +23,16 @@ void write_image(ref<Game> game, std::string&& path) {
     #endif
     for (usize i = 0; i < game.frame_buffer.height() * game.frame_buffer.width(); i++) {
         auto color = game.frame_buffer[i].diffuse;
-        auto normal = game.frame_buffer[i].normal;
+        auto normal = game.frame_buffer[i].diffuse;
         // auto color = (game.frame_buffer[i].normal.normalize()*0.5).add_scalar(0.5f);
+
         data[i*channels] = static_cast<u8>(std::min(255.f, std::pow(color.x(), 1.f/2.2f) * 255));
         data[i*channels+1] = static_cast<u8>(std::min(255.f, std::pow(color.y(), 1.f/2.2f) * 255));
         data[i*channels+2] = static_cast<u8>(std::min(255.f, std::pow(color.z(), 1.f/2.2f) * 255));
+
+        // data[i*channels] = static_cast<u8>(std::min(255.f, normal.x() * 255));
+        // data[i*channels+1] = static_cast<u8>(std::min(255.f, normal.y() * 255));
+        // data[i*channels+2] = static_cast<u8>(std::min(255.f, normal.z() * 255));
         data[i*channels+3] = normal.magnitude_squared() != 0 ? 255 : 0;
     }
 
@@ -69,8 +74,8 @@ struct Scenes {
 };
 
 struct Arguments {
-    usize width = 1920, height = 1080;
-    Scenes scene = Scenes::Halo;
+    usize width = 720, height = 480;
+    Scenes scene = Scenes::Test;
     bool write_frames = true;
 
     explicit Arguments(slice<char*> args) {

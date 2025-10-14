@@ -1,3 +1,3 @@
 cd build
 
-./rasterizer --width=1920 --height=1080 --scene=brick
+./rasterizer --scene=test --width=1920 --height=1080 --write_frames=true

@@ -22,8 +22,8 @@ macro(compile_options target_name)
         target_compile_options(${target_name} PUBLIC -fuse-ld=mold)
     endif ()
 
-    target_compile_options(${target_name} PRIVATE -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -march=native -mtune=native -std=c++17 -lstdc++)
-    target_link_options(${target_name} PRIVATE -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -march=native -mtune=native -std=c++17 -lstdc++)
+    target_compile_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -march=native -mtune=native -std=c++17 -lstdc++)
+    target_link_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -march=native -mtune=native -std=c++17 -lstdc++)
     sanitizers(${target_name})
 endmacro()
 

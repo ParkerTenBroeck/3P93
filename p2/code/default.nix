@@ -40,6 +40,7 @@ pkgs.mkShell
 		harfbuzz
 		harfbuzz.dev
 		zlib
+		zip
 		zlib.dev
 		bzip2
 		bzip2.dev
