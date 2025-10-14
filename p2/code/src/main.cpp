@@ -3,7 +3,7 @@
 #include "stb_image_write.h"
 #include "stb_image.h"
 
-#define PAR
+// #define PAR
 
 #ifdef PAR
 #include <omp.h>
@@ -69,8 +69,8 @@ struct Scenes {
 };
 
 struct Arguments {
-    usize width = 480, height = 720;
-    Scenes scene = Scenes::Test;
+    usize width = 1920, height = 1080;
+    Scenes scene = Scenes::Halo;
     bool write_frames = true;
 
     explicit Arguments(slice<char*> args) {
@@ -79,13 +79,13 @@ struct Arguments {
             if (arg.rfind("--height=")==0) {
                 try {
                     height = std::stoi(arg.substr(1+arg.find_first_of('=')));
-                }catch (std::exception e) {
+                }catch (std::exception& e) {
                     std::cout << "Invalid height argument expected positive integer: " << e.what() << std::endl;
                 }
             }else if (arg.rfind("--width=")==0) {
                 try {
                     width = std::stoi(arg.substr(1+arg.find_first_of('=')));
-                }catch (std::exception e) {
+                }catch (std::exception& e) {
                     std::cout << "Invalid width argument expected positive integer: " << e.what() << std::endl;
                 }
             }else if (arg.rfind("--scene=")==0) {
@@ -145,6 +145,7 @@ int main(int argc, char** argv){
     }
 
 
+    u64 total = 0;
     for (int i = 0; i < 300; i ++) {
         auto start = std::chrono::high_resolution_clock::now();
         game->update(1, i);
@@ -153,12 +154,13 @@ int main(int argc, char** argv){
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = end - start;
         long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+        total += milliseconds;
         std::cout << "Frame: " << (i+1) << " Render Time: " << milliseconds << " ms" << std::endl;
 
         if (args.write_frames)
             write_image(*game, "../animation/frame_" + leading(i, 3) + ".png");
     }
-
+    std::cout << "average frame time: " << (total/300.0) << "ms" << std::endl;
 
 
 }

@@ -139,7 +139,7 @@ struct Renderer {
                     auto view_dir = (scene.m_camera.position-pixel.position).normalize();
                     auto half_dir = (light_dir + view_dir).normalize();
 
-                    auto specular = power(std::max(0.f, half_dir.dot(pixel.normal)), pixel.shininess);
+                    auto specular = power(std::max(0.f, pixel.normal.dot(half_dir)), pixel.shininess);
 
                     specular_light = specular_light+light.color*(specular*light_power);
 
@@ -152,7 +152,8 @@ struct Renderer {
             auto color =
                 pixel.ambient.mult_components(pixel.diffuse)
                 + pixel.diffuse.mult_components(diffuse_light)
-                + pixel.specular.mult_components(specular_light);
+                + pixel.specular.mult_components(specular_light)
+            ;
 
             pixel.diffuse = color;
         }
@@ -353,7 +354,7 @@ struct Renderer {
             draw_triangle_filled_textured(
                frame,
                {ss0, ss1, ss2},
-                {ws[0].xyz()/w0, ws[1].xyz()/w1, ws[2].xyz()/w2},
+                {ws[0].xyz(), ws[1].xyz(), ws[2].xyz()},
                 {n0, n1, n2},
                 {t0, t1, t2},
             {bt0, bt1, bt2},

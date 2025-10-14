@@ -1,0 +1,255 @@
+\documentclass[12pt]{article}
+
+
+\usepackage[pdftex,pdfpagelabels,bookmarks,hyperindex,hyperfigures]{hyperref}
+
+
+\usepackage[margin=1in]{geometry}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage[table]{xcolor}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{listings}
+
+\setlength{\parskip}{1em} % Add spacing between paragraphs
+\setlength{\parindent}{0em} % Remove indentation at the start of paragraphs
+
+
+\pagestyle{fancy}
+\fancyhf{} % Clear all headers/footers
+\lhead{Assignment 1}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+
+% --- Title and TOC ---
+
+\begin{document}
+
+\title{4P78 Assignment 1}
+\author{
+    Parker TenBroeck 7376726\\
+    pt21zs@brocku.ca
+}
+\date{\today}
+
+\makeatletter
+\begin{titlepage}
+	\def \LOGOPATH {brock.jpg}
+	\def \UNIVERSITY {Brock University}
+	\def \FACULTY {Faculty of Mathematics \& Science}
+	\def \DEPARTMENT {Department of Computer Science}
+	\def \COURSETITLE {COSC 3P93: Parallel Computing}
+	\def \SUPERVISOR {Robson De Grande}
+	
+	
+	\vfill
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{brock.jpg}
+		\fontsize{14pt}{14pt}\selectfont
+		\vfill
+		\UNIVERSITY \\
+		\FACULTY \\
+		\DEPARTMENT \\
+		\vfill
+		\fontsize{18pt}{18pt}\selectfont
+		\textbf{\COURSETITLE} \\[0.5cm]
+		\textbf{\@title}
+		\vfill
+		\fontsize{14pt}{14pt}\selectfont
+		Prepared By: \\[0.5cm]
+		
+		\begin{tabular}[t]{c}
+			\@author
+		\end{tabular}\par
+	
+	    \vfill
+		Instructor: \\
+		\SUPERVISOR
+		\vfill
+		\@date
+	\end{center}
+\end{titlepage}
+\makeatother
+
+\newpage
+
+\section{Introduction}
+
+\subsection{}
+\begin{enumerate}
+	\item What is Shared-memory Architecture
+	\subitem Each processor in the system shares the same memory space 
+	\item What are its advantages and distavantages
+	\subitem Is typically easier to program for 
+	\subitem Is typically more flexable 
+	\subitem Can be more costly for hardware design
+	\subitem Caches and other optimizations need to be employed to reduce latency 
+	\item Can we have multiple processes of the same program, sharing data in a Shared-memory System.
+	\subitem Yes, each individual processor in the system can access all memory in the system. For example on linix you can use the mmap function.
+\end{enumerate}
+
+\subsection{}
+\begin{enumerate}
+	\item What is a distributed-memory architecture
+	\subitem Many individual computers/nodes each with their own private memory (programs and data) which communicate through message passing in a connected network with eachother
+	\item What are its advantages and disadvantages
+	\subitem Harder to program for
+	\subitem Easier to scale to large number of processors/nodes 
+	\subitem Generally less costly
+	\item Can we have a multithraded program sharing data among its threads in a Distributed-memory system?
+	\subitem Yes, if we have two threads running on the same node/processor it is possible to share data between them since they share the same address space.
+\end{enumerate}
+
+\section{Parallel Hardware}
+
+\subsection{}
+\begin{enumerate}
+	\item What is NUMA memory?
+	\subitem Non Uniform Memory Access is a system of memory where multiple processors can all access the same address space but for each processor some memory is local and has lower latancy and other regions are remote and can have higher latency.
+	\item Is NUMA Architecture better than UMA Architectures?
+	\subitem In some situtations where you can control which memory sections each processor accesses it can be faster to access memory in most situtations. 
+\end{enumerate}
+
+\subsection{}
+List and explain the two techniques to maintain Cache Coherence 
+\begin{enumerate}
+	\item Snooping Cache Coherence: 
+	\subitem Any signal transmitted on the bus is seen by all cores connected
+	to it
+	\item Directory-based Cache Coherence: 
+	\subitem Using a directory of addresses to cache lines to store the status of each cache line only updating when a dirty line is accessed.
+\end{enumerate}
+
+\subsection{}
+\begin{enumerate}
+	\item What is a Hypercube Connection
+	\subitem Each node is connected with d wires where d is the dismention of the cube
+	\item How does a Hypercupe topology improve when compared against 2D Grid Mesh and Fully Connected Networks?
+	\subitem hyercube topology has improved efficiency in routing compared to 2D grid mesh due to lower average distance between node.
+	\subitem for fully conected networks it significantly reduces the number of wires and complexity needed for fully connected networks.
+\end{enumerate}
+
+\subsection{}
+\begin{enumerate}
+	\item Define and explain the Bisection and diameter of an N-node Hypercube
+	\subitem the bisection width of a N-node hypercube is $\frac N2$
+	\subitem the diameter of an N-node hypercube is $log_2(N)$
+	\item Why are tese two metrics important
+	\subitem The bisection width indicates the minimum number of connections that need to be severed to split the network, affecting fault tolerance, while the diameter measures the maximum distance a message must travel, influencing communication delay.
+\end{enumerate}
+
+\subsection{}
+\begin{enumerate}
+	\item Because when it is commented n1 and n2 are shared in the same cache line aka false sharing is happening
+	\item Instead each thread modifying consecutive 8 byte values(on 64 bit platforms) which would result in false sharing. each thread is modifying the first value of 64 bit blocks which prevents false sharing. resulting in faster times.
+\end{enumerate}
+
+\section{Parallel Software}
+\subsection{}
+\begin{enumerate}
+	\item What is data-parallel computation
+	\subitem Performing the same operation on multiple "sets" of data at the same time. like SIMD instructions
+	\item What is task parallel computation
+	\subitem doing multiple tasks at the same time 
+	\item Can we have programs that are both Data and Task parallel?
+	\subitem yes. if your computer (it probably does) have SIMD instructions and you do task parallelization then boom.
+\end{enumerate}
+
+\subsection{}
+Is user process locking required to control the order of access to guarentee sequential consistency.
+
+No there are synchronization primitives like atomics which can guatentee sequential consistency. as well as concurrent datastructures which are lockless which can also do the same.
+
+Additionally barriers can be used to have similar effects.
+\subsection{}
+Why are locks important in parallel algorithms? Define and explain the major problem that locks bring to parallel programs
+
+Locks are a tool which prevent data races in our programs when multiple parts of our program are trying to access the same data at the same time. 
+
+Locking can create sequential data sections which can result in a parallel program operating if it was single threaded or even having worse performance than a single threaded program.
+
+Locking can also cause deadlocks which will completely halt the program and prevent it from completing.
+\subsection{}
+How can one ensure Mutual Exclusion without locks?
+
+Using atomics to perform simple operations or using more elaborate lock free data structures like channels to message pass for communication.
+also by not sharing data between threads. 
+
+
+\section{Threads}
+\subsection{}
+Assume a producer-condumer thread based program. 
+\begin{enumerate}
+	\item How producers and consumers can communicate with eachother? 
+	\subitem Producers "produce" messages (application specific) that is sent to consumers through a channel
+	\subitem Consumers "consume" messages sent to them by producers and perform certain actions based on them
+	\item Why are queues FIFOs one of the best data structures for organizing their communication?
+	\subitem Because it allows multiple messages to be produced/sent without blocking while also maintaining the order in which they are sent allowing consumers to process them in order.
+\end{enumerate}
+
+In the contect of threads
+\begin{enumerate}
+	\item What are condition variables
+	\subitem Condidtion variables are used in conjunction with mutexes or other locks to allow for multiple threads to wait for some condition to be true about the variable to proceed. 
+	\item What are read-write locks
+	\subitem Read-Write locks are locks which allow locking for two different kind of operations
+	\subitem Reading, where many threads which hold a read lock can read from the data it protects but none can mutate it.
+	\subitem Writing, where only a single owner can hold the lock which permits both reading and writing to the variable.
+	\subitem These locking kinds are mutually exclusive, as in if readers currently hold the lock no writer does and viseversa.
+	\item Why are they useful
+	\subitem Condition variables are useful when we want to wait for some condition to be true but have nothing else to do in the meanwhile. aka want to sleep
+	\subitem Read-Write locks are useful in situations where read operations happen much more frequently than write operations. Say for instance a config file cached in memory that is read from, but only updated if the file is written to. 
+	\item Write two short scriplets, and explain/describe them, to exemplify the use of condition variables and read-write locks
+\end{enumerate}
+
+
+\section{OpenMP}
+\subsection{} 
+\begin{enumerate}
+	\item What are OpenMP pragmas
+	\subitem The way we tell the compiler what and how parts of our code should be parallelized 
+	\item What are OpenMP directives
+	\subitem They are for atomic operations and critical sections
+	\item What are OpenMP clauses
+	\subitem They define how variables are shared, specific conditions and tell openMP how to manage task execution.
+\end{enumerate}
+
+\subsection{}
+
+\begin{enumerate}
+	\item running the function calculate in parallel with the number of threads suggested being \texttt{thread\_count}
+	\item Define critical sections \texttt{odd} and \texttt{even} so the sum operations on the two respective variables are counted properly but importantly the critical sections don't interfrere with eachother.
+	\item run the outer for loop in a number of threads suggested by \texttt{thread\_count} and have the inner loop run in parallel in chunks where the loop pilicy is determined at runtime or compile time.
+\end{enumerate}
+
+\subsection{}
+Explain the following loop schedule policies in detail 
+\begin{enumerate}
+	\item Default schedule
+	\subitem The compiler or runtime decides which policy to use
+	\item Static schedule
+	\subitem The iterations are assigned to the threads while the loop is executing
+	\item dynamic schedule 
+	\subitem The iterations are also broken up into chunks of chunksize
+	consecutive iterations
+	\item Guided schedule 
+	\subitem Each thread executes a chunk, when if finishes it requests another chunk, each requested chunk is smaller until the minimum size.
+	\item Runtime schedule 
+	\subitem Uses a value specified at runtime through an enviornment variable for what loop schedule policy should be used 
+\end{enumerate}
+
+%\nocite{*}
+%\bibliographystyle{IEEEtran}
+%\bibliography{references}
+
+\end{document}

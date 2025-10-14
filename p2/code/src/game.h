@@ -38,9 +38,9 @@ public:
         scene.m_lights.emplace_back(Light{});
         scene.m_lights.emplace_back(Light{});
 
-        scene.m_lights[0].color = {1, 0.0, 0.0};
-        scene.m_lights[1].color = {0.0, 1, 0.0};
-        scene.m_lights[2].color = {0.0, 0.0, 1};
+        scene.m_lights[0].color = {1, 0.1, 0.1};
+        scene.m_lights[1].color = {0.1, 1, 0.1};
+        scene.m_lights[2].color = {0.1, 0.1, 1};
 
         scene.m_lights[0].intensity = 20;
         scene.m_lights[1].intensity = 20;
@@ -58,11 +58,11 @@ public:
         auto percent = static_cast<f32>(time) / max_time;
 
         scene.m_camera.target = {0, static_cast<float>(-1.5 - std::sin(percent * M_PIf) * 0.5), 0};
-        scene.m_camera.position.y() = 2-std::sin(percent * M_PIf)*3;
-        scene.m_camera.position.z() = std::cos(percent * M_PIf * 2)*7/(1.f+std::sin(percent * M_PIf)*0.3f);
-        scene.m_camera.position.x() = std::sin(percent * M_PIf * 2)*7/(1.f+std::sin(percent * M_PIf)*0.3f);
+        // scene.m_camera.position.y() = 2-std::sin(percent * M_PIf)*3;
+        scene.m_camera.position.z() = std::cos(percent * M_PIf * 2)*7;///(1.f+std::sin(percent * M_PIf)*0.3f);
+        scene.m_camera.position.x() = std::sin(percent * M_PIf * 2)*7;///(1.f+std::sin(percent * M_PIf)*0.3f);
 
-        const auto scale = 6.f;
+        const auto scale = 4.f;
         scene.m_lights[0].position_or_direction.x() = std::sin(percent * M_PIf * 2)*scale;
         scene.m_lights[0].position_or_direction.z() = std::cos(percent * M_PIf * 2)*-scale;
 
@@ -141,13 +141,13 @@ public:
         scene.m_lights.emplace_back(Light{});
         scene.m_lights.emplace_back(Light{});
 
-        scene.m_lights[0].color = {1, 0.1, 0.1};
-        scene.m_lights[1].color = {0.1, 1, 0.1};
-        scene.m_lights[2].color = {0.1, 0.1, 1};
+        scene.m_lights[0].color = {1, 0.03, 0.03};
+        scene.m_lights[1].color = {0.03, 1, 0.03};
+        scene.m_lights[2].color = {0.03, 0.03, 1};
 
-        scene.m_lights[0].intensity = 30;
-        scene.m_lights[1].intensity = 30;
-        scene.m_lights[2].intensity = 30;
+        scene.m_lights[0].intensity = 50;
+        scene.m_lights[1].intensity = 50;
+        scene.m_lights[2].intensity = 50;
 
         scene.m_lights[3].position_or_direction = {-1,1,-1};
         scene.m_lights[3].color = {1,1,1};
@@ -162,16 +162,16 @@ public:
         const auto percent = static_cast<f32>(time) / max_time;
 
         scene.m_camera.target = {0, 0, 0};
-        scene.m_camera.position.z() = std::sin(std::sin(percent*M_PIf*2) * M_PIf/4)*40;
-        scene.m_camera.position.x() = std::cos(std::sin(percent*M_PIf*2) * M_PIf/4)*40;
+        scene.m_camera.position.z() = std::sin(std::sin(percent*M_PIf*2) * M_PIf/4+M_PIf)*40;
+        scene.m_camera.position.x() = std::cos(std::sin(percent*M_PIf*2) * M_PIf/4+M_PIf)*40;
 
         const auto scale = 3.f;
         scene.m_lights[0].position_or_direction.y() = -2;
-        scene.m_lights[0].position_or_direction.x() = std::sin(percent * M_PIf * 2)*scale/1.2f;
-        scene.m_lights[0].position_or_direction.z() = std::cos(percent * M_PIf * 2)*-scale/1.2f;
+        scene.m_lights[0].position_or_direction.x() = std::sin(percent * M_PIf * 2)*scale/1.7f;
+        scene.m_lights[0].position_or_direction.z() = std::cos(percent * M_PIf * 2)*-scale/1.7f;
 
-        scene.m_lights[1].position_or_direction.y() = -2+std::sin(percent*2 * M_PIf * 2)*scale/1.2f;
-        scene.m_lights[1].position_or_direction.z() = std::cos(percent*2 * M_PIf * 2)*-scale/1.2f;
+        scene.m_lights[1].position_or_direction.y() = -2+std::sin(percent*2 * M_PIf * 2)*scale/1.7f;
+        scene.m_lights[1].position_or_direction.z() = std::cos(percent*2 * M_PIf * 2)*-scale/1.7f;
 
         scene.m_lights[2].position_or_direction.y() = -2+std::sin(percent*3 * M_PIf * 2)*scale;
         scene.m_lights[2].position_or_direction.x() = std::cos(percent*3 * M_PIf * 2)*-scale;
