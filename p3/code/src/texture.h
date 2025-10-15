@@ -41,43 +41,17 @@ class Texture {
     ptr_mut<Vector4<f32>> m_pixels;
     TextureId m_id;
 
+    friend class ResourceStore;
+
+    explicit Texture(usize width, usize height, bool transparent, ptr_mut<Vector4<f32>> pixels) : m_width(width), m_height(height), m_transparent(transparent), m_pixels(pixels), m_id() {}
 public:
-    explicit Texture(ref<std::string> path, TextureId id) : m_width(0), m_height(0), m_transparent(false), m_id(id) {
-
-
-        i32 width, height, channels;
-        auto result = stbi_loadf(path.c_str(), &width, &height, &channels, 4);
-
-
-        if (!result)
-            std::cout << "Failed to load texture: " << path << std::endl;
-        if (width == 0)
-            std::cout << "Texture width cannot be zero: " << path << std::endl;
-        if (height == 0)
-            std::cout << "Texture height cannot be zero: " << path << std::endl;
-
-        if (!result || width == 0 || height == 0) {
-            this->m_width = 2;
-            this->m_height = 2;
-            this->m_pixels = new Vector4<f32>[this->m_width * this->m_height];
-            this->m_pixels[0] = {0, 0, 0, 1};
-            this->m_pixels[1] = {.5, 0, .5, 1};
-            this->m_pixels[2] = {0, 0, 0, 1};
-            this->m_pixels[3] = {.5, 0, .5, 1};
-        }else{
-            this->m_width = static_cast<usize>(width);
-            this->m_height = static_cast<usize>(height);
-            this->m_pixels = new Vector4<f32>[this->m_width * this->m_height];
-
-            for (usize i = 0; i < this->m_width * this->m_height; i++) {
-                this->m_pixels[i] = {result[i*4], result[i*4+1], result[i*4+2], result[i*4+3]};
-                this->m_transparent |= result[i*4+3] != 1.;
-            }
-        }
-
-        stbi_image_free(result);
-
-        std::cout << "Loaded texture: " << path << std::endl;
+    Texture(Texture&& texture) noexcept {
+        m_id = texture.m_id;
+        m_width = texture.m_width;
+        m_height = texture.m_height;
+        m_transparent = texture.m_transparent;
+        m_pixels = texture.m_pixels;
+        texture.m_pixels = nullptr;
     }
 
     ~Texture() {
@@ -131,7 +105,7 @@ public:
             static_cast<isize>(this->width())
             );
         const auto y = euclidean_remainder(
-            static_cast<isize>(uv.y() * static_cast<f32>(this->height())),
+            static_cast<isize>(this->height())-static_cast<isize>(uv.y() * static_cast<f32>(this->height())),
             static_cast<isize>(this->height())
             );
         return this->m_pixels[x+y*this->width()];

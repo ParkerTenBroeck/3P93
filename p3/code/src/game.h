@@ -149,9 +149,9 @@ public:
         scene.m_lights[1].color = {0.03, 1, 0.03};
         scene.m_lights[2].color = {0.03, 0.03, 1};
 
-        scene.m_lights[0].intensity = 15;
-        scene.m_lights[1].intensity = 15;
-        scene.m_lights[2].intensity = 15;
+        scene.m_lights[0].intensity = 1;
+        scene.m_lights[1].intensity = 1;
+        scene.m_lights[2].intensity = 1;
 
         scene.m_lights[3].position_or_direction = {-1,1,-1};
         scene.m_lights[3].color = {1,1,1};
@@ -167,10 +167,10 @@ public:
 
         scene.m_camera.target = {0, 0, 0};
         scene.m_camera.position.y() = 3;
-        scene.m_camera.position.z() = std::sin(percent * M_PIf*2)*5;
-        scene.m_camera.position.x() = std::cos(percent * M_PIf*2)*5;
+        scene.m_camera.position.z() = 5;//std::sin(percent * M_PIf*2)*5;
+        // scene.m_camera.position.x() = std::cos(percent * M_PIf*2)*5;
 
-        // this->scene[this->brick].m_rotation.y() = percent * M_PIf*2;
+        this->scene[this->brick].m_rotation.y() = percent * M_PIf*2;
 
         const auto scale = 3.f;
         scene.m_lights[0].position_or_direction.x() = std::sin(percent * M_PIf * 2)*scale;

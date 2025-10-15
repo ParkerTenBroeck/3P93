@@ -5,7 +5,6 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "frame_buffer.h"
 #include "obj.h"
 #include "vec_math.h"
 
@@ -69,8 +68,8 @@ public:
     }
 
     [[nodiscard]]
-    Matrix4<f32> proj_view(ref<FrameBuffer> frame) const {
-        auto aspect = static_cast<f32>(frame.width())/static_cast<f32>(frame.height());
+    Matrix4<f32> proj_view(Vector2<f32> view_port) const {
+        auto aspect = view_port.x()/view_port.y();
         return Matrix4<f32>::projection(0.1, 500, aspect, m_camera.fov)*m_camera.view();
     };
 };

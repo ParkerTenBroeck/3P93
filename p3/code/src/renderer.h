@@ -12,16 +12,6 @@
 #include <algorithm>
 #include <cmath>
 
-INLINE inline f32 power(f32 base, i32 exp) {
-    f32 res = 1;
-    while (exp > 0) {
-        if (exp % 2 == 1) res *= base;
-        base *= base;
-        exp /= 2;
-    }
-    return res;
-}
-
 struct Renderer {
 
     static void render(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
@@ -32,8 +22,8 @@ struct Renderer {
     }
 
     static void render_lights(ref_mut<FrameBuffer> frame, ref<Scene> scene) {
-        auto proj_view = scene.proj_view(frame);
         Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
+        auto proj_view = scene.proj_view(screen);
 
         for (const auto& light : scene.m_lights) {
             if (light.global) continue;
@@ -85,76 +75,7 @@ struct Renderer {
         #pragma omp parallel for
         #endif
         for (usize i = 0; i < frame.size(); i ++) {
-            auto& pixel = frame[i];
-
-            if (pixel.normal.magnitude_squared() == 0.) continue;
-
-            if (pixel.normal_map.exists()) {
-                auto n = resources[pixel.normal_map]->resolve_uv_wrapping(pixel.uv).xyz();
-                n = (n * 2.0).add_scalar(-1.0).normalize();
-                pixel.normal = pixel.normal.normalize();
-                pixel.tangent = pixel.tangent.normalize();
-                pixel.bitangent = pixel.bitangent.normalize();
-                Matrix3<f32> tbn{
-                    pixel.tangent.x(), pixel.bitangent.x(), pixel.normal.x(),
-                    pixel.tangent.y(), pixel.bitangent.y(), pixel.normal.y(),
-                    pixel.tangent.z(), pixel.bitangent.z(), pixel.normal.z(),
-                };
-                pixel.normal = tbn * n;
-            }
-            pixel.normal = pixel.normal.normalize();
-
-            if (pixel.ambient_map.exists()) {
-                pixel.ambient = resources[pixel.ambient_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.ambient);
-            }
-
-            if (pixel.diffuse_map.exists()) {
-                pixel.diffuse = resources[pixel.diffuse_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.diffuse);
-            }
-
-            if (pixel.specular_map.exists()) {
-                pixel.specular = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.specular);
-            }
-
-            Vector3<f32> specular_light{};
-            Vector3<f32> diffuse_light{};
-            for (const auto& light: scene.m_lights) {
-                Vector3<f32> light_dir;
-                f32 distance_squared;
-                if (light.global) {
-                    distance_squared = 1;
-                    light_dir = light.position_or_direction;
-                }else {
-                    light_dir = light.position_or_direction-pixel.position;
-                    distance_squared = light_dir.magnitude_squared();
-                    light_dir = light_dir/distance_squared;
-                }
-
-                auto lambertian = std::max(0.f, light_dir.dot(pixel.normal));
-
-                auto light_power = light.intensity/distance_squared;
-
-                if (lambertian > 0.0) {
-                    auto view_dir = (scene.m_camera.position-pixel.position).normalize();
-                    auto half_dir = (light_dir + view_dir).normalize();
-
-                    auto specular = power(std::max(0.f, pixel.normal.dot(half_dir)), pixel.shininess);
-
-                    specular_light = specular_light+light.color*(specular*light_power);
-
-                }
-
-                diffuse_light = diffuse_light+light.color*(lambertian*light_power);
-            }
-
-
-            auto color =
-                pixel.ambient.mult_components(pixel.diffuse)
-                + pixel.diffuse.mult_components(diffuse_light)
-                + pixel.specular.mult_components(specular_light)
-            ;
-
-            pixel.diffuse = color;
+            frame[i] = frame[i].fragment_shader(scene, resources);
         }
     }
 
@@ -168,7 +89,8 @@ struct Renderer {
     }
 
     static void render_scene(ref_mut<FrameBuffer> frame, ref<Scene> scene) {
-        auto proj_view = scene.proj_view(frame);
+        Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
+        auto proj_view = scene.proj_view(screen);
         auto model = Matrix4<f32>{
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -352,7 +274,7 @@ struct Renderer {
             draw_triangle_filled_textured(
                frame,
                {ss0, ss1, ss2},
-                {ws[0].xyz(), ws[1].xyz(), ws[2].xyz()},
+                {ws[0].xyz()/w0, ws[1].xyz()/w1, ws[2].xyz()/w2},
                 {n0, n1, n2},
                 {t0, t1, t2},
             {bt0, bt1, bt2},
@@ -369,7 +291,7 @@ struct Renderer {
             draw_triangle_filled_textured_deferred(
                frame,
                {ss0, ss1, ss2},
-                {ws[0].xyz()/w0, ws[1].xyz()/w1, ws[2].xyz()/w2},
+                {ws[0].xyz()/w0, ws[1].xyz()/w1, ws[2].xyz()/w1},
                {n0, n1, n2},
                {t0, t1, t2},
                {bt0, bt1, bt2},

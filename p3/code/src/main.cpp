@@ -3,7 +3,7 @@
 #include "stb_image_write.h"
 #include "stb_image.h"
 
-// #define PAR
+#define PAR
 
 #ifdef PAR
 #include <omp.h>
@@ -24,15 +24,15 @@ void write_image(ref<Game> game, std::string&& path) {
     for (usize i = 0; i < game.frame_buffer.height() * game.frame_buffer.width(); i++) {
         auto color = game.frame_buffer[i].diffuse;
         auto normal = game.frame_buffer[i].normal;
-        // auto color = (game.frame_buffer[i].normal.normalize()*0.5).add_scalar(0.5f);
+        auto normal_color = (game.frame_buffer[i].normal.normalize()*0.5).add_scalar(0.5f);
 
         data[i*channels] = static_cast<u8>(std::min(255.f, std::pow(color.x(), 1.f/2.2f) * 255));
         data[i*channels+1] = static_cast<u8>(std::min(255.f, std::pow(color.y(), 1.f/2.2f) * 255));
         data[i*channels+2] = static_cast<u8>(std::min(255.f, std::pow(color.z(), 1.f/2.2f) * 255));
 
-        // data[i*channels] = static_cast<u8>(std::min(255.f, normal.x() * 255));
-        // data[i*channels+1] = static_cast<u8>(std::min(255.f, normal.y() * 255));
-        // data[i*channels+2] = static_cast<u8>(std::min(255.f, normal.z() * 255));
+        // data[i*channels] = static_cast<u8>(std::min(255.f, normal_color.x() * 255));
+        // data[i*channels+1] = static_cast<u8>(std::min(255.f, normal_color.y() * 255));
+        // data[i*channels+2] = static_cast<u8>(std::min(255.f, normal_color.z() * 255));
         data[i*channels+3] = normal.magnitude_squared() != 0 ? 255 : 0;
     }
 

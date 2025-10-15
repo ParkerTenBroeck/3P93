@@ -87,19 +87,19 @@ public:
 
             auto ambient = mat.ambient_texname.empty()
                 ? std::nullopt :
-                std::optional{resource_store.get_texture(parent + mat.ambient_texname)};
+                std::optional{resource_store.rgba_gamma_corrected(parent + mat.ambient_texname)};
 
             auto diffuse = mat.diffuse_texname.empty()
                 ? std::nullopt :
-                std::optional{resource_store.get_texture(parent + mat.diffuse_texname)};
+                std::optional{resource_store.rgba_gamma_corrected(parent + mat.diffuse_texname)};
 
             auto specular = mat.specular_texname.empty()
                 ? std::nullopt :
-                std::optional{resource_store.get_texture(parent + mat.specular_texname)};
+                std::optional{resource_store.map(parent + mat.specular_texname)};
 
             auto normal = mat.normal_texname.empty()
                 ? std::nullopt :
-                std::optional{resource_store.get_texture(parent + mat.normal_texname)};
+                std::optional{resource_store.normal_map(parent + mat.normal_texname)};
 
             Material material{
                 {mat.ambient[0], mat.ambient[1], mat.ambient[2]},
@@ -142,9 +142,9 @@ public:
                     Vector3<f32>{attrib.normals[3*i2.normal_index], attrib.normals[3*i2.normal_index+1], attrib.normals[3*i2.normal_index+2]}
                 };
                 std::array<Vector2<f32>, 3> uvs{
-                    Vector2<f32>{attrib.texcoords[2*i0.texcoord_index], 1.f-attrib.texcoords[2*i0.texcoord_index+1]},
-                    Vector2<f32>{attrib.texcoords[2*i1.texcoord_index], 1.f-attrib.texcoords[2*i1.texcoord_index+1]},
-                    Vector2<f32>{attrib.texcoords[2*i2.texcoord_index], 1.f-attrib.texcoords[2*i2.texcoord_index+1]}
+                    Vector2<f32>{attrib.texcoords[2*i0.texcoord_index], attrib.texcoords[2*i0.texcoord_index+1]},
+                    Vector2<f32>{attrib.texcoords[2*i1.texcoord_index], attrib.texcoords[2*i1.texcoord_index+1]},
+                    Vector2<f32>{attrib.texcoords[2*i2.texcoord_index], attrib.texcoords[2*i2.texcoord_index+1]}
                 };
                 auto idx = mesh.mesh.material_ids[i/3]+1;
 
