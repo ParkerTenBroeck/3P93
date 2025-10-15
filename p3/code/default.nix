@@ -1,9 +1,7 @@
 { pkgs ? (import <nixpkgs> { 
     config.allowUnfree = true;
+    config.impureUseNativeOptimizations = true;
     config.segger-jlink.acceptLicense = true; 
-}), customPkgs ? (import /home/brett/my-nixpkgs {
-	config.allowUnfree = true;
-        config.segger-jlink.acceptLicense = true;
 }), ... }:
 pkgs.mkShell
 {
@@ -54,5 +52,9 @@ pkgs.mkShell
 		libGL.dev
 		glfw
 	];
+#	shellHook = """
+#	    unset NIX_ENFORCE_NO_NATIVE
+#	""";
+    NIX_ENFORCE_NO_NATIVE="";
 	LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib";
 }

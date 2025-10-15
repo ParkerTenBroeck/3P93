@@ -124,6 +124,7 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
     auto pixel = *this;
     if (pixel.normal.magnitude_squared() == 0.) return pixel;
 
+
     if (pixel.normal_map.exists()) {
         auto n = resources[pixel.normal_map]->resolve_uv_wrapping(pixel.uv).xyz();
 
@@ -135,6 +136,11 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
             pixel.tangent.y(), pixel.bitangent.y(), pixel.normal.y(),
             pixel.tangent.z(), pixel.bitangent.z(), pixel.normal.z(),
         };
+
+        auto view_dir = (tbn*scene.m_camera.position-tbn*pixel.position).normalize();
+        auto height = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).x();
+        pixel.uv = pixel.uv - view_dir.xy() / view_dir.z()*height*0.5;
+
         pixel.normal = tbn * n;
     }
     pixel.normal = pixel.normal.normalize();
@@ -150,6 +156,7 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
     if (pixel.specular_map.exists()) {
         pixel.specular = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.specular);
     }
+    const auto view_dir = (scene.m_camera.position-pixel.position).normalize();
 
     Vector3<f32> specular_light{};
     Vector3<f32> diffuse_light{};
@@ -170,7 +177,6 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
         auto light_power = light.intensity/distance_squared;
 
         if (lambertian > 0.0) {
-            auto view_dir = (scene.m_camera.position-pixel.position).normalize();
             auto half_dir = (light_dir + view_dir).normalize();
 
             auto specular = power(std::max(0.f, pixel.normal.dot(half_dir)), pixel.shininess);

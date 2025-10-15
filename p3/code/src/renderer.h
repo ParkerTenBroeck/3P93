@@ -201,10 +201,6 @@ struct Renderer {
         auto uv1 = uv[1].extend(1);
         auto uv2 = uv[2].extend(1);
 
-        uv0 = uv0 / w0;
-        uv1 = uv1 / w1;
-        uv2 = uv2 / w2;
-
         const auto ps0 = perspective(cs[0]);
         const auto ps1 = perspective(cs[1]);
         const auto ps2 = perspective(cs[2]);
@@ -249,6 +245,10 @@ struct Renderer {
             bt2 = g2[1];
         }
 
+        uv0 = uv0 / w0;
+        uv1 = uv1 / w1;
+        uv2 = uv2 / w2;
+
 
         TextureId ambient_map{};
         if (material.ambient_map.has_value()) {
@@ -291,7 +291,7 @@ struct Renderer {
             draw_triangle_filled_textured_deferred(
                frame,
                {ss0, ss1, ss2},
-                {ws[0].xyz()/w0, ws[1].xyz()/w1, ws[2].xyz()/w1},
+                {ws[0].xyz()/w0, ws[1].xyz()/w1, ws[2].xyz()/w2},
                {n0, n1, n2},
                {t0, t1, t2},
                {bt0, bt1, bt2},
@@ -351,7 +351,7 @@ struct Renderer {
         bitangent.z() = f * (-delta_uv2.x() * edge1.z() + delta_uv1.x() * edge2.z());
 
         return {
-            (normal_matrix * tangent)  / w,
+            (normal_matrix * tangent) / w,
             (normal_matrix * bitangent) / w
         };
     }

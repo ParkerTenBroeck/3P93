@@ -149,9 +149,9 @@ public:
         scene.m_lights[1].color = {0.03, 1, 0.03};
         scene.m_lights[2].color = {0.03, 0.03, 1};
 
-        scene.m_lights[0].intensity = 1;
-        scene.m_lights[1].intensity = 1;
-        scene.m_lights[2].intensity = 1;
+        scene.m_lights[0].intensity = 10;
+        scene.m_lights[1].intensity = 10;
+        scene.m_lights[2].intensity = 10;
 
         scene.m_lights[3].position_or_direction = {-1,1,-1};
         scene.m_lights[3].color = {1,1,1};

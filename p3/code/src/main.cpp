@@ -24,11 +24,20 @@ void write_image(ref<Game> game, std::string&& path) {
     for (usize i = 0; i < game.frame_buffer.height() * game.frame_buffer.width(); i++) {
         auto color = game.frame_buffer[i].diffuse;
         auto normal = game.frame_buffer[i].normal;
-        auto normal_color = (game.frame_buffer[i].normal.normalize()*0.5).add_scalar(0.5f);
+        auto normal_color = (game.frame_buffer[i].tangent*0.5).add_scalar(0.5f);
+
+        // u8 r = game.frame_buffer[i].normal.dot(game.frame_buffer[i].tangent) * 255;
+        // u8 g = game.frame_buffer[i].normal.dot(game.frame_buffer[i].bitangent)* 255;
+        // u8 b = game.frame_buffer[i].bitangent.dot(game.frame_buffer[i].tangent)* 255;
+        // data[i*channels] = r;
+        // data[i*channels+1] = g;
+        // data[i*channels+2] = b;
 
         data[i*channels] = static_cast<u8>(std::min(255.f, std::pow(color.x(), 1.f/2.2f) * 255));
         data[i*channels+1] = static_cast<u8>(std::min(255.f, std::pow(color.y(), 1.f/2.2f) * 255));
         data[i*channels+2] = static_cast<u8>(std::min(255.f, std::pow(color.z(), 1.f/2.2f) * 255));
+
+
 
         // data[i*channels] = static_cast<u8>(std::min(255.f, normal_color.x() * 255));
         // data[i*channels+1] = static_cast<u8>(std::min(255.f, normal_color.y() * 255));
