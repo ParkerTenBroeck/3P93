@@ -10,6 +10,7 @@
 
 class Camera {
 public:
+    Vector3<f32> up{0, 1, 0};
     Vector3<f32> target{0, 0, 0};
     Vector3<f32> position{0, 0, 0};
     f32 fov{M_PI/3};
@@ -17,7 +18,7 @@ public:
 
     [[nodiscard]]
     Matrix4<f32> view() const {
-        return Matrix4<f32>::look_at(this->position, this->target, {0, 1, 0});
+        return Matrix4<f32>::look_at(this->position, this->target, this->up);
     }
 };
 

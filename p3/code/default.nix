@@ -52,9 +52,6 @@ pkgs.mkShell
 		libGL.dev
 		glfw
 	];
-#	shellHook = """
-#	    unset NIX_ENFORCE_NO_NATIVE
-#	""";
     NIX_ENFORCE_NO_NATIVE="";
 	LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib";
 }

@@ -159,28 +159,27 @@ public:
         scene.m_lights[3].intensity = 0.1;
 
         scene.m_camera.target = {0, 0, 0};
+        scene.m_camera.position.y() = 3;
+        scene.m_camera.position.z() = 5;
     }
 
     void update(f32 delta, f64 time) override {
-        const auto max_time = 300.f;
-        const auto percent = static_cast<f32>(time) / max_time;
 
-        scene.m_camera.target = {0, 0, 0};
-        scene.m_camera.position.y() = 3;
-        scene.m_camera.position.z() = 5;//std::sin(percent * M_PIf*2)*5;
+        auto meow_time = (f32)time / 10.f;
+        //std::sin(percent * M_PIf*2)*5;
         // scene.m_camera.position.x() = std::cos(percent * M_PIf*2)*5;
 
-        this->scene[this->brick].m_rotation.y() = percent * M_PIf*2;
+        this->scene[this->brick].m_rotation.y() = meow_time * M_PIf*2;
 
         const auto scale = 3.f;
-        scene.m_lights[0].position_or_direction.x() = std::sin(percent * M_PIf * 2)*scale;
-        scene.m_lights[0].position_or_direction.z() = std::cos(percent * M_PIf * 2)*-scale;
+        scene.m_lights[0].position_or_direction.x() = std::sin(meow_time * M_PIf * 2)*scale;
+        scene.m_lights[0].position_or_direction.z() = std::cos(meow_time * M_PIf * 2)*-scale;
 
-        scene.m_lights[1].position_or_direction.y() = std::sin(percent*2 * M_PIf * 2)*scale;
-        scene.m_lights[1].position_or_direction.z() = std::cos(percent*2 * M_PIf * 2)*-scale;
+        scene.m_lights[1].position_or_direction.y() = std::sin(meow_time*2 * M_PIf * 2)*scale;
+        scene.m_lights[1].position_or_direction.z() = std::cos(meow_time*2 * M_PIf * 2)*-scale;
 
-        scene.m_lights[2].position_or_direction.y() = std::sin(percent*3 * M_PIf * 2)*scale;
-        scene.m_lights[2].position_or_direction.x() = std::cos(percent*3 * M_PIf * 2)*-scale;
+        scene.m_lights[2].position_or_direction.y() = std::sin(meow_time*3 * M_PIf * 2)*scale;
+        scene.m_lights[2].position_or_direction.x() = std::cos(meow_time*3 * M_PIf * 2)*-scale;
     }
 };
 

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
+include(FetchContent)
+
 macro(sanitizers target_name)
     if (${ENABLE_ADDRSAN} MATCHES ON)
         target_compile_options(${target_name} PRIVATE -fsanitize=address)
@@ -23,16 +25,39 @@ macro(compile_options target_name)
     endif ()
     unset(NIX_ENFORCE_NO_NATIVE)
 
-    target_compile_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -march=native -mtune=native -std=c++17 -lstdc++)
-    target_link_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -march=native -mtune=native -std=c++17 -lstdc++)
+    target_compile_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
+    target_link_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
+
+#    target_compile_options(${target_name} PRIVATE -march=native -mtune=native)
+#    target_link_options(${target_name} PRIVATE -march=native -mtune=native)
+
     sanitizers(${target_name})
 endmacro()
+
+
 
 project(rasterizer VERSION 0.0.1)
 
 option(ENABLE_ADDRSAN "Enable the address sanitizer" OFF)
 option(ENABLE_UBSAN "Enable the ub sanitizer" OFF)
 option(ENABLE_TSAN "Enable the thread data race sanitizer" OFF)
+option(ENABLE_OPENGL "Enable OpenGL" ON)
+
+if (ENABLE_OPENGL)
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+
+    FetchContent_Declare(glfw3
+            GIT_REPOSITORY https://github.com/glfw/glfw.git
+            # Release 3.4
+            GIT_TAG 7b6aead9fb88b3623e3b3725ebb42670cbe4c579
+            FIND_PACKAGE_ARGS)
+    FetchContent_MakeAvailable(glfw3)
+
+    find_package(OpenGL REQUIRED)
+endif()
 
 include_directories(include/)
 
@@ -50,4 +75,12 @@ set_property(TARGET rasterizer PROPERTY CXX_STANDARD 17)
 
 target_include_directories(rasterizer PRIVATE include)
 target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
+
 compile_options(rasterizer)
+if (${ENABLE_OPENGL} MATCHES ON)
+    target_compile_options(${PROJECT_NAME} PRIVATE -DGUI)
+    target_link_options(${PROJECT_NAME} PRIVATE)
+
+    target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+    target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::GL)
+endif()
