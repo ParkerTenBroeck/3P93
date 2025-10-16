@@ -277,14 +277,14 @@ public:
     [[nodiscard]]
     static Matrix4<T> look_at(Vector3<T> pos, Vector3<T> target, Vector3<T> up) {
 
-        auto forward = (target-pos).normalize();
-        auto right = forward.cross(up).normalize();
-        up = right.cross(forward).normalize();
+        auto forward = (pos-target).normalize();
+        auto right = up.cross(forward).normalize();
+        up = forward.cross(right).normalize();
         return Matrix4<f32>({
-            right.x(), up.x(), -forward.x(), 0,
-            right.y(), up.y(), -forward.y(), 0,
-            right.z(), up.z(), -forward.z(), 0,
-            right.dot(pos), up.dot(pos), forward.dot(pos), 1
+            right.x(), up.x(), forward.x(), 0,
+            right.y(), up.y(), forward.y(), 0,
+            right.z(), up.z(), forward.z(), 0,
+            -right.dot(pos), -up.dot(pos), -forward.dot(pos), 1
         }).transpose();
     }
 

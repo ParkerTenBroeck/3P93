@@ -20,12 +20,24 @@ struct Key{
     u8 pressed : 1;
 };
 
+struct MouseButton{
+    u8 down : 1;
+    u8 released : 1;
+    u8 pressed : 1;
+    u8 shift : 1;
+    u8 control : 1;
+    u8 alt : 1;
+};
+
 struct InputState {
-    double mouse_x = 0.0;
-    double mouse_y = 0.0;
-    double scroll_y = 0.0;
-    double scroll_x = 0.0;
-    Key keys[1024] = {false};
+    f64 mouse_x = 0.0;
+    f64 mouse_y = 0.0;
+    f64 mouse_delta_x = 0.0;
+    f64 mouse_delta_y = 0.0;
+    f64 scroll_y = 0.0;
+    f64 scroll_x = 0.0;
+    Key keys[GLFW_KEY_LAST+1] = {0,0,0};
+    MouseButton mouse_buttons[GLFW_MOUSE_BUTTON_LAST+1] = {0,0,0,0,0,0};
     std::string typped;
 };
 
@@ -40,22 +52,25 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     auto caps = GLFW_MOD_CAPS_LOCK&mods!=0;
     auto num = GLFW_MOD_NUM_LOCK&mods!=0;
 
+    if (key < 0 || key > GLFW_KEY_LAST) return;
+
     if (GLFW_KEY_SPACE <= key && key <= GLFW_KEY_GRAVE_ACCENT && !ctrl && !super && !alt) {
         if (GLFW_KEY_A <= key && key <= GLFW_KEY_Z) {
-            input.typped += (char)key + (key != GLFW_KEY_SPACE && caps ^ shift?0:32);
+            input.typped += key + (key != GLFW_KEY_SPACE && caps ^ shift?0:32);
         }else if (shift){
-            input.typped += (char)std::toupper((char)key);
+            input.typped += key;
         }else {
-            input.typped += (char)key;
+            input.typped += key;
         }
     }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-    if (key >= 0 && key < 1024) {
-        input.keys[key].pressed = !input.keys[key].down && action == GLFW_PRESS || action == GLFW_REPEAT != 0;
-        input.keys[key].down = action == GLFW_PRESS != 0;
-        input.keys[key].released = action == GLFW_RELEASE != 0;
+
+    input.keys[key].pressed = !input.keys[key].down && action == GLFW_PRESS || action == GLFW_REPEAT;
+    if (action != GLFW_REPEAT) {
+        input.keys[key].down = action == GLFW_PRESS;
+        input.keys[key].released = action == GLFW_RELEASE;
     }
 }
 
@@ -65,8 +80,21 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 }
 
 void cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+    input.mouse_delta_x += xpos - input.mouse_x;
+    input.mouse_delta_y += ypos - input.mouse_y;
     input.mouse_x = xpos;
     input.mouse_y = ypos;
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button < 0 || button > GLFW_MOUSE_BUTTON_LAST) return;
+
+    input.mouse_buttons[button].down = action == GLFW_PRESS;
+    input.mouse_buttons[button].pressed = action == GLFW_PRESS;
+    input.mouse_buttons[button].released = action == GLFW_RELEASE;
+    input.mouse_buttons[button].shift = (GLFW_MOD_SHIFT&mods)!=0;
+    input.mouse_buttons[button].control = (GLFW_MOD_CONTROL&mods)!=0;
+    input.mouse_buttons[button].alt = (GLFW_MOD_ALT&mods)!=0;
 }
 
 // Error callback
@@ -75,14 +103,13 @@ void glfw_error_callback(int error, const char* desc) {
 }
 
 void handle_game_input(Game* game, f32 delta) {
-    delta *= 10;
     Vector3<f32> movement{0., 0., 0.};
-    auto facing = game->scene.m_camera.position-game->scene.m_camera.target;
+    auto facing = (game->scene.m_camera.target-game->scene.m_camera.position).normalize();
     if (input.keys[GLFW_KEY_W].down) {
-        movement = movement - facing.normalize()*delta;
+        movement = movement + facing.normalize()*delta;
     }
     if (input.keys[GLFW_KEY_S].down) {
-        movement = movement + facing.normalize()*delta;
+        movement = movement - facing.normalize()*delta;
     }
     if (input.keys[GLFW_KEY_A].down) {
         movement = movement - facing.cross(game->scene.m_camera.up).normalize()*delta;
@@ -97,8 +124,25 @@ void handle_game_input(Game* game, f32 delta) {
     if (input.keys[GLFW_KEY_LEFT_SHIFT].down) {
         movement = movement - game->scene.m_camera.up * delta;
     }
-    game->scene.m_camera.position = game->scene.m_camera.position+movement;
-    game->scene.m_camera.target = game->scene.m_camera.target+movement;
+
+    game->scene.m_camera.fov -= input.scroll_y/10.f;
+    game->scene.m_camera.fov = std::clamp(game->scene.m_camera.fov, 0.00001f, M_PIf);
+
+    game->scene.m_camera.position = game->scene.m_camera.position+movement*7;
+
+    static f32 yaw = 0.f;
+    static f32 pitch = 0.f;
+
+    if (input.mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].down) {
+        yaw -= (f32)input.mouse_delta_x*0.002f;
+        pitch -= (f32)input.mouse_delta_y*0.002f;
+        facing.z() = std::cos(yaw) * std::cos(pitch);
+        facing.y() = std::sin(pitch);
+        facing.x() = std::sin(yaw) * std::cos(pitch);
+        game->scene.m_camera.target = game->scene.m_camera.position+facing.normalize();
+    }
+
+    game->scene.m_camera.target = facing+game->scene.m_camera.position;
 }
 
 int main(int argc, char** argv) {
@@ -115,7 +159,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(game->frame_buffer.width(), game->frame_buffer.height(), "CPU Image to OpenGL", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(game->frame_buffer.width(), game->frame_buffer.height(), "CPU Rasterizer", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create window\n";
         glfwTerminate();
@@ -133,6 +177,7 @@ int main(int argc, char** argv) {
     glfwSetKeyCallback(window, key_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetCursorPosCallback(window, cursor_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // Create texture
     GLuint tex;
@@ -232,8 +277,7 @@ int main(int argc, char** argv) {
             pixels[i*4+2] = game->frame_buffer[i].diffuse.z();
             pixels[i*4+3] = 1.f;
         }
-        // std::cout << "Frame: " << frame_count << " Render Time: " <<  std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-frame_start).count() << " ms" << std::endl;
-        std::cout << "Typped: " << (int)input.keys[GLFW_KEY_SPACE].down << std::endl;
+        std::cout << "Frame: " << frame_count << " Render Time: " <<  std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-frame_start).count() << " ms" << std::endl;
         frame_count += 1;
 
 
@@ -249,6 +293,8 @@ int main(int argc, char** argv) {
 
         input.scroll_x = 0.f;
         input.scroll_y = 0.f;
+        input.mouse_delta_x = 0.f;
+        input.mouse_delta_y = 0.f;
         input.typped.clear();
         for (auto & key : input.keys) {
             key.pressed = false;

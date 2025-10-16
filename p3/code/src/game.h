@@ -158,9 +158,8 @@ public:
         scene.m_lights[3].global = true;
         scene.m_lights[3].intensity = 0.1;
 
-        scene.m_camera.target = {0, 0, 0};
-        scene.m_camera.position.y() = 3;
-        scene.m_camera.position.z() = 5;
+        scene.m_camera.position = {0, 0, -5};
+        scene.m_camera.target = {0, 0, -4};
     }
 
     void update(f32 delta, f64 time) override {
