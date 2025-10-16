@@ -25,6 +25,8 @@ struct Renderer {
         Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
         auto proj_view = scene.proj_view(screen);
 
+        auto size_projection = 1.f/std::tan(scene.m_camera.fov/2)* frame.width();
+
         for (const auto& light : scene.m_lights) {
             if (light.global) continue;
             auto cs = proj_view*light.position_or_direction.extend(1);
@@ -50,12 +52,12 @@ struct Renderer {
 
             auto ps = perspective(cs);
             auto ss = screen_space(ps, screen);
-            auto perspective_size = std::min( light.radius / cs.w(), 1.f);
-            isize size = std::max(static_cast<isize>(1), static_cast<isize>(perspective_size * frame.width()));
+            const auto perspective_size = std::clamp( light.radius / cs.w() * size_projection, 0.f, (f32)frame.width());
+            const auto size = static_cast<isize>(perspective_size);
 
             for (isize x = -size; x <= size; ++x) {
                 for (isize y = -size; y <= size; ++y) {
-                    if (x*x + y*y > size*size) continue;
+                    if (x*x + y*y > perspective_size*perspective_size) continue;
                     auto pos = ss.xy() + Vector2<f32>({static_cast<f32>(x), static_cast<f32>(y)});
 
                     if (pos.x() < 0 || pos.x() > frame.width() || pos.y() < 0 || pos.y() > frame.height()) continue;

@@ -32,7 +32,7 @@ struct Scenes {
 
 struct Arguments {
     usize width = 720, height = 480;
-    Scenes scene = Scenes::Test;
+    Scenes scene = Scenes::Brick;
     bool write_frames = true;
 
     explicit Arguments(slice<char*> args) {

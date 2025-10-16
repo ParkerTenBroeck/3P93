@@ -104,12 +104,15 @@ void glfw_error_callback(int error, const char* desc) {
 
 void handle_game_input(Game* game, f32 delta) {
     Vector3<f32> movement{0., 0., 0.};
-    auto facing = (game->scene.m_camera.target-game->scene.m_camera.position).normalize();
+    // project facing vector onto the plane defined by the up normal
+    auto facing = (game->scene.m_camera.target-game->scene.m_camera.position);
+    facing = facing-(facing.dot(game->scene.m_camera.up)*game->scene.m_camera.up);
+    facing = facing.normalize();
     if (input.keys[GLFW_KEY_W].down) {
-        movement = movement + facing.normalize()*delta;
+        movement = movement + facing*delta;
     }
     if (input.keys[GLFW_KEY_S].down) {
-        movement = movement - facing.normalize()*delta;
+        movement = movement - facing*delta;
     }
     if (input.keys[GLFW_KEY_A].down) {
         movement = movement - facing.cross(game->scene.m_camera.up).normalize()*delta;
@@ -117,7 +120,7 @@ void handle_game_input(Game* game, f32 delta) {
     if (input.keys[GLFW_KEY_D].down) {
         movement = movement + facing.cross(game->scene.m_camera.up).normalize()*delta;
     }
-    movement.y() = 0.f;
+
     if (input.keys[GLFW_KEY_SPACE].down) {
         movement = movement + game->scene.m_camera.up * delta;
     }
@@ -134,13 +137,14 @@ void handle_game_input(Game* game, f32 delta) {
     static f32 pitch = 0.f;
 
     if (input.mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].down) {
-        yaw -= (f32)input.mouse_delta_x*0.002f;
-        pitch -= (f32)input.mouse_delta_y*0.002f;
-        facing.z() = std::cos(yaw) * std::cos(pitch);
-        facing.y() = std::sin(pitch);
-        facing.x() = std::sin(yaw) * std::cos(pitch);
-        game->scene.m_camera.target = game->scene.m_camera.position+facing.normalize();
+        yaw -= (f32)input.mouse_delta_x*0.005f;
+        pitch -= (f32)input.mouse_delta_y*0.005f;
+        pitch = std::clamp(pitch, -M_PIf/2 + 0.001f, M_PIf/2 - 0.001f);
     }
+    facing.z() = std::cos(yaw) * std::cos(pitch);
+    facing.y() = std::sin(pitch);
+    facing.x() = std::sin(yaw) * std::cos(pitch);
+    game->scene.m_camera.target = game->scene.m_camera.position+facing.normalize();
 
     game->scene.m_camera.target = facing+game->scene.m_camera.position;
 }
