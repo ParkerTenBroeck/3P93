@@ -81,6 +81,9 @@ public:
     explicit BrickGame(FrameBuffer&& frame_buffer) : Game(std::move(frame_buffer)) {
         const auto brick = scene.add_object(Object::load("../assets/bricks/Mauerrest_C.obj", resource_store));
         scene[brick].m_position.y() -= 10;
+
+        const auto city = scene.add_object(Object::load("../assets/city/full_gameready_city_buildings.obj", resource_store));
+        scene[city].m_position.y() -= 10;
         // scene[brick].m_scale.x() = 0.2;
         // scene[brick].m_scale.y() = 0.2;
         // scene[brick].m_scale.z() = 0.2;
@@ -94,9 +97,9 @@ public:
         scene.m_lights[1].color = {0.03, 1, 0.03};
         scene.m_lights[2].color = {0.03, 0.03, 1};
 
-        scene.m_lights[0].intensity = 50;
-        scene.m_lights[1].intensity = 50;
-        scene.m_lights[2].intensity = 50;
+        scene.m_lights[0].intensity = 5000;
+        scene.m_lights[1].intensity = 5000;
+        scene.m_lights[2].intensity = 5000;
 
         scene.m_lights[3].position_or_direction = {-1,1,-1};
         scene.m_lights[3].color = {1,1,1};

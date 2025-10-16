@@ -120,6 +120,46 @@ INLINE inline f32 power(f32 base, i32 exp) {
     return res;
 }
 
+INLINE inline f32 DistributionGGX(Vector3<f32> N, Vector3<f32> H, f32 roughness)
+{
+    const f32 a = roughness*roughness;
+    const f32 a2 = a*a;
+    const f32 NdotH = std::max(N.dot(H), 0.0f);
+    const f32 NdotH2 = NdotH*NdotH;
+
+    const f32 nom   = a2;
+    f32 denom = (NdotH2 * (a2 - 1.0f) + 1.0f);
+    denom = M_PIf * denom * denom;
+
+    return nom / denom;
+}
+// ----------------------------------------------------------------------------
+INLINE inline f32 GeometrySchlickGGX(f32 NdotV, f32 roughness)
+{
+    const f32 r = (roughness + 1.0f);
+    const f32 k = (r*r) / 8.0f;
+
+    const f32 nom   = NdotV;
+    const f32 denom = NdotV * (1.0f - k) + k;
+
+    return nom / denom;
+}
+// ----------------------------------------------------------------------------
+INLINE inline float GeometrySmith(Vector3<f32> N, Vector3<f32> V, Vector3<f32> L, f32 roughness)
+{
+    const f32 NdotV = std::max(N.dot(V), 0.0f);
+    const f32 NdotL = std::max(N.dot(L), 0.0f);
+    const f32 ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    const f32 ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
+}
+// ----------------------------------------------------------------------------
+INLINE inline Vector3<f32> fresnelSchlick(f32 cosTheta, Vector3<f32> F0)
+{
+    return F0 + (Vector3<f32>{1.0f,1.0f,1.0f} - F0) * power(std::clamp(1.0f - cosTheta, 0.0f, 1.0f), 5);
+}
+
 INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> resources) const {
     auto pixel = *this;
     if (pixel.normal.magnitude_squared() == 0.) return pixel;
