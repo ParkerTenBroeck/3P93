@@ -6,10 +6,10 @@ newmtl brick
 	illum 2
 	Ka 0.1000 0.1000 0.1000
 	Kd 1.0000 1.0000 1.0000
-	#Ks 1.0000 1.0000 1.0000
+	Ks 0.4000 0.4000 0.1000
 	#Ks 0.0000 0.0000 0.0000
     Ke 0.0000 0.0000 0.0000
-	Ns 64.0000
+	Ns 258.0000
 	#map_Ka brick_wall2-diff-2048.tga
 	#map_Kd brick_wall2-diff-2048.tga
 	#norm brick_wall2-nor-2048.tga

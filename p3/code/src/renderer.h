@@ -424,6 +424,10 @@ struct Renderer {
             }
 
             Pixel pixel;
+            pixel.depth = convert_depth(depth);
+            if (pixel.depth >= frame[pix].depth) {
+                continue;
+            }
             pixel.ambient = ambient;
             pixel.specular = specular;
             pixel.diffuse = color.xyz();
@@ -436,7 +440,6 @@ struct Renderer {
             pixel.bitangent = (bt0 * w0 + bt1 * w1 + bt2 * w2)/frac_1_w;
             pixel.position = (ws0 * w0 + ws1 * w1 + ws2 * w2)/frac_1_w;
             pixel.normal_map = normal_map;
-            pixel.depth = convert_depth(depth);
             frame[pix].set_smaller_depth(pixel);
         });
     }
@@ -471,6 +474,10 @@ struct Renderer {
             pix_uv = pix_uv/frac_1_w;
 
             Pixel pixel;
+            pixel.depth = convert_depth(depth);
+            if (pixel.depth >= frame[pix].depth) {
+                continue;
+            }
             pixel.ambient = ambient;
             pixel.diffuse = diffuse;
             pixel.specular = specular;
@@ -484,7 +491,6 @@ struct Renderer {
             pixel.bitangent = ((bt0 * w0 + bt1 * w1 + bt2 * w2)/frac_1_w).xyz();
             pixel.position = (ws0 * w0 + ws1 * w1 + ws2 * w2)/frac_1_w;
             pixel.normal_map = normal_map;
-            pixel.depth = convert_depth(depth);
             frame[pix].set_smaller_depth(pixel);
         });
     }
