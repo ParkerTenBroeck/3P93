@@ -76,23 +76,24 @@ int main(int argc, char** argv){
             exit(-1);
     }
 
-
-    u64 total = 0;
-    for (int i = 0; i < 300; i ++) {
+    f64 duration = 3.;
+    u64 frames = 300;
+    u64 total_ms = 0;
+    for (int i = 0; i < frames; i ++) {
         auto start = std::chrono::high_resolution_clock::now();
-        game->update(1, i);
+        game->update(1.f/duration, i*duration/frames);
         game->render();
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = end - start;
         long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-        total += milliseconds;
+        total_ms += milliseconds;
         std::cout << "Frame: " << (i+1) << " Render Time: " << milliseconds << " ms" << std::endl;
 
         if (args.write_frames)
             write_image(*game, "../animation/frame_" + leading(i, 3) + ".png");
     }
-    std::cout << "average frame time: " << (total/300.0) << "ms" << std::endl;
+    std::cout << "average frame time: " << (total_ms/300.0) << "ms" << std::endl;
 }
 
 #endif //TUI_H

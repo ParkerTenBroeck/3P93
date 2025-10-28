@@ -74,7 +74,7 @@ struct Renderer {
 
     static void fragment(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
         #ifdef PAR
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(static, frame.width())
         #endif
         for (usize i = 0; i < frame.size(); i ++) {
             frame[i] = frame[i].fragment_shader(scene, resources);
@@ -118,7 +118,7 @@ struct Renderer {
         Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
         Matrix3<f32> normal_matrix{model_matrix.inverse().transpose()};
         #ifdef PAR
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(guided)
         #endif
         for (const auto& face: mesh.m_faces) {
             auto ms0 = face.points[0].extend(1);

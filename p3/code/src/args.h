@@ -33,7 +33,7 @@ struct Scenes {
 struct Arguments {
     usize width = 720, height = 480;
     Scenes scene = Scenes::Test;
-    bool write_frames = true;
+    bool write_frames = false;
 
     explicit Arguments(slice<char*> args) {
         for (char* carg : args.iter()) {
