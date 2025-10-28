@@ -6,6 +6,7 @@
 #define TUI_H
 
 
+#include "game.h"
 #include "args.h"
 
 #include <chrono>

@@ -169,7 +169,7 @@ public:
         //std::sin(percent * M_PIf*2)*5;
         // scene.m_camera.position.x() = std::cos(percent * M_PIf*2)*5;
 
-        this->scene[this->brick].m_rotation.y() = meow_time * M_PIf*2;
+        // this->scene[this->brick].m_rotation.y() = meow_time * M_PIf*2;
 
         const auto scale = 3.f;
         scene.m_lights[0].position_or_direction.x() = std::sin(meow_time * M_PIf * 2)*scale;

@@ -11,8 +11,9 @@ newmtl brick
     Ke 0.0000 0.0000 0.0000
 	Ns 64.0000
 	#map_Ka brick_wall2-diff-2048.tga
-	map_Kd brick_wall2-diff-2048.tga
+	#map_Kd brick_wall2-diff-2048.tga
 	#norm brick_wall2-nor-2048.tga
-	norm normal.png
-	map_Ks height.png
+	map_Kd wood.png
+    norm toy_box_normal.png
+	#map_Ks toy_box_disp.png
 	#map_Ks brick_wall2-spec-2048.tga

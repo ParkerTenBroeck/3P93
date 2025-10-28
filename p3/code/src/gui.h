@@ -14,18 +14,27 @@
 #include <chrono>
 #include <cctype>
 
+
+
 struct Key{
     u8 down : 1;
     u8 released : 1;
     u8 pressed : 1;
+    u8 caps : 1;
+    u8 super : 1;
+    u8 shift : 1;
+    u8 ctrl : 1;
+    u8 alt : 1;
 };
 
 struct MouseButton{
     u8 down : 1;
     u8 released : 1;
     u8 pressed : 1;
+    u8 caps : 1;
+    u8 super : 1;
     u8 shift : 1;
-    u8 control : 1;
+    u8 ctrl : 1;
     u8 alt : 1;
 };
 
@@ -45,12 +54,12 @@ InputState input{};
 
 // GLFW Callbacks
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    auto shift = GLFW_MOD_SHIFT&mods!=0;
-    auto ctrl = GLFW_MOD_CONTROL&mods!=0;
-    auto super = GLFW_MOD_SUPER&mods!=0;
-    auto alt = GLFW_MOD_ALT&mods!=0;
-    auto caps = GLFW_MOD_CAPS_LOCK&mods!=0;
-    auto num = GLFW_MOD_NUM_LOCK&mods!=0;
+    const auto shift = GLFW_MOD_SHIFT&mods!=0;
+    const auto ctrl = GLFW_MOD_CONTROL&mods!=0;
+    const auto super = GLFW_MOD_SUPER&mods!=0;
+    const auto alt = GLFW_MOD_ALT&mods!=0;
+    const auto caps = GLFW_MOD_CAPS_LOCK&mods!=0;
+    // auto num = GLFW_MOD_NUM_LOCK&mods!=0;
 
     if (key < 0 || key > GLFW_KEY_LAST) return;
 
@@ -66,6 +75,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    input.keys[key].shift = shift;
+    input.keys[key].ctrl = ctrl;
+    input.keys[key].super = super;
+    input.keys[key].alt = alt;
+    input.keys[key].caps = caps;
 
     input.keys[key].pressed = !input.keys[key].down && action == GLFW_PRESS || action == GLFW_REPEAT;
     if (action != GLFW_REPEAT) {
@@ -92,9 +107,12 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     input.mouse_buttons[button].down = action == GLFW_PRESS;
     input.mouse_buttons[button].pressed = action == GLFW_PRESS;
     input.mouse_buttons[button].released = action == GLFW_RELEASE;
-    input.mouse_buttons[button].shift = (GLFW_MOD_SHIFT&mods)!=0;
-    input.mouse_buttons[button].control = (GLFW_MOD_CONTROL&mods)!=0;
-    input.mouse_buttons[button].alt = (GLFW_MOD_ALT&mods)!=0;
+
+    input.mouse_buttons[button].shift = GLFW_MOD_SHIFT&mods!=0;
+    input.mouse_buttons[button].ctrl = GLFW_MOD_CONTROL&mods!=0;
+    input.mouse_buttons[button].super = GLFW_MOD_SUPER&mods!=0;
+    input.mouse_buttons[button].alt = GLFW_MOD_ALT&mods!=0;
+    input.mouse_buttons[button].caps = GLFW_MOD_CAPS_LOCK&mods!=0;
 }
 
 // Error callback
@@ -102,30 +120,43 @@ void glfw_error_callback(int error, const char* desc) {
     std::cerr << "GLFW Error " << error << ": " << desc << std::endl;
 }
 
+enum class VisualKind : int {
+    Color = 'c',
+    Depth = 'd',
+    Normal = 'n',
+    Bitangent = 'b',
+    Tangent = 't',
+    Position = 'p',
+};
+inline VisualKind visual = VisualKind::Color;
+
 void handle_game_input(Game* game, f32 delta) {
     Vector3<f32> movement{0., 0., 0.};
     // project facing vector onto the plane defined by the up normal
     auto facing = (game->scene.m_camera.target-game->scene.m_camera.position);
     facing = facing-(facing.dot(game->scene.m_camera.up)*game->scene.m_camera.up);
     facing = facing.normalize();
+
+    const auto speed = input.keys[GLFW_KEY_LEFT_CONTROL].down?1.0f:0.3f;
+
     if (input.keys[GLFW_KEY_W].down) {
-        movement = movement + facing*delta;
+        movement = movement + speed*facing*delta;
     }
     if (input.keys[GLFW_KEY_S].down) {
-        movement = movement - facing*delta;
+        movement = movement - speed*facing*delta;
     }
     if (input.keys[GLFW_KEY_A].down) {
-        movement = movement - facing.cross(game->scene.m_camera.up).normalize()*delta;
+        movement = movement - speed*facing.cross(game->scene.m_camera.up).normalize()*delta;
     }
     if (input.keys[GLFW_KEY_D].down) {
-        movement = movement + facing.cross(game->scene.m_camera.up).normalize()*delta;
+        movement = movement + speed*facing.cross(game->scene.m_camera.up).normalize()*delta;
     }
 
     if (input.keys[GLFW_KEY_SPACE].down) {
-        movement = movement + game->scene.m_camera.up * delta;
+        movement = movement + speed*game->scene.m_camera.up * delta;
     }
     if (input.keys[GLFW_KEY_LEFT_SHIFT].down) {
-        movement = movement - game->scene.m_camera.up * delta;
+        movement = movement - speed*game->scene.m_camera.up * delta;
     }
 
     game->scene.m_camera.fov -= input.scroll_y/10.f;
@@ -147,9 +178,79 @@ void handle_game_input(Game* game, f32 delta) {
     game->scene.m_camera.target = game->scene.m_camera.position+facing.normalize();
 
     game->scene.m_camera.target = facing+game->scene.m_camera.position;
+
+    if (input.keys[GLFW_KEY_C].pressed) {
+        visual = VisualKind::Color;
+    }else if (input.keys[GLFW_KEY_F].pressed) {
+        visual = VisualKind::Depth;
+    }else if (input.keys[GLFW_KEY_N].pressed) {
+        visual = VisualKind::Normal;
+    }else if (input.keys[GLFW_KEY_B].pressed) {
+        visual = VisualKind::Bitangent;
+    }else if (input.keys[GLFW_KEY_T].pressed) {
+        visual = VisualKind::Tangent;
+    }else if (input.keys[GLFW_KEY_P].pressed) {
+        visual = VisualKind::Position;
+    }
+}
+
+inline void fill_buffer(const VisualKind visual, Game *game, std::vector<f32>& pixels) {
+    switch (visual) {
+        case VisualKind::Color: {
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].diffuse.x();
+                pixels[i*4+1] = game->frame_buffer[i].diffuse.y();
+                pixels[i*4+2] = game->frame_buffer[i].diffuse.z();
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+        case VisualKind::Depth: {
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].depth;
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+        case VisualKind::Normal: {
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].normal.x();
+                pixels[i*4+1] = game->frame_buffer[i].normal.y();
+                pixels[i*4+2] = game->frame_buffer[i].normal.z();
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+        case VisualKind::Bitangent: {
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].bitangent.x();
+                pixels[i*4+1] = game->frame_buffer[i].bitangent.y();
+                pixels[i*4+2] = game->frame_buffer[i].bitangent.z();
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+        case VisualKind::Tangent: {
+
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].tangent.x();
+                pixels[i*4+1] = game->frame_buffer[i].tangent.y();
+                pixels[i*4+2] = game->frame_buffer[i].tangent.z();
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+        case VisualKind::Position: {
+
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].position.x();
+                pixels[i*4+1] = game->frame_buffer[i].position.y();
+                pixels[i*4+2] = game->frame_buffer[i].position.z();
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+    }
 }
 
 int main(int argc, char** argv) {
+
+    f32 fps = 0;
+
     auto game = Arguments::from_args(argv, argc);
 
     glfwSetErrorCallback(glfw_error_callback);
@@ -187,8 +288,8 @@ int main(int argc, char** argv) {
     GLuint tex;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     std::vector<f32> pixels(game->frame_buffer.width() * game->frame_buffer.height() * 4);
 
@@ -224,11 +325,22 @@ int main(int argc, char** argv) {
         in vec2 texCoord;
         out vec4 FragColor;
         uniform sampler2D tex;
+        uniform int kind;
         void main() {
             FragColor = texture(tex, texCoord);
-            FragColor.x = pow(FragColor.x, 1./2.2);
-            FragColor.y = pow(FragColor.y, 1./2.2);
-            FragColor.z = pow(FragColor.z, 1./2.2);
+
+            if (kind == 0x63){ // c
+                FragColor.x = pow(FragColor.x, 1./2.2);
+                FragColor.y = pow(FragColor.y, 1./2.2);
+                FragColor.z = pow(FragColor.z, 1./2.2);
+            }else if (kind == 0x64){ // d
+                FragColor.x = pow(1.0 - FragColor.x / 256.0 / 256.0 / 256.0 / 256.0, 1./2.2);
+                FragColor.y = FragColor.x;
+                FragColor.z = FragColor.x;
+            }else if (kind == 0x62 || kind == 0x6e || kind == 0x74){  // b n t
+                FragColor = FragColor/2+0.5;
+            }
+
         }
     )";
 
@@ -263,6 +375,9 @@ int main(int argc, char** argv) {
     auto frame_start = std::chrono::high_resolution_clock::now();
 
     while (!glfwWindowShouldClose(window)) {
+        i32 width, height;
+        glfwGetWindowSize(window, &width, &height);
+        glViewport(0, 0, width, height);
         glfwPollEvents();
 
         auto now = std::chrono::high_resolution_clock::now();
@@ -273,19 +388,22 @@ int main(int argc, char** argv) {
 
 
         handle_game_input(game, delta);
+
         game->update(delta, time);
         game->render();
-        for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-            pixels[i*4+0] = game->frame_buffer[i].diffuse.x();
-            pixels[i*4+1] = game->frame_buffer[i].diffuse.y();
-            pixels[i*4+2] = game->frame_buffer[i].diffuse.z();
-            pixels[i*4+3] = 1.f;
-        }
-        std::cout << "Frame: " << frame_count << " Render Time: " <<  std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-frame_start).count() << " ms" << std::endl;
+
+        fill_buffer(visual, game, pixels);
+
+        auto render_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-frame_start).count();
+        fps *= 99.f/100.f;
+        fps += (1.f/render_time*1000.f) / 100.f;
+        std::cout << "Frame: " << frame_count << " Render Time: " <<  render_time << " ms, FPS: " << fps << std::endl;
         frame_count += 1;
 
 
         // Upload pixels to GPU
+        int vertexColorLocation = glGetUniformLocation(prog, "kind");
+        glUniform1i(vertexColorLocation, static_cast<GLint>(visual));
         glBindTexture(GL_TEXTURE_2D, tex);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, game->frame_buffer.width(), game->frame_buffer.height(), 0,
                      GL_RGBA, GL_FLOAT, pixels.data());

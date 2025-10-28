@@ -26,10 +26,10 @@ macro(compile_options target_name)
     unset(NIX_ENFORCE_NO_NATIVE)
 
     target_compile_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
-    target_link_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
+    target_link_options(${target_name} PRIVATE  -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
 
-#    target_compile_options(${target_name} PRIVATE -march=native -mtune=native)
-#    target_link_options(${target_name} PRIVATE -march=native -mtune=native)
+    target_compile_options(${target_name} PRIVATE -march=native -mtune=native)
+    target_link_options(${target_name} PRIVATE -march=native -mtune=native)
 
     sanitizers(${target_name})
 endmacro()
@@ -41,7 +41,7 @@ project(rasterizer VERSION 0.0.1)
 option(ENABLE_ADDRSAN "Enable the address sanitizer" OFF)
 option(ENABLE_UBSAN "Enable the ub sanitizer" OFF)
 option(ENABLE_TSAN "Enable the thread data race sanitizer" OFF)
-option(ENABLE_OPENGL "Enable OpenGL" ON)
+option(ENABLE_OPENGL "Enable OpenGL" OFF)
 
 if (ENABLE_OPENGL)
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -68,16 +68,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CXX_STANDARD 17)
 set(CXX_STANDARD_REQUIRED ON)
 
-add_executable(rasterizer ${PROJECT_BUILD_FILES}
-        src/frame_buffer.h
-        src/texture.h)
+add_executable(rasterizer ${PROJECT_BUILD_FILES})
 set_property(TARGET rasterizer PROPERTY CXX_STANDARD 17)
 
 target_include_directories(rasterizer PRIVATE include)
 target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
 
 compile_options(rasterizer)
-if (${ENABLE_OPENGL} MATCHES ON)
+if (ENABLE_OPENGL)
     target_compile_options(${PROJECT_NAME} PRIVATE -DGUI)
     target_link_options(${PROJECT_NAME} PRIVATE)
 

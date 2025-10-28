@@ -11,8 +11,8 @@
 
 template<typename T>
 INLINE inline T euclidean_remainder(T a, T b) {
-    int r = a % b;
-    return r >= 0 ? r : r + std::abs(b);
+    T r = a % b;
+    return r >= 0 ? r : r + b;
 }
 
 /**
@@ -37,18 +37,22 @@ public:
 class Texture {
     usize m_width;
     usize m_height;
+    f32 m_widthf;
+    f32 m_heightf;
     bool m_transparent;
     ptr_mut<Vector4<f32>> m_pixels;
     TextureId m_id;
 
     friend class ResourceStore;
 
-    explicit Texture(usize width, usize height, bool transparent, ptr_mut<Vector4<f32>> pixels) : m_width(width), m_height(height), m_transparent(transparent), m_pixels(pixels), m_id() {}
+    explicit Texture(usize width, usize height, bool transparent, ptr_mut<Vector4<f32>> pixels) : m_width(width), m_height(height), m_transparent(transparent), m_pixels(pixels), m_heightf(height), m_widthf(width) {}
 public:
     Texture(Texture&& texture) noexcept {
         m_id = texture.m_id;
         m_width = texture.m_width;
         m_height = texture.m_height;
+        m_widthf = texture.m_widthf;
+        m_heightf = texture.m_heightf;
         m_transparent = texture.m_transparent;
         m_pixels = texture.m_pixels;
         texture.m_pixels = nullptr;
@@ -66,6 +70,16 @@ public:
     [[nodiscard]]
     usize height() const {
         return this->m_height;
+    }
+
+    [[nodiscard]]
+    f32 widthf() const {
+        return this->m_widthf;
+    }
+
+    [[nodiscard]]
+    f32 heightf() const {
+        return this->m_heightf;
     }
 
     [[nodiscard]]
@@ -101,11 +115,11 @@ public:
     [[nodiscard]]
     INLINE ref<Vector4<f32>> resolve_uv_wrapping(ref<Vector2<f32>> uv) const {
         const auto x = euclidean_remainder(
-            static_cast<isize>(uv.x() * static_cast<f32>(this->width())),
+            static_cast<isize>(uv.x() * this->widthf()),
             static_cast<isize>(this->width())
             );
         const auto y = euclidean_remainder(
-            static_cast<isize>(this->height())-static_cast<isize>(uv.y() * static_cast<f32>(this->height())),
+            static_cast<isize>(uv.y() * this->heightf()),
             static_cast<isize>(this->height())
             );
         return this->m_pixels[x+y*this->width()];

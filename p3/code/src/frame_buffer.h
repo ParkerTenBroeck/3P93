@@ -5,9 +5,6 @@
 #ifndef FRAME_BUFFER_H
 #define FRAME_BUFFER_H
 
-#include <memory>
-#include <optional>
-
 #include "vec_math.h"
 #include "slice.h"
 #include "texture.h"
@@ -160,6 +157,7 @@ INLINE inline Vector3<f32> fresnelSchlick(f32 cosTheta, Vector3<f32> F0)
     return F0 + (Vector3<f32>{1.0f,1.0f,1.0f} - F0) * power(std::clamp(1.0f - cosTheta, 0.0f, 1.0f), 5);
 }
 
+[[clang::always_inline]]
 INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> resources) const {
     auto pixel = *this;
     if (pixel.normal.magnitude_squared() == 0.) return pixel;
@@ -177,24 +175,24 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
             pixel.tangent.z(), pixel.bitangent.z(), pixel.normal.z(),
         };
 
-        auto view_dir = (tbn*scene.m_camera.position-tbn*pixel.position).normalize();
-        auto height = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).x();
-        pixel.uv = pixel.uv - view_dir.xy() / view_dir.z()*height*0.5;
+        // auto view_dir = (tbn*scene.m_camera.position-tbn*pixel.position).normalize();
+        // auto height = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).x();
+        // pixel.uv = pixel.uv - view_dir.xy() / view_dir.z()*height*0.5;
 
         pixel.normal = tbn * n;
     }
     pixel.normal = pixel.normal.normalize();
 
     if (pixel.ambient_map.exists()) {
-        pixel.ambient = resources[pixel.ambient_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.ambient);
+        pixel.ambient = resources[pixel.ambient_map]->resolve_uv_wrapping(pixel.uv).xyz();
     }
 
     if (pixel.diffuse_map.exists()) {
-        pixel.diffuse = resources[pixel.diffuse_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.diffuse);
+        pixel.diffuse = resources[pixel.diffuse_map]->resolve_uv_wrapping(pixel.uv).xyz();
     }
 
     if (pixel.specular_map.exists()) {
-        pixel.specular = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz().mult_components(pixel.specular);
+        pixel.specular = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz();
     }
     const auto view_dir = (scene.m_camera.position-pixel.position).normalize();
 
