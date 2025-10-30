@@ -3,9 +3,9 @@
 #include "stb_image_write.h"
 #include "stb_image.h"
 
-#define PAR
+#define USE_OPEN_MP
 
-#ifdef PAR
+#ifdef USE_OPEN_MP
 #include <omp.h>
 #endif
 

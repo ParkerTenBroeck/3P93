@@ -71,7 +71,7 @@ public:
     [[nodiscard]]
     Matrix4<f32> proj_view(Vector2<f32> view_port) const {
         auto aspect = view_port.x()/view_port.y();
-        return Matrix4<f32>::projection(0.1, 500, aspect, m_camera.fov)*m_camera.view();
+        return Matrix4<f32>::projection(0.1, 5000, aspect, m_camera.fov)*m_camera.view();
     };
 };
 

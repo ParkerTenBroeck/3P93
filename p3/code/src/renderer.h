@@ -73,7 +73,7 @@ struct Renderer {
     }
 
     static void fragment(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
-        #ifdef PAR
+        #ifdef USE_OPEN_MP
         #pragma omp parallel for schedule(static, frame.width())
         #endif
         for (usize i = 0; i < frame.size(); i ++) {
@@ -82,7 +82,7 @@ struct Renderer {
     }
 
     static void clear(ref_mut<FrameBuffer> frame) {
-        #ifdef PAR
+        #ifdef USE_OPEN_MP
         #pragma omp parallel for
         #endif
         for (usize i = 0; i < frame.size(); i ++) {
@@ -117,7 +117,7 @@ struct Renderer {
     static void render_mesh(ref_mut<FrameBuffer> frame, ref<Mesh> mesh, ref<Matrix4<f32>> model_matrix, ref<Matrix4<f32>> proj_view) {
         Vector2<f32> screen{static_cast<f32>(frame.width()), static_cast<f32>(frame.height())};
         Matrix3<f32> normal_matrix{model_matrix.inverse().transpose()};
-        #ifdef PAR
+        #ifdef USE_OPEN_MP
         #pragma omp parallel for schedule(guided)
         #endif
         for (const auto& face: mesh.m_faces) {
@@ -377,6 +377,7 @@ struct Renderer {
 \
 \
         for (auto y = static_cast<isize>(min_y); y <= static_cast<isize>(max_y); y++) {\
+            bool encounteredX = false;\
             for (auto x = static_cast<isize>(min_x); x <= static_cast<isize>(max_x); x++) {\
                 Vector2<f32> pf{static_cast<f32>(x), static_cast<f32>(y)};\
 \
@@ -385,8 +386,11 @@ struct Renderer {
                 auto w2 = 1.0f - w0 - w1;\
 \
                 if (w0 >= 0.0 && w1 >= 0.0 && w2 >= 0.0) {\
+                    encounteredX = true;\
                     Vector2<usize> pix{static_cast<usize>(x), static_cast<usize>(y)};\
                     func\
+                }else if (encounteredX) {\
+                    break;\
                 }\
             }\
         }\

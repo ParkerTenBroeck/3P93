@@ -35,9 +35,11 @@ struct Pixel {
     u32 depth{0xFFFFFFFE};
 
     INLINE void set_smaller_depth(Pixel pixel) {
-        if (pixel.depth < this->depth) {
-            *this = pixel;
-        }
+        #ifdef USE_OPEN_MP
+        if (pixel.depth < this->depth) *this = pixel;
+        #else
+        if (pixel.depth < this->depth) *this = pixel;
+        #endif
     }
 
     INLINE Pixel fragment_shader(ref<Scene> scene, ref<ResourceStore> resources) const;
@@ -207,7 +209,7 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
         }else {
             light_dir = light.position_or_direction-pixel.position;
             distance_squared = light_dir.magnitude_squared();
-            light_dir = light_dir/distance_squared;
+            light_dir = light_dir/std::sqrt(distance_squared);
         }
 
         auto lambertian = std::max(0.f, light_dir.dot(pixel.normal));

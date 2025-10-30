@@ -119,7 +119,7 @@ public:
             static_cast<isize>(this->width())
             );
         const auto y = euclidean_remainder(
-            static_cast<isize>(uv.y() * this->heightf()),
+            static_cast<isize>(this->height()) - static_cast<isize>(uv.y() * this->heightf()),
             static_cast<isize>(this->height())
             );
         return this->m_pixels[x+y*this->width()];
