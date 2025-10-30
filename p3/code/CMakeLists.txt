@@ -23,9 +23,11 @@ macro(compile_options target_name)
     if (NOT ${MOLD} STREQUAL MOLD-NOTFOUND)
         target_compile_options(${target_name} PUBLIC -fuse-ld=mold)
     endif ()
+
+#    target_link_options(${target_name} PUBLIC -fuse-ld=lld)
     unset(NIX_ENFORCE_NO_NATIVE)
 
-    target_compile_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
+    target_compile_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17)
     target_link_options(${target_name} PRIVATE  -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
 
     target_compile_options(${target_name} PRIVATE -march=native -mtune=native)

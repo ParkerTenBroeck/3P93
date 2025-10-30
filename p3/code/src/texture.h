@@ -5,7 +5,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "types.h"
+#include "util/types.h"
 #include "vec_math.h"
 #include "stb_image.h"
 
@@ -45,7 +45,7 @@ class Texture {
 
     friend class ResourceStore;
 
-    explicit Texture(usize width, usize height, bool transparent, ptr_mut<Vector4<f32>> pixels) : m_width(width), m_height(height), m_transparent(transparent), m_pixels(pixels), m_heightf(height), m_widthf(width) {}
+    explicit Texture(usize width, usize height, bool transparent, ptr_mut<Vector4<f32>> pixels) : m_width(width), m_height(height), m_widthf(width), m_heightf(height), m_transparent(transparent), m_pixels(pixels) {}
 public:
     Texture(Texture&& texture) noexcept {
         m_id = texture.m_id;

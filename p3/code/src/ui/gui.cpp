@@ -1,59 +1,18 @@
-//
-// Created by may on 15/10/25.
-//
 
-#ifndef GUI_H
-#define GUI_H
+#ifdef GUI
 
-#include "game.h"
-#include "args.h"
-#include "glad/gl.h"
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
 #include <chrono>
 #include <cctype>
-
-
-
-struct Key{
-    u8 down : 1;
-    u8 released : 1;
-    u8 pressed : 1;
-    u8 caps : 1;
-    u8 super : 1;
-    u8 shift : 1;
-    u8 ctrl : 1;
-    u8 alt : 1;
-};
-
-struct MouseButton{
-    u8 down : 1;
-    u8 released : 1;
-    u8 pressed : 1;
-    u8 caps : 1;
-    u8 super : 1;
-    u8 shift : 1;
-    u8 ctrl : 1;
-    u8 alt : 1;
-};
-
-struct InputState {
-    f64 mouse_x = 0.0;
-    f64 mouse_y = 0.0;
-    f64 mouse_delta_x = 0.0;
-    f64 mouse_delta_y = 0.0;
-    f64 scroll_y = 0.0;
-    f64 scroll_x = 0.0;
-    Key keys[GLFW_KEY_LAST+1] = {0,0,0};
-    MouseButton mouse_buttons[GLFW_MOUSE_BUTTON_LAST+1] = {0,0,0,0,0,0};
-    std::string typped;
-};
+#include "../game.h"
+#include "../args.h"
+#include "gui.h"
 
 InputState input{};
+VisualKind visual = VisualKind::Color;
 
-// GLFW Callbacks
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     const auto shift = GLFW_MOD_SHIFT&mods!=0;
     const auto ctrl = GLFW_MOD_CONTROL&mods!=0;
     const auto super = GLFW_MOD_SUPER&mods!=0;
@@ -89,19 +48,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     input.scroll_y += yoffset;
     input.scroll_x += xoffset;
 }
 
-void cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+void cursor_callback(GLFWwindow *window, double xpos, double ypos) {
     input.mouse_delta_x += xpos - input.mouse_x;
     input.mouse_delta_y += ypos - input.mouse_y;
     input.mouse_x = xpos;
     input.mouse_y = ypos;
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     if (button < 0 || button > GLFW_MOUSE_BUTTON_LAST) return;
 
     input.mouse_buttons[button].down = action == GLFW_PRESS;
@@ -115,22 +74,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     input.mouse_buttons[button].caps = GLFW_MOD_CAPS_LOCK&mods!=0;
 }
 
-// Error callback
-void glfw_error_callback(int error, const char* desc) {
+void glfw_error_callback(int error, const char *desc) {
     std::cerr << "GLFW Error " << error << ": " << desc << std::endl;
 }
 
-enum class VisualKind : int {
-    Color = 'c',
-    Depth = 'd',
-    Normal = 'n',
-    Bitangent = 'b',
-    Tangent = 't',
-    Position = 'p',
-};
-inline VisualKind visual = VisualKind::Color;
-
-void handle_game_input(Game* game, f32 delta) {
+void handle_game_input(Game *game, f32 delta) {
     Vector3<f32> movement{0., 0., 0.};
     // project facing vector onto the plane defined by the up normal
     auto facing = (game->scene.m_camera.target-game->scene.m_camera.position);
@@ -194,7 +142,7 @@ void handle_game_input(Game* game, f32 delta) {
     }
 }
 
-inline void fill_buffer(const VisualKind visual, Game *game, std::vector<f32>& pixels) {
+void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) {
     switch (visual) {
         case VisualKind::Color: {
             for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
@@ -246,6 +194,8 @@ inline void fill_buffer(const VisualKind visual, Game *game, std::vector<f32>& p
         }break;
     }
 }
+
+
 
 int main(int argc, char** argv) {
 
@@ -395,10 +345,11 @@ int main(int argc, char** argv) {
         fill_buffer(visual, game, pixels);
 
         auto render_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-frame_start).count();
-        fps *= 99.f/100.f;
-        fps += (1.f/render_time*1000.f) / 100.f;
-        std::cout << "Frame: " << frame_count << " Render Time: " <<  render_time << " ms, FPS: " << fps << std::endl;
+        // fps *= 99.f/100.f;
+        // fps += (1.f/render_time*1000.f) / 100.f;
         frame_count += 1;
+        fps = fps + ((1.f/static_cast<f32>(render_time)) * 1000 - fps) / static_cast<f32>(frame_count);
+        std::cout << "Frame: " << frame_count << " Render Time: " <<  render_time << " ms, FPS: " << fps << std::endl;
 
 
         // Upload pixels to GPU
@@ -428,5 +379,6 @@ int main(int argc, char** argv) {
     glfwTerminate();
     return 0;
 }
+
 
 #endif

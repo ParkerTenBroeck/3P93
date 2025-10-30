@@ -1,16 +1,8 @@
-//
-// Created by may on 04/10/25.
-//
-
 #ifndef FRAME_BUFFER_H
 #define FRAME_BUFFER_H
 
 #include "vec_math.h"
-#include "slice.h"
-#include "texture.h"
-#include "scene.h"
-
-struct FrameBuffer;
+#include "util/slice.h"
 
 struct Pixel {
     Vector3<f32> ambient;
@@ -35,11 +27,11 @@ struct Pixel {
     u32 depth{0xFFFFFFFE};
 
     INLINE void set_smaller_depth(Pixel pixel) {
-        #ifdef USE_OPEN_MP
+#ifdef USE_OPEN_MP
         if (pixel.depth < this->depth) *this = pixel;
-        #else
+#else
         if (pixel.depth < this->depth) *this = pixel;
-        #endif
+#endif
     }
 
     INLINE Pixel fragment_shader(ref<Scene> scene, ref<ResourceStore> resources) const;
@@ -108,6 +100,10 @@ public:
         delete[] this->m_pixels;
     }
 };
+
+
+
+#include <algorithm>
 
 INLINE inline f32 power(f32 base, i32 exp) {
     f32 res = 1;

@@ -1,16 +1,8 @@
-//
-// Created by may on 05/10/25.
-//
-
 #ifndef GAME_H
 #define GAME_H
 #include "renderer.h"
 #include "resource_store.h"
 #include "scene.h"
-
-#ifndef M_PIf
-#define M_PIf static_cast<f32>(M_PI)
-#endif
 
 class Game {
 public:

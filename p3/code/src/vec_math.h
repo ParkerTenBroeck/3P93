@@ -1,14 +1,10 @@
-//
-// Created by may on 03/10/25.
-//
-
 #ifndef VEC_MATH_H
 #define VEC_MATH_H
 #include <array>
 #include <cmath>
 #include <iostream>
 
-#include "types.h"
+#include "util/types.h"
 
 template<typename T, usize R, usize C>
 class Matrix;
@@ -426,11 +422,5 @@ public:
         };
     }
 };
-
-
-
-
-
-
 
 #endif //VEC_MATH_H

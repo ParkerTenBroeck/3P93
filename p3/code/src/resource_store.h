@@ -7,7 +7,6 @@
 #include <map>
 #include <vector>
 
-#include "scene.h"
 #include "texture.h"
 
 /**
@@ -19,9 +18,7 @@ class ResourceStore {
     friend class Texture;
 
 public:
-    ResourceStore() {
-
-    }
+    ResourceStore() = default;
 
     std::shared_ptr<const Texture> normal_map(ref<std::string> path) {
         if (textures_map.count(path) != 0) {

@@ -1,7 +1,3 @@
-//
-// Created by may on 15/10/25.
-//
-
 #ifndef ARGS_H
 #define ARGS_H
 

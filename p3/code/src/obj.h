@@ -1,7 +1,3 @@
-//
-// Created by may on 05/10/25.
-//
-
 #ifndef OBJ_H
 #define OBJ_H
 

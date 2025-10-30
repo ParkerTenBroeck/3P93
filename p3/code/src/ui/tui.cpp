@@ -1,16 +1,12 @@
-//
-// Created by may on 15/10/25.
-//
+#ifndef GUI
 
-#ifndef TUI_H
-#define TUI_H
-
-
-#include "game.h"
-#include "args.h"
+#include "../game.h"
+#include "../args.h"
 
 #include <chrono>
 #include <iomanip>
+
+#include "stb_image_write.h"
 
 inline void write_image(ref<Game> game, std::string&& path) {
     auto channels = 4;
@@ -96,4 +92,4 @@ int main(int argc, char** argv){
     std::cout << "average frame time: " << (total_ms/300.0) << "ms" << std::endl;
 }
 
-#endif //TUI_H
+#endif

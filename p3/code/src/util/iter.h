@@ -1,7 +1,3 @@
-//
-// Created by may on 05/10/25.
-//
-
 #ifndef ITER_H
 #define ITER_H
 #include "types.h"
