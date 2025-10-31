@@ -1,13 +1,10 @@
-//
-// Created by may on 05/10/25.
-//
-
 #ifndef RESOURCE_STORE_H
 #define RESOURCE_STORE_H
+
 #include <map>
 #include <vector>
 
-#include "texture.h"
+#include <resources/texture.h>
 
 /**
  * Stores already loaded textures to prevent loading the same textures multiple times and also allow us to get a texture from a texture_id

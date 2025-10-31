@@ -11,9 +11,9 @@
 
 #include <tiny_obj_loader.h>
 
-#include "texture.h"
-#include "vec_math.h"
-#include "resource_store.h"
+#include <resources/texture.h>
+#include <util/vec_math.h>
+#include <resources/resource_store.h>
 
 class Face {
 public:

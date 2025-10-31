@@ -1,11 +1,8 @@
-//
-// Created by may on 05/10/25.
-//
-
 #ifndef SLICE_H
 #define SLICE_H
-#include "iter.h"
-#include "types.h"
+
+#include <util/iter.h>
+#include <util/types.h>
 
 template <typename T>
 class slice {

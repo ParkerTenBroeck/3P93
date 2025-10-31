@@ -5,20 +5,20 @@
 #include <vector>
 #include <chrono>
 #include <cctype>
-#include "../game.h"
-#include "../args.h"
-#include "gui.h"
+
+#include <game.h>
+#include <args.h>
+#include <ui/gui.h>
 
 InputState input{};
 VisualKind visual = VisualKind::Color;
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    const auto shift = GLFW_MOD_SHIFT&mods!=0;
-    const auto ctrl = GLFW_MOD_CONTROL&mods!=0;
-    const auto super = GLFW_MOD_SUPER&mods!=0;
-    const auto alt = GLFW_MOD_ALT&mods!=0;
-    const auto caps = GLFW_MOD_CAPS_LOCK&mods!=0;
-    // auto num = GLFW_MOD_NUM_LOCK&mods!=0;
+void key_callback(GLFWwindow *window, int key, int /*scancode*/, int action, int mods) {
+    const auto shift = (GLFW_MOD_SHIFT&mods)!=0;
+    const auto ctrl = (GLFW_MOD_CONTROL&mods)!=0;
+    const auto super = (GLFW_MOD_SUPER&mods)!=0;
+    const auto alt = (GLFW_MOD_ALT&mods)!=0;
+    const auto caps = (GLFW_MOD_CAPS_LOCK&mods)!=0;
 
     if (key < 0 || key > GLFW_KEY_LAST) return;
 
@@ -41,37 +41,37 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
     input.keys[key].alt = alt;
     input.keys[key].caps = caps;
 
-    input.keys[key].pressed = !input.keys[key].down && action == GLFW_PRESS || action == GLFW_REPEAT;
+    input.keys[key].pressed = (!input.keys[key].down && action == GLFW_PRESS) || action == GLFW_REPEAT;
     if (action != GLFW_REPEAT) {
         input.keys[key].down = action == GLFW_PRESS;
         input.keys[key].released = action == GLFW_RELEASE;
     }
 }
 
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+void scroll_callback(GLFWwindow */*window*/, double xoffset, double yoffset) {
     input.scroll_y += yoffset;
     input.scroll_x += xoffset;
 }
 
-void cursor_callback(GLFWwindow *window, double xpos, double ypos) {
+void cursor_callback(GLFWwindow */*window*/, double xpos, double ypos) {
     input.mouse_delta_x += xpos - input.mouse_x;
     input.mouse_delta_y += ypos - input.mouse_y;
     input.mouse_x = xpos;
     input.mouse_y = ypos;
 }
 
-void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+void mouse_button_callback(GLFWwindow */*window*/, int button, int action, int mods) {
     if (button < 0 || button > GLFW_MOUSE_BUTTON_LAST) return;
 
     input.mouse_buttons[button].down = action == GLFW_PRESS;
     input.mouse_buttons[button].pressed = action == GLFW_PRESS;
     input.mouse_buttons[button].released = action == GLFW_RELEASE;
 
-    input.mouse_buttons[button].shift = GLFW_MOD_SHIFT&mods!=0;
-    input.mouse_buttons[button].ctrl = GLFW_MOD_CONTROL&mods!=0;
-    input.mouse_buttons[button].super = GLFW_MOD_SUPER&mods!=0;
-    input.mouse_buttons[button].alt = GLFW_MOD_ALT&mods!=0;
-    input.mouse_buttons[button].caps = GLFW_MOD_CAPS_LOCK&mods!=0;
+    input.mouse_buttons[button].shift = (GLFW_MOD_SHIFT&mods)!=0;
+    input.mouse_buttons[button].ctrl = (GLFW_MOD_CONTROL&mods)!=0;
+    input.mouse_buttons[button].super = (GLFW_MOD_SUPER&mods)!=0;
+    input.mouse_buttons[button].alt = (GLFW_MOD_ALT&mods)!=0;
+    input.mouse_buttons[button].caps = (GLFW_MOD_CAPS_LOCK&mods)!=0;
 }
 
 void glfw_error_callback(int error, const char *desc) {
@@ -145,6 +145,9 @@ void handle_game_input(Game *game, f32 delta) {
 void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) {
     switch (visual) {
         case VisualKind::Color: {
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
             for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
                 pixels[i*4+0] = game->frame_buffer[i].diffuse.x();
                 pixels[i*4+1] = game->frame_buffer[i].diffuse.y();
@@ -153,12 +156,19 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             }
         }break;
         case VisualKind::Depth: {
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
             for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
                 pixels[i*4+0] = game->frame_buffer[i].depth;
                 pixels[i*4+3] = 1.f;
             }
         }break;
         case VisualKind::Normal: {
+
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
             for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
                 pixels[i*4+0] = game->frame_buffer[i].normal.x();
                 pixels[i*4+1] = game->frame_buffer[i].normal.y();
@@ -167,6 +177,10 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             }
         }break;
         case VisualKind::Bitangent: {
+
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
             for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
                 pixels[i*4+0] = game->frame_buffer[i].bitangent.x();
                 pixels[i*4+1] = game->frame_buffer[i].bitangent.y();
@@ -176,6 +190,9 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
         }break;
         case VisualKind::Tangent: {
 
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
             for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
                 pixels[i*4+0] = game->frame_buffer[i].tangent.x();
                 pixels[i*4+1] = game->frame_buffer[i].tangent.y();
@@ -185,6 +202,9 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
         }break;
         case VisualKind::Position: {
 
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
             for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
                 pixels[i*4+0] = game->frame_buffer[i].position.x();
                 pixels[i*4+1] = game->frame_buffer[i].position.y();
@@ -197,17 +217,17 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
 
 
 
-int main(int argc, char** argv) {
+void run_gui(Arguments& args) {
+
+    auto game = args.make_game();
 
     f32 fps = 0;
-
-    auto game = Arguments::from_args(argv, argc);
 
     glfwSetErrorCallback(glfw_error_callback);
 
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
-        return -1;
+        return;
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -218,7 +238,7 @@ int main(int argc, char** argv) {
     if (!window) {
         std::cerr << "Failed to create window\n";
         glfwTerminate();
-        return -1;
+        return;
     }
 
     glfwMakeContextCurrent(window);
@@ -226,7 +246,7 @@ int main(int argc, char** argv) {
 
     if (!gladLoaderLoadGL()) {
         std::cerr << "Failed to initialize GLAD\n";
-        return -1;
+        return;
     }
 
     glfwSetKeyCallback(window, key_callback);
@@ -377,7 +397,6 @@ int main(int argc, char** argv) {
 
     glDeleteTextures(1, &tex);
     glfwTerminate();
-    return 0;
 }
 
 

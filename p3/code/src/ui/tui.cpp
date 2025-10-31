@@ -1,18 +1,18 @@
 #ifndef GUI
 
-#include "../game.h"
-#include "../args.h"
-
 #include <chrono>
 #include <iomanip>
 
-#include "stb_image_write.h"
+#include <stb_image_write.h>
+
+#include <game.h>
+#include <args.h>
 
 inline void write_image(ref<Game> game, std::string&& path) {
     auto channels = 4;
     auto data = new u8[game.frame_buffer.height()*game.frame_buffer.width()*channels];
 
-    #ifdef PAR
+    #ifdef USE_OPEN_MP
     #pragma omp parallel for
     #endif
     for (usize i = 0; i < game.frame_buffer.height() * game.frame_buffer.width(); i++) {
@@ -52,32 +52,16 @@ inline std::string leading(int value, int total_length) {
     return ss.str();
 }
 
-int main(int argc, char** argv){
-    Arguments args{slice<char*>::from_raw(++argv, argc-1)};
-    args.print();
+void run_tui(Arguments& args){
 
-    Game* game;
-    switch (args.scene) {
-        case Scenes::Halo:
-            game = new HaloGame(FrameBuffer{args.width, args.height});
-            break;
-        case Scenes::Brick:
-            game = new BrickGame(FrameBuffer{args.width, args.height});
-            break;
-        case Scenes::Test:
-            game = new TestGame(FrameBuffer{args.width, args.height});
-            break;
-        default:
-            std::cout << "Invalid scene argument passed" << std::endl;
-            exit(-1);
-    }
+    auto game = args.make_game();
 
-    f64 duration = 3.;
+    f64 total_duration = 3.;
     u64 frames = 300;
     u64 total_ms = 0;
-    for (int i = 0; i < frames; i ++) {
+    for (u64 i = 0; i < frames; i ++) {
         auto start = std::chrono::high_resolution_clock::now();
-        game->update(1.f/duration, i*duration/frames);
+        game->update(1.f/total_duration, i*total_duration/frames);
         game->render();
 
         auto end = std::chrono::high_resolution_clock::now();

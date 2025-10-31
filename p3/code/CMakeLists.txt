@@ -24,11 +24,10 @@ macro(compile_options target_name)
         target_compile_options(${target_name} PUBLIC -fuse-ld=mold)
     endif ()
 
-#    target_link_options(${target_name} PUBLIC -fuse-ld=lld)
     unset(NIX_ENFORCE_NO_NATIVE)
 
-    target_compile_options(${target_name} PRIVATE -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17)
-    target_link_options(${target_name} PRIVATE  -flto -fopenmp -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
+    target_compile_options(${target_name} PRIVATE -flto -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17)
+    target_link_options(${target_name} PRIVATE  -flto -Wall -Wextra -Wpedantic -Wno-comment -ffast-math -std=c++17 -lstdc++)
 
     target_compile_options(${target_name} PRIVATE -march=native -mtune=native)
     target_link_options(${target_name} PRIVATE -march=native -mtune=native)
@@ -36,14 +35,14 @@ macro(compile_options target_name)
     sanitizers(${target_name})
 endmacro()
 
-
-
 project(rasterizer VERSION 0.0.1)
 
 option(ENABLE_ADDRSAN "Enable the address sanitizer" OFF)
 option(ENABLE_UBSAN "Enable the ub sanitizer" OFF)
 option(ENABLE_TSAN "Enable the thread data race sanitizer" OFF)
 option(ENABLE_OPENGL "Enable OpenGL" OFF)
+option(ENABLE_OPENMP "Enable OpenMP" ON)
+option(ENABLE_OPENMP "Enable OpenMPI" OFF)
 
 if (ENABLE_OPENGL)
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -62,6 +61,7 @@ if (ENABLE_OPENGL)
 endif()
 
 include_directories(include/)
+include_directories(src/)
 
 file(GLOB_RECURSE PROJECT_BUILD_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
@@ -83,4 +83,15 @@ if (ENABLE_OPENGL)
 
     target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
     target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::GL)
+endif()
+
+if (ENABLE_OPENMP)
+    target_compile_options(${PROJECT_NAME} PRIVATE -DUSE_OPEN_MP -fopenmp)
+    target_link_options(${PROJECT_NAME} PRIVATE -fopenmp)
+endif()
+
+
+if (ENABLE_OPENMP)
+    target_compile_options(${PROJECT_NAME} PRIVATE -DUSE_OPEN_MPI -fopenmp)
+    target_link_options(${PROJECT_NAME} PRIVATE -fopenmp)
 endif()

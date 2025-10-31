@@ -1,10 +1,11 @@
 #ifndef VEC_MATH_H
 #define VEC_MATH_H
+
 #include <array>
 #include <cmath>
 #include <iostream>
 
-#include "util/types.h"
+#include <util/types.h>
 
 template<typename T, usize R, usize C>
 class Matrix;

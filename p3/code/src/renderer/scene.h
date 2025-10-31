@@ -5,8 +5,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "obj.h"
-#include "vec_math.h"
+#include <resources/obj.h>
+#include <util/vec_math.h>
 
 class Camera {
 public:

@@ -1,6 +1,9 @@
 #ifndef ARGS_H
 #define ARGS_H
 
+#include <iostream>
+
+#include <game.h>
 
 struct Scenes {
 
@@ -30,6 +33,8 @@ struct Arguments {
     usize width = 720, height = 480;
     Scenes scene = Scenes::Test;
     bool write_frames = false;
+
+    explicit Arguments(char** argv, int argc) : Arguments(slice<char*>::from_raw(++argv, argc-1)){}
 
     explicit Arguments(slice<char*> args) {
         for (char* carg : args.iter()) {
@@ -80,21 +85,24 @@ struct Arguments {
             std::endl;
     }
 
-    static Game* from_args(char **argv, int argc) {
-        Arguments args{slice<char*>::from_raw(++argv, argc-1)};
-        args.print();
-
-        switch (args.scene) {
+    Game* make_game() {
+        switch (this->scene) {
             case Scenes::Halo:
-                return new HaloGame(FrameBuffer{args.width, args.height});
+                return new HaloGame(FrameBuffer{this->width, this->height});
             case Scenes::Brick:
-                return new BrickGame(FrameBuffer{args.width, args.height});
+                return new BrickGame(FrameBuffer{this->width, this->height});
             case Scenes::Test:
-                return new TestGame(FrameBuffer{args.width, args.height});
+                return new TestGame(FrameBuffer{this->width, this->height});
             default:
                 std::cout << "Invalid scene argument passed" << std::endl;
                 exit(-1);
         }
+    }
+
+    static Game* from_args(char **argv, int argc) {
+        Arguments args{slice<char*>::from_raw(++argv, argc-1)};
+        args.print();
+        return args.make_game();
     }
 };
 

@@ -1,31 +1,34 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include "../util/types.h"
 #include <string>
-#include "glad/gl.h"
+
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
+#include <util/types.h>
+#include <args.h>
+
 struct Key{
-    u8 down : 1 = 0;
-    u8 released : 1 = 0;
-    u8 pressed : 1 = 0;
-    u8 caps : 1 = 0;
-    u8 super : 1 = 0;
-    u8 shift : 1 = 0;
-    u8 ctrl : 1 = 0;
-    u8 alt : 1 = 0;
+    u8 down : 1;
+    u8 released : 1;
+    u8 pressed : 1;
+    u8 caps : 1;
+    u8 super : 1;
+    u8 shift : 1;
+    u8 ctrl : 1;
+    u8 alt : 1;
 };
 
 struct MouseButton{
-    u8 down : 1 = 0;
-    u8 released : 1 = 0;
-    u8 pressed : 1 = 0;
-    u8 caps : 1 = 0;
-    u8 super : 1 = 0;
-    u8 shift : 1 = 0;
-    u8 ctrl : 1 = 0;
-    u8 alt : 1 = 0;
+    u8 down : 1;
+    u8 released : 1;
+    u8 pressed : 1;
+    u8 caps : 1;
+    u8 super : 1;
+    u8 shift : 1;
+    u8 ctrl : 1;
+    u8 alt : 1;
 };
 
 struct InputState {
@@ -48,5 +51,7 @@ enum class VisualKind : int {
     Tangent = 't',
     Position = 'p',
 };
+
+void run_gui(Arguments& args);
 
 #endif

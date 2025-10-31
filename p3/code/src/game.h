@@ -1,19 +1,42 @@
 #ifndef GAME_H
 #define GAME_H
-#include "renderer.h"
-#include "resource_store.h"
-#include "scene.h"
+#include "renderer/renderer.h"
+#include "resources/resource_store.h"
+#include "renderer/scene.h"
+
+
+class Game;
+class System {
+    public:
+    virtual ~System() = default;
+
+    virtual void init(Game& game) {}
+    virtual void update(Game& game, f64 delta, f64 time) {}
+};
+
+template<typename U>
+class Lambda : public System{
+    U m_update;
+public:
+    explicit Lambda(U&& update) : m_update(update) {}
+    void update(Game& game, f64 delta, f64 time) override { return m_update(game, delta, time); }
+};
 
 class Game {
 public:
     ResourceStore resource_store{};
     Scene scene{};
     FrameBuffer frame_buffer;
+    std::vector<System*> systems;
 
 
     explicit Game(FrameBuffer&& frame_buffer) : frame_buffer(std::move(frame_buffer)) {}
 
-    virtual void update(f32 delta, f64 time){}
+    virtual void update(f32 delta, f64 time) {
+        for (auto& system : systems) {
+            system->update(*this, delta, time);
+        }
+    }
 
     void render() {
         Renderer::render(this->frame_buffer, this->scene, this->resource_store);

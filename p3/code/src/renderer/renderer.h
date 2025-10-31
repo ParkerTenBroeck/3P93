@@ -1,16 +1,14 @@
-
-
 #ifndef RENDERER_H
 #define RENDERER_H
-
-#include "scene.h"
-#include "vec_math.h"
-#include "frame_buffer.h"
-#include "obj.h"
 
 #include <variant>
 #include <algorithm>
 #include <cmath>
+
+#include <renderer/scene.h>
+#include <util/vec_math.h>
+#include <renderer/frame_buffer.h>
+#include <resources/obj.h>
 
 struct Renderer {
 

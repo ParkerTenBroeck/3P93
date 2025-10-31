@@ -1,13 +1,10 @@
-//
-// Created by may on 05/10/25.
-//
-
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "util/types.h"
-#include "vec_math.h"
-#include "stb_image.h"
+#include <stb_image.h>
+
+#include <util/types.h>
+#include <util/vec_math.h>
 
 template<typename T>
 INLINE inline T euclidean_remainder(T a, T b) {
