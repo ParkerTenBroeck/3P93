@@ -15,8 +15,8 @@ struct Renderer {
     static void render(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
         clear(frame);
         render_scene(frame, scene);
-        fragment(frame, scene, resources);
         render_lights(frame, scene);
+        fragment(frame, scene, resources);
     }
 
     static void render_lights(ref_mut<FrameBuffer> frame, ref<Scene> scene) {
@@ -62,12 +62,11 @@ struct Renderer {
                     Vector2<usize> pixel_cord{static_cast<usize>(pos.x()), static_cast<usize>(pos.y())};
                     if (frame[pixel_cord].depth >= convert_depth(ps.z())) {
                         frame[pixel_cord].diffuse = light.color;
-                        frame[pixel_cord].normal = {1,1,1}; // lmao
+                        frame[pixel_cord].normal = {0,0,0}; // lmao
                     }
                 }
             }
         }
-
     }
 
     static void fragment(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
@@ -159,7 +158,7 @@ struct Renderer {
             auto b1 = cs1.z() < -cs1.w();
             auto b2 = cs2.z() < -cs2.w();
 
-            if (b0||b1||b2)continue;
+            if (b0&&b1&&b2)continue;
 
             render_triangle(
                 frame,

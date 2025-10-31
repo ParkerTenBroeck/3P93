@@ -50,6 +50,9 @@ enum class VisualKind : int {
     Bitangent = 'b',
     Tangent = 't',
     Position = 'p',
+    Roughness = 'r',
+    Metalic = 'm',
+    X = 'x',
 };
 
 void run_gui(Arguments& args);

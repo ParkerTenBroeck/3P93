@@ -126,8 +126,16 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
         pixel.diffuse = resources[pixel.diffuse_map]->resolve_uv_wrapping(pixel.uv).xyz();
     }
 
+    auto shine = pixel.shininess;
+    auto metalic = 0.0f;
+    auto ambient = 1.0f;
     if (pixel.specular_map.exists()) {
-        pixel.specular = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz();
+        auto val = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz();
+        ambient = val.x();
+        auto rough = val.y()*val.y();
+        rough = rough*rough;
+        shine = static_cast<i32>(1.f / (0.000001 + rough));
+        metalic = val.z();
     }
     const auto view_dir = (scene.m_camera.position-pixel.position).normalize();
 
@@ -152,9 +160,10 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
         if (lambertian > 0.0) {
             auto half_dir = (light_dir + view_dir).normalize();
 
-            auto specular = power(std::max(0.f, pixel.normal.dot(half_dir)), pixel.shininess);
+            auto specular = power(std::max(0.f, pixel.normal.dot(half_dir)), shine);
 
-            specular_light = specular_light+light.color*(specular*light_power);
+            auto color = light.color*metalic+pixel.diffuse.mult_components(light.color)*(1.f-metalic);
+            specular_light = specular_light+color*(specular*light_power);
 
         }
 
@@ -163,10 +172,15 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
 
 
     auto color =
-        pixel.ambient.mult_components(pixel.diffuse)
+        pixel.ambient.mult_components(pixel.diffuse) * (ambient * (1.f-metalic))
         + pixel.diffuse.mult_components(diffuse_light)
         + pixel.specular.mult_components(specular_light)
     ;
+
+
+    if (pixel.specular_map.exists()) {
+        pixel.specular = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz();
+    }
 
     pixel.diffuse = color;
     return pixel;

@@ -36,7 +36,7 @@ public:
     Vector3<f32> color{1, 1, 1};
     f32 intensity{1.f};
     bool global{false};
-    f32 radius{0.2f};
+    f32 radius{0.1f};
 };
 
 /**

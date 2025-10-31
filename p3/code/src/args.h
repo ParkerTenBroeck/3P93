@@ -88,11 +88,11 @@ struct Arguments {
     Game* make_game() {
         switch (this->scene) {
             case Scenes::Halo:
-                return new HaloGame(FrameBuffer{this->width, this->height});
+                return new Game(FrameBuffer{this->width, this->height});
             case Scenes::Brick:
-                return new BrickGame(FrameBuffer{this->width, this->height});
+                return new Game(FrameBuffer{this->width, this->height});
             case Scenes::Test:
-                return new TestGame(FrameBuffer{this->width, this->height});
+                return new Game(FrameBuffer{this->width, this->height});
             default:
                 std::cout << "Invalid scene argument passed" << std::endl;
                 exit(-1);

@@ -139,6 +139,12 @@ void handle_game_input(Game *game, f32 delta) {
         visual = VisualKind::Tangent;
     }else if (input.keys[GLFW_KEY_P].pressed) {
         visual = VisualKind::Position;
+    }else if (input.keys[GLFW_KEY_R].pressed) {
+        visual = VisualKind::Roughness;
+    }else if (input.keys[GLFW_KEY_M].pressed) {
+        visual = VisualKind::Metalic;
+    }else if (input.keys[GLFW_KEY_X].pressed) {
+        visual = VisualKind::X;
     }
 }
 
@@ -201,7 +207,6 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             }
         }break;
         case VisualKind::Position: {
-
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
@@ -209,6 +214,39 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
                 pixels[i*4+0] = game->frame_buffer[i].position.x();
                 pixels[i*4+1] = game->frame_buffer[i].position.y();
                 pixels[i*4+2] = game->frame_buffer[i].position.z();
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+        case VisualKind::X: {
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].specular.x();
+                pixels[i*4+1] = game->frame_buffer[i].specular.x();
+                pixels[i*4+2] = game->frame_buffer[i].specular.x();
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+        case VisualKind::Roughness: {
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].specular.y();
+                pixels[i*4+1] = game->frame_buffer[i].specular.y();
+                pixels[i*4+2] = game->frame_buffer[i].specular.y();
+                pixels[i*4+3] = 1.f;
+            }
+        }break;
+        case VisualKind::Metalic: {
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for
+            #endif
+            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
+                pixels[i*4+0] = game->frame_buffer[i].specular.z();
+                pixels[i*4+1] = game->frame_buffer[i].specular.z();
+                pixels[i*4+2] = game->frame_buffer[i].specular.z();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -365,11 +403,10 @@ void run_gui(Arguments& args) {
         fill_buffer(visual, game, pixels);
 
         auto render_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-frame_start).count();
-        // fps *= 99.f/100.f;
-        // fps += (1.f/render_time*1000.f) / 100.f;
-        frame_count += 1;
-        fps = fps + ((1.f/static_cast<f32>(render_time)) * 1000 - fps) / static_cast<f32>(frame_count);
+        fps *= 99.f/100.f;
+        fps += (1.f/render_time*1000.f) / 100.f;
         std::cout << "Frame: " << frame_count << " Render Time: " <<  render_time << " ms, FPS: " << fps << std::endl;
+        frame_count += 1;
 
 
         // Upload pixels to GPU
