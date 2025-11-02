@@ -135,7 +135,7 @@ public:
 
             for (usize i = 0; i < w*h; i++) {
                 texture.m_pixels[i] = {result[i*4], result[i*4+1], result[i*4+2], result[i*4+3]};
-                texture.m_transparent |= result[i*4+3] != 1.;
+                texture.m_transparent |= result[i*4+3] != 1.f;
             }
 
             std::cout << "Loaded rgba gamma corrected texture: " << path << " width: " << texture.width() << " height: " << texture.height() << " transparent: " << texture.transparent() << std::endl;

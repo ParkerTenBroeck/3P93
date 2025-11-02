@@ -29,7 +29,7 @@ Ke 0 0 0
 map_Kd Spartan_Ear_Mat.png
 map_Ps metalnessMap2.png
 map_Pr metalnessMap2.png
-map_Bump normalMap2.png
+norm normalMap2.png
 map_Ks metalnessMap2.png
 Ns 128.0
 
@@ -48,7 +48,7 @@ Ke 0 0 0
 map_Kd Spartan_Helmet_Mat.png
 map_Ps metalnessMap3.png
 map_Pr metalnessMap3.png
-map_Bump normalMap3.png
+norm normalMap3.png
 map_Ks metalnessMap3.png
 Ns 128.0
 
@@ -67,7 +67,7 @@ Ke 0 0 0
 map_Kd Spartan_Chest_Mat.png
 map_Ps metalnessMap4.png
 map_Pr metalnessMap4.png
-map_Bump normalMap4.png
+norm normalMap4.png
 map_Ks metalnessMap4.png
 Ns 128.0
 
@@ -86,7 +86,7 @@ Ke 0 0 0
 map_Kd Spartan_Arms_Mat.png
 map_Ps metalnessMap5.png
 map_Pr metalnessMap5.png
-map_Bump normalMap5.png
+norm normalMap5.png
 map_Ks metalnessMap5.png
 Ns 128.0
 
@@ -105,7 +105,7 @@ Ke 0 0 0
 map_Kd Spartan_Legs_Mat.png
 map_Ps metalnessMap6.png
 map_Pr metalnessMap6.png
-map_Bump normalMap6.png
+norm normalMap6.png
 map_Ks metalnessMap6.png
 Ns 128.0
 
@@ -124,7 +124,7 @@ Ke 0 0 0
 map_Kd Spartan_Shoulders_Mat.png
 map_Ps metalnessMap7.png
 map_Pr metalnessMap7.png
-map_Bump normalMap7.png
+norm normalMap7.png
 map_Ks metalnessMap7.png
 Ns 128.0
 
@@ -154,6 +154,6 @@ Ke 0 0 0
 map_Kd Spartan_Undersuit_Mat.png
 map_Ps metalnessMap9.png
 map_Pr metalnessMap9.png
-map_Bump normalMap9.png
+norm normalMap9.png
 map_Ks metalnessMap9.png
 Ns 128.0

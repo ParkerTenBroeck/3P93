@@ -158,7 +158,7 @@ struct Renderer {
             auto b1 = cs1.z() < -cs1.w();
             auto b2 = cs2.z() < -cs2.w();
 
-            if (b0&&b1&&b2)continue;
+            if (b0||b1||b2)continue;
 
             render_triangle(
                 frame,
@@ -411,17 +411,17 @@ struct Renderer {
         ) {
         rasterize_triangle({
 
-            if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) return;
+            if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) continue;
             auto depth = w0 * ss0.z() + w1 * ss1.z() + w2 * ss2.z();
-            if (depth > 1 || depth < 0) return;
+            if (depth > 1 || depth < 0) continue;
 
             auto pix_uv = uv0 * w0 + uv1 * w1 + uv2 * w2;
             auto frac_1_w = pix_uv.z();
             pix_uv = pix_uv/frac_1_w;
 
             auto color = diffuse_map.resolve_uv_wrapping(pix_uv.xy());
-            if (color.w() == 0) {
-               return;
+            if (color.w() == 0.f) {
+               continue;
             }
 
             Pixel pixel;
@@ -466,9 +466,9 @@ struct Renderer {
 
         rasterize_triangle({
 
-            if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) return;
+            if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) continue;
             auto depth = w0 * ss0.z() + w1 * ss1.z() + w2 * ss2.z();
-            if (depth > 1 || depth < 0) return;
+            if (depth > 1 || depth < 0) continue;
 
             auto pix_uv = uv0 * w0 + uv1 * w1 + uv2 * w2;
             auto frac_1_w = pix_uv.z();

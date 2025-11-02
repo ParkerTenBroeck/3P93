@@ -32,19 +32,49 @@ public:
 
     explicit Game(FrameBuffer&& frame_buffer) : frame_buffer(std::move(frame_buffer)) {
         add_rotating_lights(4.f);
-        add_bricks();
-        add_halo();
-        add_cube();
+        // add_bricks();
+        // add_halo();
+        // add_cube();
         add_global_light();
+        airport();
+        // add_minecraft_world();
+        // add_light_following_player();
+    }
+
+    void airport() {
+        auto airport = scene.add_object(Object::load("../assets/airport/Sunshine Airport.obj", resource_store));
+        // scene[airport].m_scale.x() = 0.001f;
+        // scene[airport].m_scale.y() = 0.001f;
+        // scene[airport].m_scale.z() = 0.001f;
+    }
+
+    void add_light_following_player() {
+        const auto l1_id = scene.m_lights.size();
+        scene.m_lights.emplace_back(Light{});
+        systems.push_back(new Lambda([l1_id](Game* game, auto, f64 time) {
+            game->scene.m_lights[l1_id].color = {0.5, 0.5, 0.4};
+            game->scene.m_lights[l1_id].intensity = 1;
+            game->scene.m_lights[l1_id].radius = 0;
+            game->scene.m_lights[l1_id].position_or_direction = game->scene.m_camera.position;
+        }));
+    }
+
+    void add_minecraft_world() {
+
+        auto halo = scene.add_object(Object::load("../assets/city/Untitled.obj", resource_store));
+        scene[halo].m_scale.x() = 1.f;
+        scene[halo].m_scale.y() = 1.f;
+        scene[halo].m_scale.z() = 1.f;
+
     }
 
     void add_global_light() {
         const auto global_id = scene.m_lights.size();
         scene.m_lights.emplace_back(Light{});
-        scene.m_lights[global_id].position_or_direction = {0,0,1};
+        scene.m_lights[global_id].position_or_direction = {0,1,1};
         scene.m_lights[global_id].color = {1,1,1};
         scene.m_lights[global_id].global = true;
-        scene.m_lights[global_id].intensity = 1;
+        scene.m_lights[global_id].intensity = 0.2;
     }
 
     void add_rotating_lights(f32 scale) {

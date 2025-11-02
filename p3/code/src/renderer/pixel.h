@@ -4,6 +4,10 @@
 #include <renderer/scene.h>
 #include <util/types.h>
 
+#include <atomic>
+#include <cstring>
+#include <stdatomic.h>
+
 struct Pixel {
     Vector3<f32> ambient;
     Vector3<f32> diffuse;
@@ -28,7 +32,15 @@ struct Pixel {
 
     INLINE void set_smaller_depth(Pixel pixel) {
 #ifdef USE_OPEN_MP
-        if (pixel.depth < this->depth) *this = pixel;
+        auto ptr = (std::atomic<u32>*)(&this->depth);
+        const u32 LOCK_VALUE = 0xFFFFFFFF;
+        u32 depth;
+        while ((depth = ptr->exchange(LOCK_VALUE, std::memory_order_acquire)) == 0xFFFFFFFF){}
+        if (depth > pixel.depth) {
+            depth = pixel.depth;
+            std::memcpy(this, &pixel, sizeof(Pixel)-sizeof(pixel.depth));
+        }
+        ptr->store(depth, std::memory_order_release);
 #else
         if (pixel.depth < this->depth) *this = pixel;
 #endif
@@ -122,13 +134,13 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
         pixel.ambient = resources[pixel.ambient_map]->resolve_uv_wrapping(pixel.uv).xyz();
     }
 
-    if (pixel.diffuse_map.exists()) {
+    if (pixel.diffuse_map.exists() && !resources[pixel.diffuse_map]->transparent()) {
         pixel.diffuse = resources[pixel.diffuse_map]->resolve_uv_wrapping(pixel.uv).xyz();
     }
 
     auto shine = pixel.shininess;
     auto metalic = 0.0f;
-    auto ambient = 1.0f;
+    auto ambient = 0.1f;
     if (pixel.specular_map.exists()) {
         auto val = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz();
         ambient = val.x();
@@ -172,9 +184,9 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
 
 
     auto color =
-        pixel.ambient.mult_components(pixel.diffuse) * (ambient * (1.f-metalic))
+        (pixel.diffuse) * (ambient * (1.f-metalic))
         + pixel.diffuse.mult_components(diffuse_light)
-        + pixel.specular.mult_components(specular_light)
+        + (specular_light)
     ;
 
 
