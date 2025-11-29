@@ -6,6 +6,7 @@
 #include <util/types.h>
 #include <util/vec_math.h>
 
+
 template<typename T>
 INLINE inline T euclidean_remainder(T a, T b) {
     T r = a % b;
@@ -15,7 +16,8 @@ INLINE inline T euclidean_remainder(T a, T b) {
 /**
  * A unique ID that references already loaded textures
  */
-class TextureId {
+struct TextureId {
+private:
     friend class ResourceStore;
     u32 id;
     explicit TextureId(u32 id) : id(id) {}
@@ -28,10 +30,21 @@ public:
     }
 };
 
+#ifdef USE_OPEN_MPI
+namespace mpi {
+    template<typename T>
+    struct codec;
+}
+#endif
+
 /**
  * A texture with 4 channels each in the range [0.0f, 1.0f]
  */
-class Texture {
+struct Texture {
+#ifdef USE_OPEN_MPI
+    friend mpi::codec<Texture>;
+#endif
+
     usize m_width;
     usize m_height;
     f32 m_widthf;
@@ -41,6 +54,8 @@ class Texture {
     TextureId m_id;
 
     friend class ResourceStore;
+
+    explicit Texture() = default;
 
     explicit Texture(usize width, usize height, bool transparent, ptr_mut<Vector4<f32>> pixels) : m_width(width), m_height(height), m_widthf(width), m_heightf(height), m_transparent(transparent), m_pixels(pixels) {}
 public:

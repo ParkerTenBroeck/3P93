@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 
+#include <mpi/mpi.h>
 #include <resources/texture.h>
 
 /**
@@ -12,7 +13,7 @@
 class ResourceStore {
     std::vector<std::shared_ptr<const Texture>> textures{};
     std::map<std::string, std::shared_ptr<const Texture>> textures_map{};
-    friend class Texture;
+    friend struct Texture;
 
 public:
     ResourceStore() = default;
@@ -21,6 +22,15 @@ public:
         if (textures_map.count(path) != 0) {
             return textures_map[path];
         }
+        #ifdef USE_OPEN_MPI
+            if (mpi::is_slave()) {
+                auto texture = std::make_shared<const Texture>(mpi::s::request_normal_texture(path));
+                textures_map[path] = texture;
+                textures.resize(std::max(textures.size(), (usize)texture->get_id().id));
+                textures[texture->get_id().id-1] = texture;
+                return texture;
+            }
+        #endif
 
         i32 width, height, channels;
         auto result = stbi_load(path.c_str(), &width, &height, &channels, 4);

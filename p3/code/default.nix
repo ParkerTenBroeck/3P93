@@ -16,6 +16,7 @@ pkgs.mkShell
 		#clion = import ~/my-nixpkgs/pkgs/applications/editors/jetbrains {};
 		renderdoc
 		llvmPackages.openmp
+		openmpi
 		valgrind
 	];
 	propagatedBuildInputs = with pkgs; [

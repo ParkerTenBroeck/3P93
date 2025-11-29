@@ -35,10 +35,61 @@ public:
         // add_bricks();
         // add_halo();
         // add_cube();
+        fun_mesh();
         add_global_light();
-        airport();
+        // airport();
         // add_minecraft_world();
         // add_light_following_player();
+    }
+
+    void fun_mesh() {
+        auto obj = Object{Mesh{}};
+        obj.m_scale.x() = 10.f;
+        obj.m_scale.y() = 0.2f;
+        obj.m_scale.z() = 10.f;
+
+        obj.m_position.x() = -5.f;
+        obj.m_position.y() = -1.f;
+        obj.m_position.z() = -5.f;
+        auto& mesh = std::get<Mesh>(obj.m_kind);
+        mesh.m_material.diffuse = {1.f, 1.f, 1.f};
+        mesh.m_material.ambient = {0.02f, 0.f, 0.f};
+        // mesh.m_material.diffuse_map = resource_store.rgba_gamma_corrected("../assets/brick/wood.png");
+        mesh.m_material.normal_map = resource_store.normal_map("../assets/brick/normal_test.png");
+        mesh.m_material.shininess = 256;
+        mesh.m_material.backface_cull = false;
+        float width = 60.;
+        float height = 60.;
+
+        for (float x = 0; x < width; x++) {
+            for (float y = 0; y < height; y++) {
+                mesh.m_faces.emplace_back(Face{
+                    {Vector3<f32>{x/width, 0.f, y/height}, {x/width, 0.f, (y+1)/height}, {(x+1)/width, 0.f, y/height}},
+                    {Vector3<f32>{0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}},
+                    {Vector2<f32>{1.f-x/width, y/height}, {1.f-x/width, (y+1)/height}, {1.f-(x+1)/width, y/height}}
+                });
+                mesh.m_faces.emplace_back(Face{
+                    {Vector3<f32>{(x+1)/width, 0.f, (y+1)/height}, {(x+1)/width, 0.f, y/height}, {x/width, 0.f, (y+1)/height}},
+                    {Vector3<f32>{0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 1.f, 0.f}},
+                    {Vector2<f32>{1.f-(x+1)/width, (y+1)/height}, {1.f-(x+1)/width, y/height}, {1.f-x/width, (y+1)/height}}
+                });
+            }
+        }
+
+        auto obj_id = scene.add_object(std::move(obj));
+
+        systems.push_back(new Lambda([obj_id](auto game, auto, auto time) {
+            Mesh& mesh = std::get<Mesh>(game->scene[obj_id].m_kind);
+            for (auto& face : mesh.m_faces) {
+                for (int i = 0; i < 3; i++) {
+                    auto inner = face.points[i].x()*15 + face.points[i].z()*20 + (f32)time;
+                    face.points[i].y() = std::sin(inner);
+                    face.normals[i] = Vector3<f32>{
+                        -15.f*std::cos(inner), 1.f, -20.f*std::cos(inner)
+                    }.normalize();
+                }
+            }
+        }));
     }
 
     void airport() {
@@ -51,7 +102,7 @@ public:
     void add_light_following_player() {
         const auto l1_id = scene.m_lights.size();
         scene.m_lights.emplace_back(Light{});
-        systems.push_back(new Lambda([l1_id](Game* game, auto, f64 time) {
+        systems.push_back(new Lambda([l1_id](Game* game, auto, f64) {
             game->scene.m_lights[l1_id].color = {0.5, 0.5, 0.4};
             game->scene.m_lights[l1_id].intensity = 1;
             game->scene.m_lights[l1_id].radius = 0;

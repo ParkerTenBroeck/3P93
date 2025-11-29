@@ -12,6 +12,7 @@
 
 InputState input{};
 VisualKind visual = VisualKind::Color;
+bool pause = false;
 
 void key_callback(GLFWwindow *window, int key, int /*scancode*/, int action, int mods) {
     const auto shift = (GLFW_MOD_SHIFT&mods)!=0;
@@ -146,6 +147,9 @@ void handle_game_input(Game *game, f32 delta) {
     }else if (input.keys[GLFW_KEY_X].pressed) {
         visual = VisualKind::X;
     }
+    if (input.keys[GLFW_KEY_ENTER].pressed) {
+        pause = !pause;
+    }
 }
 
 void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) {
@@ -188,9 +192,10 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #pragma omp parallel for
             #endif
             for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].bitangent.x();
-                pixels[i*4+1] = game->frame_buffer[i].bitangent.y();
-                pixels[i*4+2] = game->frame_buffer[i].bitangent.z();
+                auto bitangent = game->frame_buffer[i].tangent.cross(game->frame_buffer[i].normal).normalize();
+                pixels[i*4+0] = bitangent.x();
+                pixels[i*4+1] = bitangent.y();
+                pixels[i*4+2] = bitangent.z();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -389,9 +394,14 @@ void run_gui(Arguments& args) {
         glfwPollEvents();
 
         auto now = std::chrono::high_resolution_clock::now();
-
+        if (pause) {
+            now = frame_start;
+        }
         f64 time = std::chrono::duration<f64>(now-start).count();
         f32 delta = std::chrono::duration<f32>(now-frame_start).count();
+        if (pause) {
+            delta = 0.;
+        }
         frame_start = now;
 
 

@@ -17,6 +17,14 @@
 
 class Face {
 public:
+    Face() = default;
+    [[nodiscard]] Face(const std::array<Vector3<f32>, 3> &points, const std::array<Vector3<f32>, 3> &normals,
+        const std::array<Vector2<f32>, 3> &uvs)
+        : points(points),
+          normals(normals),
+          uvs(uvs) {
+    }
+
     std::array<Vector3<f32>, 3> points;
     std::array<Vector3<f32>, 3> normals;
     std::array<Vector2<f32>, 3> uvs;
@@ -32,6 +40,7 @@ public:
     std::optional<std::shared_ptr<const Texture>> diffuse_map;
     std::optional<std::shared_ptr<const Texture>> specular_map;
     std::optional<std::shared_ptr<const Texture>> normal_map;
+    bool backface_cull = true;
 };
 
 class Mesh {

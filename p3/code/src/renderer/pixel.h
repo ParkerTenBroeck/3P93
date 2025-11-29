@@ -24,7 +24,6 @@ struct Pixel {
 
     Vector3<f32> normal;
     Vector3<f32> tangent;
-    Vector3<f32> bitangent;
 
     Vector3<f32> position;
 
@@ -114,12 +113,12 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
         auto n = resources[pixel.normal_map]->resolve_uv_wrapping(pixel.uv).xyz();
 
         pixel.normal = pixel.normal.normalize();
-        pixel.tangent = pixel.tangent.normalize();
-        pixel.bitangent = pixel.bitangent.normalize();
+        pixel.tangent = (pixel.tangent-pixel.tangent.dot(pixel.normal)*pixel.normal).normalize();
+        auto bitangent = pixel.normal.cross(pixel.tangent).normalize();
         Matrix3<f32> tbn{
-            pixel.tangent.x(), pixel.bitangent.x(), pixel.normal.x(),
-            pixel.tangent.y(), pixel.bitangent.y(), pixel.normal.y(),
-            pixel.tangent.z(), pixel.bitangent.z(), pixel.normal.z(),
+            pixel.tangent.x(), bitangent.x(), pixel.normal.x(),
+            pixel.tangent.y(), bitangent.y(), pixel.normal.y(),
+            pixel.tangent.z(), bitangent.z(), pixel.normal.z(),
         };
 
         // auto view_dir = (tbn*scene.m_camera.position-tbn*pixel.position).normalize();
@@ -140,7 +139,7 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
 
     auto shine = pixel.shininess;
     auto metalic = 0.0f;
-    auto ambient = 0.1f;
+    auto ambient = 0.0f;
     if (pixel.specular_map.exists()) {
         auto val = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz();
         ambient = val.x();

@@ -42,5 +42,15 @@ using ref_mut = T&;
 template<typename T, size_t N>
 using array = std::array<T, N>;
 
+#include <cxxabi.h>
+
+inline const char* demangle(const char *s) {
+    return abi::__cxa_demangle(s, 0, 0, NULL);
+}
+
+template<typename T>
+std::string type_name() {
+    return demangle(typeid(T).name());
+}
 
 #endif //TYPES_H

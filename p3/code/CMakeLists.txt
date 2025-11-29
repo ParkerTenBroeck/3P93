@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 include(FetchContent)
 
+
 macro(sanitizers target_name)
     if (${ENABLE_ADDRSAN} MATCHES ON)
         target_compile_options(${target_name} PRIVATE -fsanitize=address)
@@ -42,7 +43,7 @@ option(ENABLE_UBSAN "Enable the ub sanitizer" OFF)
 option(ENABLE_TSAN "Enable the thread data race sanitizer" OFF)
 option(ENABLE_OPENGL "Enable OpenGL" OFF)
 option(ENABLE_OPENMP "Enable OpenMP" ON)
-option(ENABLE_OPENMP "Enable OpenMPI" OFF)
+option(ENABLE_OPENMPI "Enable OpenMPI" OFF)
 
 if (ENABLE_OPENGL)
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -78,7 +79,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
 
 compile_options(rasterizer)
 if (ENABLE_OPENGL)
-    target_compile_options(${PROJECT_NAME} PRIVATE -DGUI)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC GUI)
     target_link_options(${PROJECT_NAME} PRIVATE)
 
     target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
@@ -86,12 +87,14 @@ if (ENABLE_OPENGL)
 endif()
 
 if (ENABLE_OPENMP)
-    target_compile_options(${PROJECT_NAME} PRIVATE -DUSE_OPEN_MP -fopenmp)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_OPEN_MP)
+    target_compile_options(${PROJECT_NAME} PRIVATE -fopenmp)
     target_link_options(${PROJECT_NAME} PRIVATE -fopenmp)
 endif()
 
 
-if (ENABLE_OPENMP)
-    target_compile_options(${PROJECT_NAME} PRIVATE -DUSE_OPEN_MPI -fopenmp)
-    target_link_options(${PROJECT_NAME} PRIVATE -fopenmp)
+if (ENABLE_OPENMPI)
+    find_package(MPI REQUIRED CXX)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_OPEN_MPI)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${MPI_CXX_LIBRARIES})
 endif()

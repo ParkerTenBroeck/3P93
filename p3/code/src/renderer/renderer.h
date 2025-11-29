@@ -62,7 +62,7 @@ struct Renderer {
                     Vector2<usize> pixel_cord{static_cast<usize>(pos.x()), static_cast<usize>(pos.y())};
                     if (frame[pixel_cord].depth >= convert_depth(ps.z())) {
                         frame[pixel_cord].diffuse = light.color;
-                        frame[pixel_cord].normal = {0,0,0}; // lmao
+                        frame[pixel_cord].normal = {0,0,0};
                     }
                 }
             }
@@ -134,7 +134,7 @@ struct Renderer {
                 .cross(cs2.xyz() - cs0.xyz())
                 .normalize();
             //   backface culling
-            if (cs0.xyz().dot(norm) <= 0.0 ){
+            if (cs0.xyz().dot(norm) <= 0.0 && mesh.m_material.backface_cull){
                 continue;
             }
 
@@ -208,41 +208,26 @@ struct Renderer {
         const auto ss1 = screen_space(ps1, screen);
         const auto ss2 = screen_space(ps2, screen);
 
-        const auto n0_c = (normal_matrix * n0) / w0;
-        const auto n1_c = (normal_matrix * n1) / w1;
-        const auto n2_c = (normal_matrix * n2) / w2;
+        auto n0_c = (normal_matrix * n0)/w0;
+        auto n1_c = (normal_matrix * n1)/w1;
+        auto n2_c = (normal_matrix * n2)/w2;
 
-        Vector3<f32> t0{}, t1{}, t2{};
-        Vector3<f32> bt0{}, bt1{}, bt2{};
+        // auto norm = (ws1.xyz() - ws0.xyz())
+        //     .cross(ws2.xyz() - ws0.xyz())
+        //     .normalize();
 
-        if (material.normal_map.has_value()) {
-            auto g0 = tangent_bitangent(
-                {ms0.xyz(), ms1.xyz(), ms2.xyz()},
-                {uv0_e, uv1_e, uv2_e},
-                w0,
-                normal_matrix
+        // n0_c = norm/w0;
+        // n1_c = norm/w1;
+        // n2_c = norm/w2;
+
+        Vector3<f32> t{};
+
+        // if (material.normal_map.has_value()) {
+            t = tangent(
+                {ws0.xyz(), ws1.xyz(), ws2.xyz()},
+                {uv0_e, uv1_e, uv2_e}
             );
-            t0 = g0[0];
-            bt0 = g0[1];
-
-            auto g1 = tangent_bitangent(
-                {ms1.xyz(), ms2.xyz(), ms0.xyz()},
-                {uv1_e, uv2_e, uv0_e},
-                w1,
-                normal_matrix
-            );
-            t1 = g1[0];
-            bt1 = g1[1];
-
-            auto g2 = tangent_bitangent(
-                {ms2.xyz(), ms0.xyz(), ms1.xyz()},
-                {uv2_e, uv0_e, uv1_e},
-                w2,
-                normal_matrix
-            );
-            t2 = g2[0];
-            bt2 = g2[1];
-        }
+        // }
 
         uv0_e = uv0_e / w0;
         uv1_e = uv1_e / w1;
@@ -269,14 +254,30 @@ struct Renderer {
             normal_map = material.normal_map.value()->get_id();
         }
 
-        if (material.diffuse_map.has_value() && material.diffuse_map->get()->transparent()) {
+        if (false) {
+            draw_triangle_filled_textured_outline(
+               frame,
+               ss0, ss1, ss2,
+                ws0.xyz()/w0, ws1.xyz()/w1, ws2.xyz()/w2,
+                n0_c, n1_c, n2_c,
+                 t,
+               uv0_e, uv1_e, uv2_e,
+               material.ambient,
+               material.diffuse,
+               material.specular,
+               material.shininess,
+               ambient_map,
+               diffuse_map,
+               specular_map,
+               normal_map
+           );
+        }else if (material.diffuse_map.has_value() && material.diffuse_map->get()->transparent()) {
             draw_triangle_filled_textured(
                frame,
                ss0, ss1, ss2,
                 ws0.xyz()/w0, ws1.xyz()/w1, ws2.xyz()/w2,
                 n0_c, n1_c, n2_c,
-                t0, t1, t2,
-                bt0, bt1, bt2,
+                t,
                 uv0_e, uv1_e, uv2_e,
                material.ambient,
                material.specular,
@@ -291,9 +292,8 @@ struct Renderer {
                frame,
                ss0, ss1, ss2,
                 ws0.xyz()/w0, ws1.xyz()/w1, ws2.xyz()/w2,
-               n0_c, n1_c, n2_c,
-               t0, t1, t2,
-               bt0, bt1, bt2,
+                n0_c, n1_c, n2_c,
+                 t,
                uv0_e, uv1_e, uv2_e,
                material.ambient,
                material.diffuse,
@@ -327,11 +327,9 @@ struct Renderer {
     }
 
     [[clang::always_inline]]
-    INLINE static std::array<Vector3<f32>, 2> tangent_bitangent(
+    INLINE static Vector3<f32> tangent(
         std::array<Vector3<f32>, 3> ws,
-        std::array<Vector3<f32>, 3> uv,
-        const f32 w,
-        ref<Matrix3<f32>> normal_matrix
+        std::array<Vector3<f32>, 3> uv
         )  {
         auto edge1 = ws[1] - ws[0];
         auto edge2 = ws[2] - ws[0];
@@ -346,16 +344,7 @@ struct Renderer {
         tangent.y() = f * (delta_uv2.y() * edge1.y() - delta_uv1.y() * edge2.y());
         tangent.z() = f * (delta_uv2.y() * edge1.z() - delta_uv1.y() * edge2.z());
 
-        Vector3<f32> bitangent{};
-
-        bitangent.x() = f * (-delta_uv2.x() * edge1.x() + delta_uv1.x() * edge2.x());
-        bitangent.y() = f * (-delta_uv2.x() * edge1.y() + delta_uv1.x() * edge2.y());
-        bitangent.z() = f * (-delta_uv2.x() * edge1.z() + delta_uv1.x() * edge2.z());
-
-        return {
-            (normal_matrix * tangent) / w,
-            (normal_matrix * bitangent) / w
-        };
+        return tangent;
     }
 
 
@@ -398,8 +387,7 @@ struct Renderer {
             Vector3<f32> ss0, Vector3<f32> ss1, Vector3<f32> ss2,
             Vector3<f32> ws0, Vector3<f32> ws1, Vector3<f32> ws2,
             Vector3<f32> n0, Vector3<f32> n1, Vector3<f32> n2,
-            Vector3<f32> t0, Vector3<f32> t1, Vector3<f32> t2,
-            Vector3<f32> bt0, Vector3<f32> bt1, Vector3<f32> bt2,
+            Vector3<f32> t,
             Vector3<f32> uv0, Vector3<f32> uv1, Vector3<f32> uv2,
             Vector3<f32> ambient,
             Vector3<f32> specular,
@@ -437,8 +425,7 @@ struct Renderer {
             pixel.shininess = shininess;
             pixel.uv = pix_uv.xy();
             pixel.normal = (n0 * w0 + n1 * w1 + n2 * w2)/frac_1_w;
-            pixel.tangent = (t0 * w0 + t1 * w1 + t2 * w2)/frac_1_w;
-            pixel.bitangent = (bt0 * w0 + bt1 * w1 + bt2 * w2)/frac_1_w;
+            pixel.tangent = t;
             pixel.position = (ws0 * w0 + ws1 * w1 + ws2 * w2)/frac_1_w;
             pixel.normal_map = normal_map;
             frame[pix].set_smaller_depth(pixel);
@@ -451,8 +438,7 @@ struct Renderer {
             Vector3<f32> ss0, Vector3<f32> ss1, Vector3<f32> ss2,
             Vector3<f32> ws0, Vector3<f32> ws1, Vector3<f32> ws2,
             Vector3<f32> n0, Vector3<f32> n1, Vector3<f32> n2,
-            Vector3<f32> t0, Vector3<f32> t1, Vector3<f32> t2,
-            Vector3<f32> bt0, Vector3<f32> bt1, Vector3<f32> bt2,
+            Vector3<f32> t,
             Vector3<f32> uv0, Vector3<f32> uv1, Vector3<f32> uv2,
             Vector3<f32> ambient,
             Vector3<f32> diffuse,
@@ -487,9 +473,56 @@ struct Renderer {
             pixel.specular_map = specular_map;
             pixel.shininess = shininess;
             pixel.uv = pix_uv.xy();
-            pixel.normal = ((n0 * w0 + n1 * w1 + n2 * w2)/frac_1_w).xyz();
-            pixel.tangent = ((t0 * w0 + t1 * w1 + t2 * w2)/frac_1_w).xyz();
-            pixel.bitangent = ((bt0 * w0 + bt1 * w1 + bt2 * w2)/frac_1_w).xyz();
+            pixel.normal = (n0 * w0 + n1 * w1 + n2 * w2)/frac_1_w;
+            pixel.tangent = t;
+            pixel.position = (ws0 * w0 + ws1 * w1 + ws2 * w2)/frac_1_w;
+            pixel.normal_map = normal_map;
+            frame[pix].set_smaller_depth(pixel);
+        });
+    }
+
+    static void draw_triangle_filled_textured_outline(
+            ref_mut<FrameBuffer> frame,
+            Vector3<f32> ss0, Vector3<f32> ss1, Vector3<f32> ss2,
+            Vector3<f32> ws0, Vector3<f32> ws1, Vector3<f32> ws2,
+            Vector3<f32> n0, Vector3<f32> n1, Vector3<f32> n2,
+            Vector3<f32> t,
+            Vector3<f32> uv0, Vector3<f32> uv1, Vector3<f32> uv2,
+            Vector3<f32> ambient,
+            Vector3<f32> diffuse,
+            Vector3<f32> specular,
+            u32 shininess,
+            TextureId ambient_map,
+            TextureId diffuse_map,
+            TextureId specular_map,
+            TextureId normal_map
+        ) {
+
+        rasterize_triangle({
+
+            if (pix.x() < 0 || pix.x() > frame.width() || pix.y() < 0 || pix.y() > frame.height()) continue;
+            auto depth = w0 * ss0.z() + w1 * ss1.z() + w2 * ss2.z();
+            if (depth > 1 || depth < 0) continue;
+
+            auto pix_uv = uv0 * w0 + uv1 * w1 + uv2 * w2;
+            auto frac_1_w = pix_uv.z();
+            pix_uv = pix_uv/frac_1_w;
+
+            Pixel pixel;
+            pixel.depth = convert_depth(depth);
+            if (pixel.depth >= frame[pix].depth) {
+                continue;
+            }
+            pixel.ambient = ambient;
+            pixel.diffuse = diffuse;
+            pixel.specular = specular;
+            pixel.ambient_map = ambient_map;
+            pixel.diffuse_map = diffuse_map;
+            pixel.specular_map = specular_map;
+            pixel.shininess = shininess;
+            pixel.uv = pix_uv.xy();
+            pixel.normal = (n0 * w0 + n1 * w1 + n2 * w2)/frac_1_w;
+            pixel.tangent = t;
             pixel.position = (ws0 * w0 + ws1 * w1 + ws2 * w2)/frac_1_w;
             pixel.normal_map = normal_map;
             frame[pix].set_smaller_depth(pixel);
