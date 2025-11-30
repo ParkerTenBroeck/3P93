@@ -4,7 +4,6 @@
 #include <map>
 #include <vector>
 
-#include <mpi/mpi.h>
 #include <resources/texture.h>
 
 #include "util/fs.h"
@@ -29,7 +28,7 @@ public:
 
         auto contents = file_load_string(path);
         i32 width, height, channels;
-        auto result = stbi_loadf_from_memory(reinterpret_cast<stbi_uc const *>(contents.data()), (int)contents.size(), &width, &height, &channels, 4);
+        auto result = stbi_load_from_memory(reinterpret_cast<stbi_uc const *>(contents.data()), (int)contents.size(), &width, &height, &channels, 4);
 
         if (!result)
             std::cout << "Failed to load texture: " << path << std::endl;
@@ -75,7 +74,7 @@ public:
 
         auto contents = file_load_string(path);
         i32 width, height, channels;
-        auto result = stbi_loadf_from_memory(reinterpret_cast<stbi_uc const *>(contents.data()), (int)contents.size(), &width, &height, &channels, 4);
+        auto result = stbi_load_from_memory(reinterpret_cast<stbi_uc const *>(contents.data()), (int)contents.size(), &width, &height, &channels, 4);
 
         if (!result)
             std::cout << "Failed to load texture: " << path << std::endl;

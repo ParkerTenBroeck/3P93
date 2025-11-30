@@ -2,5 +2,11 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/../.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/glfw3-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-minsizerel/_deps/glfw3-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/glfw3-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithclang/_deps/glfw3-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithclanggui/_deps/glfw3-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/glfw3-src" vcs="Git" />
   </component>
 </project>

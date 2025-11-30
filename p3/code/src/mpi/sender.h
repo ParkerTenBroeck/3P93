@@ -1,20 +1,21 @@
 #ifndef SENDER_H
 #define SENDER_H
 #ifdef USE_OPEN_MPI
+#include "types.h"
 
 namespace mpi {
     class Sender {
         friend Receiver;
-        int dest;
-        explicit Sender(int dest)
-            : dest(dest) {
+        Rank m_dest;
+        Tag m_tag;
+        explicit Sender(const Rank dest, const Tag tag)
+            : m_dest(dest), m_tag(tag) {
         }
 
         template<typename T>
         void do_send(const T& value, int count, MPI_Datatype type) {
-            MPI_Send(&value, count, type, dest, static_cast<int>(Tag::DataTag), MPI_COMM_WORLD);
-            std::cout << "(" << rank() << ") -> " << dest << " type: " << type_name<T>() << " count: " << count << std::endl;
-
+            MPI_Send(&value, count, type, m_dest, static_cast<int>(m_tag), MPI_COMM_WORLD);
+            // std::cout << "(" << rank() << ") -> " << m_dest << " type: " << type_name<T>() << " count: " << count << std::endl;
         }
 
     public:
@@ -35,20 +36,17 @@ namespace mpi {
             return *this;
         }
 
-        static Sender begin_master(const TypeTag ttag) {
-            return begin(MASTER, ttag);
+        static Sender begin_coordinator(const Tag ttag) {
+            return begin(COORDINATOR, ttag);
         }
 
-        static Sender begin(const int dest, const TypeTag ttag) {
-            MPI_Send(&ttag,
-                1,
-                types::u32,
-                dest, static_cast<int>(Tag::TypeTag), MPI_COMM_WORLD);
-            std::cout << "(" << rank() << ") -> " << dest << " Initiated" << std::endl;
-            return Sender(dest);
+        static Sender begin(const int dest, const Tag tag) {
+            // std::cout << "(" << rank() << ") -> " << dest << " Initiated" << std::endl;
+            return Sender(dest, tag);
         }
 
         [[nodiscard]] Receiver receiver() const;
+        [[nodiscard]] Receiver receiver(Tag type) const;
     };
 }
 

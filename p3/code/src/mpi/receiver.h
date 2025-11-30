@@ -2,28 +2,31 @@
 #define RECEIVER_H
 #ifdef USE_OPEN_MPI
 
+#include <assert.h>
+#include <filesystem>
+#include <mpi.h>
 
+#include "types.h"
 
 namespace mpi {
     class Receiver {
         friend Sender;
-        int src;
-        TypeTag m_type;
+        Rank m_src;
+        Tag m_tag;
 
-        explicit Receiver(int dest, TypeTag type): src(dest), m_type(type) {
+        explicit Receiver(Rank dest, Tag type): m_src(dest), m_tag(type) {
         }
 
         template<typename T>
         void do_receive(T& value, int count, MPI_Datatype datatype) {
             MPI_Status status;
-            MPI_Recv(&value, count, datatype,src, static_cast<int>(Tag::DataTag), MPI_COMM_WORLD, &status);
-
-            std::cout << status.MPI_SOURCE << " -> (" << rank() << ") " << " type: " << type_name<T>() << " count: " << count << std::endl;
+            MPI_Recv(&value, count, datatype,m_src, static_cast<int>(m_tag), MPI_COMM_WORLD, &status);
+            //std::cout << status.MPI_SOURCE << " -> (" << rank() << ") " << " type: " << type_name<T>() << " count: " << count << std::endl;
         }
 
     public:
-        [[nodiscard]] constexpr TypeTag type() const {
-            return m_type;
+        [[nodiscard]] constexpr Tag type() const {
+            return m_tag;
         }
 
         template<typename T>
@@ -62,23 +65,22 @@ namespace mpi {
             return *this;
         }
 
-        static Receiver begin() {
-            return begin(MPI_ANY_SOURCE);
+        static Receiver probe(Rank src = MPI_ANY_SOURCE, Tag tag = Tag::ANY) {
+            MPI_Status status;
+            MPI_Probe(src, static_cast<int>(tag), MPI_COMM_WORLD, &status);
+            return begin(status.MPI_SOURCE, static_cast<Tag>(status.MPI_TAG));
         }
 
-        static Receiver begin(int receiver) {
-            TypeTag type;
-            MPI_Status status;
-            MPI_Recv(&type,
-                1,
-                types::u32,
-                receiver, static_cast<int>(Tag::TypeTag), MPI_COMM_WORLD, &status);
-            std::cout << status.MPI_SOURCE <<  " -> (" << rank() << ") Began" << std::endl;
-            return Receiver(status.MPI_SOURCE, type);
+        static Receiver begin(const Rank receiver, Tag type) {
+            return Receiver(receiver, type);
         }
 
         [[nodiscard]] Sender sender() const {
-            return Sender(src);
+            return sender(m_tag);
+        }
+
+        [[nodiscard]] Sender sender(const Tag tag) const {
+            return Sender(m_src, tag);
         }
     };
 }

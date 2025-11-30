@@ -2,9 +2,13 @@
 #define MPI_CODECS_H
 #ifdef USE_OPEN_MPI
 
+#include <args.h>
+#include <mpi/sender.h>
+#include <mpi/receiver.h>
 #include <mpi/codecs.h>
 #include <util/types.h>
 #include <resources/texture.h>
+
 
 namespace mpi {
     #define BASE_CODEC(ty, mpi_ty) template<>struct codec<ty> : codec_base {\
@@ -52,7 +56,7 @@ namespace mpi {
     struct codec<std::string> : codec_base {
         static void send(const std::string& value, Sender& sender) {
             sender.send(static_cast<u32>(value.size()));
-            sender.send(value.data(), static_cast<u32>(value.size()));
+            sender.send(value.data(), value.size());
         }
 
         static std::string receive(Receiver& receiver) {
@@ -62,7 +66,7 @@ namespace mpi {
         }
 
         static void receive(std::string* value, Receiver& receiver) {
-            auto size = receiver.receive<u32>();
+            const auto size = receiver.receive<u32>();
             value->resize(size);
             receiver.receive(value->data(), size);
         }
@@ -101,6 +105,69 @@ namespace mpi {
             value->m_height = height;
             value->m_pixels = new Vector4<f32>[height*width];
             receiver.receive(value->m_pixels, width*height);
+        }
+    };
+
+    template<>
+    struct codec<Scenes> : codec_base {
+        static void send(const Scenes& value, Sender& sender) {
+            sender
+                .send((u32)value);
+        }
+
+        static Scenes receive(Receiver& receiver) {
+            Scenes scene = Scenes::Brick;
+            receive(&scene, receiver);
+            return scene;
+        }
+
+        static void receive(Scenes* value, Receiver& receiver) {
+            receiver
+                .receive((u32*)(value));
+        }
+    };
+
+    template<>
+    struct codec<Arguments> : codec_base {
+        static void send(const Arguments& value, Sender& sender) {
+            sender
+                .send(value.height)
+                .send(value.width)
+                .send(value.write_frames)
+                .send(value.frames)
+                .send(value.scene);
+        }
+
+        static Arguments receive(Receiver& receiver) {
+            Arguments args;
+            receive(&args, receiver);
+            return args;
+        }
+
+        static void receive(Arguments* value, Receiver& receiver) {
+            receiver
+                .receive(&value->height)
+                .receive(&value->width)
+                .receive(&value->write_frames)
+                .receive(&value->frames)
+                .receive(&value->scene);
+        }
+    };
+
+
+    template<>
+    struct codec<Empty> : codec_base {
+        static void send(const Empty&, Sender& sender) {
+            sender.send("", 0);
+        }
+
+        static Empty receive(Receiver& receiver) {
+            receiver.receive<char>(nullptr, 0);
+            return Empty{};
+        }
+
+        static void receive(Empty*, Receiver& receiver) {
+            receiver.receive<char>(nullptr, 0);
         }
     };
 }

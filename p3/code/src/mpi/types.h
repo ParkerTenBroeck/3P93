@@ -33,29 +33,34 @@ namespace mpi {
         return rank;
     }
 
-    inline bool is_master() {
+    inline int worker_count() {
+        int count;
+        MPI_Comm_size(MPI_COMM_WORLD, &count);
+        return count-1;
+    }
+
+    inline bool is_coordinator() {
         return rank() == 0;
     }
 
-    inline bool is_slave() {
-        return !is_master();
+    inline bool is_worker() {
+        return !is_coordinator();
     }
 
-    constexpr int MASTER = 0;
+    typedef int Rank;
+    constexpr Rank COORDINATOR = 0;
 
     enum class Tag : int {
-        DataTag = 0,
-        TypeTag = 1,
+        Arguments,
+        FrameComplete,
+        WorkerReady,
+        BeginFrame,
+        LoadFile,
+        ANY = MPI_ANY_TAG,
     };
 
-    enum class TypeTag : u32 {
-        Null = 0,
-        S2M_Ready,
-        S2M_FrameComplete,
+    struct Empty{};
 
-        M2S_BeginFrame,
-        M2S_LoadFile,
-    };
 }
 
 #endif

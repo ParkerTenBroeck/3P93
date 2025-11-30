@@ -79,11 +79,11 @@ void glfw_error_callback(int error, const char *desc) {
     std::cerr << "GLFW Error " << error << ": " << desc << std::endl;
 }
 
-void handle_game_input(Game *game, f32 delta) {
+void handle_game_input(Game& game, f32 delta) {
     Vector3<f32> movement{0., 0., 0.};
     // project facing vector onto the plane defined by the up normal
-    auto facing = (game->scene.m_camera.target-game->scene.m_camera.position);
-    facing = facing-(facing.dot(game->scene.m_camera.up)*game->scene.m_camera.up);
+    auto facing = (game.scene.m_camera.target-game.scene.m_camera.position);
+    facing = facing-(facing.dot(game.scene.m_camera.up)*game.scene.m_camera.up);
     facing = facing.normalize();
 
     const auto speed = input.keys[GLFW_KEY_LEFT_CONTROL].down?1.0f:0.3f;
@@ -95,23 +95,23 @@ void handle_game_input(Game *game, f32 delta) {
         movement = movement - speed*facing*delta;
     }
     if (input.keys[GLFW_KEY_A].down) {
-        movement = movement - speed*facing.cross(game->scene.m_camera.up).normalize()*delta;
+        movement = movement - speed*facing.cross(game.scene.m_camera.up).normalize()*delta;
     }
     if (input.keys[GLFW_KEY_D].down) {
-        movement = movement + speed*facing.cross(game->scene.m_camera.up).normalize()*delta;
+        movement = movement + speed*facing.cross(game.scene.m_camera.up).normalize()*delta;
     }
 
     if (input.keys[GLFW_KEY_SPACE].down) {
-        movement = movement + speed*game->scene.m_camera.up * delta;
+        movement = movement + speed*game.scene.m_camera.up * delta;
     }
     if (input.keys[GLFW_KEY_LEFT_SHIFT].down) {
-        movement = movement - speed*game->scene.m_camera.up * delta;
+        movement = movement - speed*game.scene.m_camera.up * delta;
     }
 
-    game->scene.m_camera.fov -= input.scroll_y/10.f;
-    game->scene.m_camera.fov = std::clamp(game->scene.m_camera.fov, 0.00001f, M_PIf);
+    game.scene.m_camera.fov -= input.scroll_y/10.f;
+    game.scene.m_camera.fov = std::clamp(game.scene.m_camera.fov, 0.00001f, M_PIf);
 
-    game->scene.m_camera.position = game->scene.m_camera.position+movement*7;
+    game.scene.m_camera.position = game.scene.m_camera.position+movement*7;
 
     static f32 yaw = 0.f;
     static f32 pitch = 0.f;
@@ -124,9 +124,9 @@ void handle_game_input(Game *game, f32 delta) {
     facing.z() = std::cos(yaw) * std::cos(pitch);
     facing.y() = std::sin(pitch);
     facing.x() = std::sin(yaw) * std::cos(pitch);
-    game->scene.m_camera.target = game->scene.m_camera.position+facing.normalize();
+    game.scene.m_camera.target = game.scene.m_camera.position+facing.normalize();
 
-    game->scene.m_camera.target = facing+game->scene.m_camera.position;
+    game.scene.m_camera.target = facing+game.scene.m_camera.position;
 
     if (input.keys[GLFW_KEY_C].pressed) {
         visual = VisualKind::Color;
@@ -152,16 +152,16 @@ void handle_game_input(Game *game, f32 delta) {
     }
 }
 
-void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) {
+void fill_buffer(const VisualKind visual, Game& game, std::vector<f32> &pixels) {
     switch (visual) {
         case VisualKind::Color: {
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].diffuse.x();
-                pixels[i*4+1] = game->frame_buffer[i].diffuse.y();
-                pixels[i*4+2] = game->frame_buffer[i].diffuse.z();
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                pixels[i*4+0] = game.frame_buffer[i].diffuse.x();
+                pixels[i*4+1] = game.frame_buffer[i].diffuse.y();
+                pixels[i*4+2] = game.frame_buffer[i].diffuse.z();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -169,8 +169,8 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].depth;
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                pixels[i*4+0] = game.frame_buffer[i].depth;
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -179,10 +179,10 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].normal.x();
-                pixels[i*4+1] = game->frame_buffer[i].normal.y();
-                pixels[i*4+2] = game->frame_buffer[i].normal.z();
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                pixels[i*4+0] = game.frame_buffer[i].normal.x();
+                pixels[i*4+1] = game.frame_buffer[i].normal.y();
+                pixels[i*4+2] = game.frame_buffer[i].normal.z();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -191,8 +191,8 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                auto bitangent = game->frame_buffer[i].tangent.cross(game->frame_buffer[i].normal).normalize();
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                auto bitangent = game.frame_buffer[i].tangent.cross(game.frame_buffer[i].normal).normalize();
                 pixels[i*4+0] = bitangent.x();
                 pixels[i*4+1] = bitangent.y();
                 pixels[i*4+2] = bitangent.z();
@@ -204,10 +204,10 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].tangent.x();
-                pixels[i*4+1] = game->frame_buffer[i].tangent.y();
-                pixels[i*4+2] = game->frame_buffer[i].tangent.z();
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                pixels[i*4+0] = game.frame_buffer[i].tangent.x();
+                pixels[i*4+1] = game.frame_buffer[i].tangent.y();
+                pixels[i*4+2] = game.frame_buffer[i].tangent.z();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -215,10 +215,10 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].position.x();
-                pixels[i*4+1] = game->frame_buffer[i].position.y();
-                pixels[i*4+2] = game->frame_buffer[i].position.z();
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                pixels[i*4+0] = game.frame_buffer[i].position.x();
+                pixels[i*4+1] = game.frame_buffer[i].position.y();
+                pixels[i*4+2] = game.frame_buffer[i].position.z();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -226,10 +226,10 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].specular.x();
-                pixels[i*4+1] = game->frame_buffer[i].specular.x();
-                pixels[i*4+2] = game->frame_buffer[i].specular.x();
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                pixels[i*4+0] = game.frame_buffer[i].specular.x();
+                pixels[i*4+1] = game.frame_buffer[i].specular.x();
+                pixels[i*4+2] = game.frame_buffer[i].specular.x();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -237,10 +237,10 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].specular.y();
-                pixels[i*4+1] = game->frame_buffer[i].specular.y();
-                pixels[i*4+2] = game->frame_buffer[i].specular.y();
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                pixels[i*4+0] = game.frame_buffer[i].specular.y();
+                pixels[i*4+1] = game.frame_buffer[i].specular.y();
+                pixels[i*4+2] = game.frame_buffer[i].specular.y();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -248,10 +248,10 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
             #ifdef USE_OPEN_MP
             #pragma omp parallel for
             #endif
-            for (usize i = 0; i < game->frame_buffer.width() * game->frame_buffer.height(); i++) {
-                pixels[i*4+0] = game->frame_buffer[i].specular.z();
-                pixels[i*4+1] = game->frame_buffer[i].specular.z();
-                pixels[i*4+2] = game->frame_buffer[i].specular.z();
+            for (usize i = 0; i < game.frame_buffer.width() * game.frame_buffer.height(); i++) {
+                pixels[i*4+0] = game.frame_buffer[i].specular.z();
+                pixels[i*4+1] = game.frame_buffer[i].specular.z();
+                pixels[i*4+2] = game.frame_buffer[i].specular.z();
                 pixels[i*4+3] = 1.f;
             }
         }break;
@@ -262,7 +262,7 @@ void fill_buffer(const VisualKind visual, Game *game, std::vector<f32> &pixels) 
 
 void run_gui(Arguments& args) {
 
-    auto game = args.make_game();
+    auto game = Game::make_game(args);
 
     f32 fps = 0;
 
@@ -405,12 +405,12 @@ void run_gui(Arguments& args) {
         frame_start = now;
 
 
-        handle_game_input(game, delta);
+        handle_game_input(*game, delta);
 
         game->update(delta, time);
         game->render();
 
-        fill_buffer(visual, game, pixels);
+        fill_buffer(visual, *game, pixels);
 
         auto render_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-frame_start).count();
         fps *= 99.f/100.f;

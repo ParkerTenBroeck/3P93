@@ -1,9 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
+
 #include "renderer/renderer.h"
 #include "resources/resource_store.h"
 #include "renderer/scene.h"
-
+#include <args.h>
 
 class Game;
 class System {
@@ -30,12 +31,29 @@ public:
     std::vector<System*> systems;
 
 
+    static std::unique_ptr<Game> make_game(const Arguments& args) {
+        switch (args.scene) {
+            case Scenes::Halo:
+                return std::make_unique<Game>(FrameBuffer{args.width, args.height});
+            case Scenes::Brick:
+                return std::make_unique<Game>(FrameBuffer{args.width, args.height});
+            case Scenes::Test:
+                return std::make_unique<Game>(FrameBuffer{args.width, args.height});
+            default:
+                std::cout << "Invalid scene argument passed" << std::endl;
+                exit(-1);
+        }
+    }
+
+
     explicit Game(FrameBuffer&& frame_buffer) : frame_buffer(std::move(frame_buffer)) {
         add_rotating_lights(4.f);
         // add_bricks();
         // add_halo();
-        // add_cube();
+        add_cube();
         fun_mesh();
+        // add_halo();
+        // add_cube();
         add_global_light();
         // airport();
         // add_minecraft_world();
@@ -54,7 +72,7 @@ public:
         auto& mesh = std::get<Mesh>(obj.m_kind);
         mesh.m_material.diffuse = {1.f, 1.f, 1.f};
         mesh.m_material.ambient = {0.02f, 0.f, 0.f};
-        // mesh.m_material.diffuse_map = resource_store.rgba_gamma_corrected("../assets/brick/wood.png");
+        mesh.m_material.diffuse_map = resource_store.rgba_gamma_corrected("../assets/brick/wood.png");
         mesh.m_material.normal_map = resource_store.normal_map("../assets/brick/normal_test.png");
         mesh.m_material.shininess = 256;
         mesh.m_material.backface_cull = false;

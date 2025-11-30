@@ -2,12 +2,13 @@
 #define ARGS_H
 
 #include <iostream>
+#include <util/slice.h>
 
-#include <game.h>
+#include "mpi/codec.h"
 
 struct Scenes {
 
-    enum Kind {
+    enum Kind : u32{
         Halo,
         Brick,
         Test,
@@ -30,9 +31,17 @@ struct Scenes {
 };
 
 struct Arguments {
-    usize width = 720, height = 480;
+#ifdef USE_OPEN_MPI
+    friend mpi::codec<Arguments>;
+#endif
+private:
+    Arguments() {}
+public:
+
+    usize width = 640, height = 480;
     Scenes scene = Scenes::Test;
-    bool write_frames = false;
+    bool write_frames = true;
+    u32 frames = 300;
 
     explicit Arguments(char** argv, int argc) : Arguments(slice<char*>::from_raw(++argv, argc-1)){}
 
@@ -50,6 +59,12 @@ struct Arguments {
                     width = std::stoi(arg.substr(1+arg.find_first_of('=')));
                 }catch (std::exception& e) {
                     std::cout << "Invalid width argument expected positive integer: " << e.what() << std::endl;
+                }
+            }else if (arg.rfind("--frames=")==0) {
+                try {
+                    frames = std::stoi(arg.substr(1+arg.find_first_of('=')));
+                }catch (std::exception& e) {
+                    std::cout << "Invalid frames argument expected positive integer: " << e.what() << std::endl;
                 }
             }else if (arg.rfind("--scene=")==0) {
                 std::string name = arg.substr(1+arg.find_first_of('='));
@@ -83,26 +98,6 @@ struct Arguments {
             " write_frames: " << (write_frames?"true":"false") <<
             " scene: " << scene.str() <<
             std::endl;
-    }
-
-    Game* make_game() {
-        switch (this->scene) {
-            case Scenes::Halo:
-                return new Game(FrameBuffer{this->width, this->height});
-            case Scenes::Brick:
-                return new Game(FrameBuffer{this->width, this->height});
-            case Scenes::Test:
-                return new Game(FrameBuffer{this->width, this->height});
-            default:
-                std::cout << "Invalid scene argument passed" << std::endl;
-                exit(-1);
-        }
-    }
-
-    static Game* from_args(char **argv, int argc) {
-        Arguments args{slice<char*>::from_raw(++argv, argc-1)};
-        args.print();
-        return args.make_game();
     }
 };
 

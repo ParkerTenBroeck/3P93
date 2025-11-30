@@ -15,33 +15,17 @@
 
 namespace mpi {
     inline Receiver Sender::receiver() const {
-        return Receiver(dest, TypeTag::Null);
+        return receiver(m_tag);
+    }
+    inline Receiver Sender::receiver(Tag type) const {
+        return Receiver(m_dest, type);
     }
 
-    namespace s {
-        inline Texture request_normal_texture(ref<std::string> path) {
-            return Sender::begin_master(TypeTag::S2M_RequestNormalTexture)
-                .send(path)
-                .receiver()
-                .receive<Texture>();
-        }
-
-        inline Texture request_map_texture(ref<std::string> path) {
-            return Sender::begin_master(TypeTag::S2M_RequestMapTexture)
-                .send(path)
-                .receiver()
-                .receive<Texture>();
-        }
-
-        inline Texture request_rgba_gamma_corrected_texture(ref<std::string> path) {
-            return Sender::begin_master(TypeTag::S2M_RequestRgbaGammaCorrectedTexture)
-                .send(path)
-                .receiver()
-                .receive<Texture>();
-        }
-
-        inline double slave_await_begin_frame() {
-            return Sender::begin_master(TypeTag::S2M_Ready).receiver().receive<f64>();
+    template<typename T>
+    void coordinator_broadcast(const T& value, const Tag type) {
+        const auto workers = worker_count();
+        for (Rank i = 0; i < workers; i ++) {
+            Sender::begin(i+1, type).send<T>(value);
         }
     }
 }

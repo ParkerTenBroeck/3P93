@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <mpi/types.h>
+#include <mpi/codecs.h>
 #include <memory>
 #include <sstream>
 #include <mpi/sender.h>
@@ -10,8 +11,8 @@
 
 inline std::string file_load_string(const std::string& path) {
 #ifdef USE_OPEN_MPI
-    if (mpi::is_slave()) {
-        return mpi::Sender::begin_master(mpi::TypeTag::M2S_LoadFile).send(path).receiver().receive<std::string>();
+    if (mpi::is_worker()) {
+        return mpi::Sender::begin(mpi::COORDINATOR, mpi::Tag::LoadFile).send(path).receiver().receive<std::string>();
     }
 #endif
 
@@ -29,7 +30,7 @@ inline std::string file_load_string(const std::string& path) {
 
 inline std::unique_ptr<std::istream> file_load_istream(const std::string& path) {
 #ifdef USE_OPEN_MPI
-    if (mpi::is_slave()) {
+    if (mpi::is_worker()) {
         return std::make_unique<std::istringstream>(file_load_string(path));
     }
 #endif

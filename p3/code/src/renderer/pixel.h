@@ -139,7 +139,7 @@ INLINE inline Pixel Pixel::fragment_shader(ref<Scene> scene, ref<ResourceStore> 
 
     auto shine = pixel.shininess;
     auto metalic = 0.0f;
-    auto ambient = 0.0f;
+    auto ambient = 0.1f;
     if (pixel.specular_map.exists()) {
         auto val = resources[pixel.specular_map]->resolve_uv_wrapping(pixel.uv).xyz();
         ambient = val.x();
