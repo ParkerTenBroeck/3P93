@@ -17,8 +17,6 @@ void mpi_master() {
     printf("Master started\n");
     usize frame = 0;
 
-    ResourceStore resource_store;
-
     while (true) {
         auto receiver = mpi::Receiver::begin();
 
@@ -30,24 +28,11 @@ void mpi_master() {
                 break;
             case mpi::TypeTag::M2S_BeginFrame:
                 break;
-            case mpi::TypeTag::S2M_RequestNormalTexture: {
-                receiver.sender().send(*resource_store.normal_map(receiver.receive<std::string>()));
+            case mpi::TypeTag::M2S_LoadFile: {
+                auto path = receiver.receive<std::string>();
+                auto data = file_load_string(path);
+                receiver.sender().send(data);
             }break;
-            case mpi::TypeTag::S2M_RequestMapTexture: {
-                receiver.sender().send(*resource_store.map(receiver.receive<std::string>()));
-            }break;
-            case mpi::TypeTag::S2M_RequestRgbGammaCorrectedTexture: {
-                receiver.sender().send(*resource_store.rgba_gamma_corrected(receiver.receive<std::string>()));
-            }break;
-            case mpi::TypeTag::S2M_RequestRgbaTexture: {
-                receiver.sender().send(*resource_store.rgba(receiver.receive<std::string>()));
-            }break;
-            case mpi::TypeTag::M2S_RequestedTexture:
-                break;
-            case mpi::TypeTag::S2M_RequestMesh:
-                break;
-            case mpi::TypeTag::M2S_RequestedMesh:
-                break;
             default:
                 break;
         }
@@ -56,14 +41,13 @@ void mpi_master() {
 #include <chrono>
 #include <thread>
 void mpi_slave() {
-
+    Scene scene;
     ResourceStore resource_store;
-
     resource_store.normal_map("../assets/brick/normal_test.png");
 
     while (true) {
         auto received = mpi::s::slave_await_begin_frame();
-        printf("Received %f frames\n", (float)received);
+        printf("Received %lf frames\n", received);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }

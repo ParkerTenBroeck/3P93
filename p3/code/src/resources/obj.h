@@ -8,12 +8,14 @@
 #include <vector>
 #include <variant>
 #include <algorithm>
+#include <fstream>
 
 #include <tiny_obj_loader.h>
 
 #include <resources/texture.h>
 #include <util/vec_math.h>
 #include <resources/resource_store.h>
+#include <util/fs.h>
 
 class Face {
 public:
@@ -73,9 +75,30 @@ public:
         std::string err;
 
         auto parent = std::filesystem::path(path).parent_path().string() + "/";
+        std::ifstream istream(path);
+
+        class CustomMltLoader : public tinyobj::MaterialReader {
+            std::string m_parent;
+        public:
+            bool operator()(const std::string &matId,
+                          std::vector<tinyobj::material_t> *materials,
+                          std::map<std::string, int> *matMap,
+                          std::string *err) override {
+                auto in = file_load_istream(m_parent+matId);
+                tinyobj::MaterialStreamReader reader(*in);
+                return reader(matId, materials, matMap, err);
+            }
+
+            CustomMltLoader() = default;
+
+            explicit CustomMltLoader(std::string  parent) : m_parent(std::move(parent)) {}
+        };
+
+        CustomMltLoader mtlLoader(parent);
+
         bool success = tinyobj::LoadObj(&attrib, &shapes, &objmaterials, &err,
-            path.c_str(),
-            parent.c_str(),
+            &istream,
+            &mtlLoader,
             true);
 
         if (!success) {

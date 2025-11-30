@@ -7,33 +7,29 @@
 #include <mpi/mpi.h>
 #include <resources/texture.h>
 
+#include "util/fs.h"
+
 /**
  * Stores already loaded textures to prevent loading the same textures multiple times and also allow us to get a texture from a texture_id
  */
 class ResourceStore {
     std::vector<std::shared_ptr<const Texture>> textures{};
-    std::map<std::string, std::shared_ptr<const Texture>> textures_map{};
+    std::map<std::string, std::shared_ptr<const Texture>> map_textures{};
+    std::map<std::string, std::shared_ptr<const Texture>> normal_textures{};
+    std::map<std::string, std::shared_ptr<const Texture>> rgba_gamma_corrected_textures{};
     friend struct Texture;
 
 public:
     ResourceStore() = default;
 
     std::shared_ptr<const Texture> normal_map(ref<std::string> path) {
-        if (textures_map.count(path) != 0) {
-            return textures_map[path];
+        if (normal_textures.count(path) != 0) {
+            return normal_textures[path];
         }
-        #ifdef USE_OPEN_MPI
-            if (mpi::is_slave()) {
-                auto texture = std::make_shared<const Texture>(mpi::s::request_normal_texture(path));
-                textures_map[path] = texture;
-                textures.resize(std::max(textures.size(), (usize)texture->get_id().id));
-                textures[texture->get_id().id-1] = texture;
-                return texture;
-            }
-        #endif
 
+        auto contents = file_load_string(path);
         i32 width, height, channels;
-        auto result = stbi_load(path.c_str(), &width, &height, &channels, 4);
+        auto result = stbi_loadf_from_memory(reinterpret_cast<stbi_uc const *>(contents.data()), (int)contents.size(), &width, &height, &channels, 4);
 
         if (!result)
             std::cout << "Failed to load texture: " << path << std::endl;
@@ -66,19 +62,20 @@ public:
         stbi_image_free(result);
 
         shared->m_id = TextureId(textures.size()+1);
-        textures_map[path] = shared;
-        textures.emplace_back(textures_map[path]);
+        normal_textures[path] = shared;
+        textures.emplace_back(normal_textures[path]);
 
         return shared;
     }
 
     std::shared_ptr<const Texture> map(ref<std::string> path) {
-        if (textures_map.count(path) != 0) {
-            return textures_map[path];
+        if (map_textures.count(path) != 0) {
+            return map_textures[path];
         }
 
+        auto contents = file_load_string(path);
         i32 width, height, channels;
-        auto result = stbi_load(path.c_str(), &width, &height, &channels, 4);
+        auto result = stbi_loadf_from_memory(reinterpret_cast<stbi_uc const *>(contents.data()), (int)contents.size(), &width, &height, &channels, 4);
 
         if (!result)
             std::cout << "Failed to load texture: " << path << std::endl;
@@ -111,19 +108,20 @@ public:
         stbi_image_free(result);
 
         shared->m_id = TextureId(textures.size()+1);
-        textures_map[path] = shared;
-        textures.emplace_back(textures_map[path]);
+        map_textures[path] = shared;
+        textures.emplace_back(map_textures[path]);
 
         return shared;
     }
 
     std::shared_ptr<const Texture> rgba_gamma_corrected(ref<std::string> path) {
-        if (textures_map.count(path) != 0) {
-            return textures_map[path];
+        if (rgba_gamma_corrected_textures.count(path) != 0) {
+            return rgba_gamma_corrected_textures[path];
         }
 
+        auto contents = file_load_string(path);
         i32 width, height, channels;
-        auto result = stbi_loadf(path.c_str(), &width, &height, &channels, 4);
+        auto result = stbi_loadf_from_memory(reinterpret_cast<stbi_uc const *>(contents.data()), (int)contents.size(), &width, &height, &channels, 4);
 
         if (!result)
             std::cout << "Failed to load texture: " << path << std::endl;
@@ -156,8 +154,8 @@ public:
         stbi_image_free(result);
 
         shared->m_id = TextureId(textures.size()+1);
-        textures_map[path] = shared;
-        textures.emplace_back(textures_map[path]);
+        rgba_gamma_corrected_textures[path] = shared;
+        textures.emplace_back(rgba_gamma_corrected_textures[path]);
 
         return shared;
     }

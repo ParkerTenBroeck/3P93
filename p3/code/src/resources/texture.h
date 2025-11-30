@@ -6,6 +6,8 @@
 #include <util/types.h>
 #include <util/vec_math.h>
 
+#include <mpi/codec.h>
+
 
 template<typename T>
 INLINE inline T euclidean_remainder(T a, T b) {
@@ -30,12 +32,6 @@ public:
     }
 };
 
-#ifdef USE_OPEN_MPI
-namespace mpi {
-    template<typename T>
-    struct codec;
-}
-#endif
 
 /**
  * A texture with 4 channels each in the range [0.0f, 1.0f]
