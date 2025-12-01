@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <util/slice.h>
-
 #include "mpi/codec.h"
 
 struct Scenes {

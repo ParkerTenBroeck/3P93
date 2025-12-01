@@ -94,7 +94,9 @@ endif()
 
 
 if (ENABLE_OPENMPI)
-    find_package(MPI REQUIRED C)
+    find_package(MPI REQUIRED CXX)
     target_compile_definitions(${PROJECT_NAME} PUBLIC USE_OPEN_MPI)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${MPI_C_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${MPI_CXX_LIBRARIES})
+    include_directories(SYSTEM ${MPI_INCLUDE_PATH})
+    target_include_directories(${PROJECT_NAME} PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 endif()
