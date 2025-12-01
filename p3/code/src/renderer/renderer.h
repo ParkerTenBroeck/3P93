@@ -163,7 +163,7 @@ struct Renderer {
             render_triangle(
                 frame,
                 mesh.m_material,
-                ms0, ms1, ms2,
+                // ms0, ms1, ms2,
                 ws0, ws1, ws2,
                 cs0, cs1, cs2,
                 face.normals[0], face.normals[1], face.normals[2],
@@ -181,7 +181,7 @@ struct Renderer {
         ref_mut<FrameBuffer> frame,
         ref<Material> material,
 
-        ref<Vector4<f32>> ms0, ref<Vector4<f32>> ms1, ref<Vector4<f32>> ms2,
+        // ref<Vector4<f32>> ms0, ref<Vector4<f32>> ms1, ref<Vector4<f32>> ms2,
         ref<Vector4<f32>> ws0, ref<Vector4<f32>> ws1, ref<Vector4<f32>> ws2,
         ref<Vector4<f32>> cs0, ref<Vector4<f32>> cs1, ref<Vector4<f32>> cs2,
         ref<Vector3<f32>> n0, ref<Vector3<f32>> n1, ref<Vector3<f32>> n2,
@@ -212,22 +212,14 @@ struct Renderer {
         auto n1_c = (normal_matrix * n1)/w1;
         auto n2_c = (normal_matrix * n2)/w2;
 
-        // auto norm = (ws1.xyz() - ws0.xyz())
-        //     .cross(ws2.xyz() - ws0.xyz())
-        //     .normalize();
-
-        // n0_c = norm/w0;
-        // n1_c = norm/w1;
-        // n2_c = norm/w2;
-
         Vector3<f32> t{};
 
-        // if (material.normal_map.has_value()) {
+        if (material.normal_map.has_value()) {
             t = tangent(
                 {ws0.xyz(), ws1.xyz(), ws2.xyz()},
                 {uv0_e, uv1_e, uv2_e}
             );
-        // }
+        }
 
         uv0_e = uv0_e / w0;
         uv1_e = uv1_e / w1;

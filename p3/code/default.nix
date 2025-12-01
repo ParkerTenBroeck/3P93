@@ -17,6 +17,7 @@ pkgs.mkShell
 		renderdoc
 		llvmPackages.openmp
 		openmpi
+		bc
 		valgrind
 	];
 	propagatedBuildInputs = with pkgs; [

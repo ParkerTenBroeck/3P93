@@ -10,12 +10,12 @@ void run_tui(const Arguments& args){
 
     auto game = Game::make_game(args);
 
-    f64 total_duration = 3.;
-    u64 frames = 300;
+    const f64 total_duration = args.frames/args.framerate;
+    const u64 frames = args.frames;
     u64 total_ms = 0;
     for (u64 i = 0; i < frames; i ++) {
         auto start = std::chrono::high_resolution_clock::now();
-        game->update(1.f/total_duration, i*total_duration/frames);
+        game->update(1.f/total_duration, i*total_duration/args.framerate);
         game->render();
 
         auto end = std::chrono::high_resolution_clock::now();

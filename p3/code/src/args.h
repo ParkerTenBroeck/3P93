@@ -11,6 +11,7 @@ struct Scenes {
     enum Kind : u32{
         Halo,
         Brick,
+        Bricks,
         Test,
     } kind;
 
@@ -24,6 +25,8 @@ struct Scenes {
                 return "halo";
             case Brick:
                 return "brick";
+            case Bricks:
+                return "bricks";
             case Test:
                 return "test";
         }
@@ -42,6 +45,8 @@ public:
     Scenes scene = Scenes::Test;
     bool write_frames = true;
     u32 frames = 300;
+    f32 framerate = 30.0;
+    bool freecam = false;
 
     explicit Arguments(char** argv, int argc) : Arguments(slice<char*>::from_raw(++argv, argc-1)){}
 
@@ -66,12 +71,22 @@ public:
                 }catch (std::exception& e) {
                     std::cout << "Invalid frames argument expected positive integer: " << e.what() << std::endl;
                 }
+            }else if (arg.rfind("--freecam=")==0) {
+                freecam = true;
+            }else if (arg.rfind("--framerate=")==0) {
+                try {
+                    framerate = std::stof(arg.substr(1+arg.find_first_of('=')));
+                }catch (std::exception& e) {
+                    std::cout << "Invalid framerate argument expected float: " << e.what() << std::endl;
+                }
             }else if (arg.rfind("--scene=")==0) {
                 std::string name = arg.substr(1+arg.find_first_of('='));
                 if (name == "halo") {
                     scene = Scenes::Halo;
                 } else if (name == "brick") {
                     scene = Scenes::Brick;
+                } else if (name == "bricks") {
+                    scene = Scenes::Bricks;
                 } else if (name == "test") {
                     scene = Scenes::Test;
                 }else {

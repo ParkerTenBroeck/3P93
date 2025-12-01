@@ -1,7 +1,6 @@
 
 
 #include <args.h>
-#include <mpi.h>
 #include <mpi/mpi.h>
 #include <util/fs.h>
 
@@ -41,7 +40,8 @@ void mpi_coordinator(int argc, char** argv) {
             break;
             case mpi::Tag::WorkerReady: {
                 if (frame < args.frames) {
-                    receiver.receive<mpi::Empty>(nullptr).sender(mpi::Tag::BeginFrame).send(frame).send(++frame / 60.0);
+                    receiver.receive<mpi::Empty>(nullptr).sender(mpi::Tag::BeginFrame).send(frame);
+                    frame++;
                 }else {
                     receiver.receive<mpi::Empty>(nullptr).sender(mpi::Tag::BeginFrame).send(0xFFFFFFFF);
                 }
@@ -65,9 +65,6 @@ void mpi_worker() {
 
     auto frame_buffer = new Vector4<u8>[args.height*args.width];
 
-    game->scene.m_camera.position = {0, 10, -5};
-    game->scene.m_camera.target = {-5, 0, -5};
-
     f64 frame_start = 0;
     while (true) {
         auto receiver = mpi::Sender::begin(mpi::COORDINATOR, mpi::Tag::WorkerReady).send(mpi::Empty{}).receiver(mpi::Tag::BeginFrame);
@@ -76,7 +73,7 @@ void mpi_worker() {
             receiver.sender(mpi::Tag::FrameComplete).send(frame);
             return;
         }
-        f64 time = receiver.receive<f64>();
+        const f64 time = frame / args.framerate;
 
         auto start = std::chrono::high_resolution_clock::now();
 

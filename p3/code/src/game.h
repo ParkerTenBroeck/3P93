@@ -32,32 +32,55 @@ public:
 
 
     static std::unique_ptr<Game> make_game(const Arguments& args) {
+        auto game = std::make_unique<Game>(FrameBuffer{args.width, args.height});;
         switch (args.scene) {
             case Scenes::Halo:
-                return std::make_unique<Game>(FrameBuffer{args.width, args.height});
+                if (!args.freecam) game->rotating_camera();
+                game->add_rotating_lights(4.f);
+                game->add_halo();
+                break;
             case Scenes::Brick:
-                return std::make_unique<Game>(FrameBuffer{args.width, args.height});
+                game->add_cube();
+                game->add_rotating_lights(4.f);
+                break;
+            case Scenes::Bricks:
+                if (!args.freecam) game->panning_camera();
+                game->add_bricks();
+                game->add_rotating_lights(2.f, {0, -2, 0});
+                break;
             case Scenes::Test:
-                return std::make_unique<Game>(FrameBuffer{args.width, args.height});
+                game->add_rotating_lights(4.f);
+                game->add_cube();
+                game->fun_mesh();
+                game->scene.m_camera.position = {0, 10, -5};
+                game->scene.m_camera.target = {0, 0, 0};
+                break;
             default:
                 std::cout << "Invalid scene argument passed" << std::endl;
                 exit(-1);
         }
+
+        return game;
     }
 
 
-    explicit Game(FrameBuffer&& frame_buffer) : frame_buffer(std::move(frame_buffer)) {
-        add_rotating_lights(4.f);
-        // add_bricks();
-        // add_halo();
-        add_cube();
-        fun_mesh();
-        // add_halo();
-        // add_cube();
-        add_global_light();
-        // airport();
-        // add_minecraft_world();
-        // add_light_following_player();
+    explicit Game(FrameBuffer&& frame_buffer) : frame_buffer(std::move(frame_buffer)) {}
+
+    void panning_camera() {
+        systems.push_back(new Lambda([](Game* game, auto, auto time) {
+            game->scene.m_camera.position.z() = std::sin(std::sin((f32)time/10.f*M_PIf*2) * M_PIf/4+M_PIf)*40;
+            game->scene.m_camera.position.x() = std::cos(std::sin((f32)time/10.f*M_PIf*2) * M_PIf/4+M_PIf)*40;
+        }));
+    }
+
+    void rotating_camera() {
+        systems.push_back(new Lambda([](Game* game, auto, auto time) {
+            game->scene.m_camera.fov = M_PI/10;
+            game->scene.m_camera.target = Vector3<f32>{0, -1.0f, 0};
+
+            game->scene.m_camera.position.z() = std::cos((f32)time /10.f * M_PIf * 2)*7;
+            game->scene.m_camera.position.x() = std::sin((f32)time /10.f * M_PIf * 2)*7;
+        }));
     }
 
     void fun_mesh() {
@@ -111,7 +134,8 @@ public:
     }
 
     void airport() {
-        auto airport = scene.add_object(Object::load("../assets/airport/Sunshine Airport.obj", resource_store));
+        // auto airport =
+            scene.add_object(Object::load("../assets/airport/Sunshine Airport.obj", resource_store));
         // scene[airport].m_scale.x() = 0.001f;
         // scene[airport].m_scale.y() = 0.001f;
         // scene[airport].m_scale.z() = 0.001f;
@@ -129,7 +153,6 @@ public:
     }
 
     void add_minecraft_world() {
-
         auto halo = scene.add_object(Object::load("../assets/city/Untitled.obj", resource_store));
         scene[halo].m_scale.x() = 1.f;
         scene[halo].m_scale.y() = 1.f;
@@ -146,46 +169,43 @@ public:
         scene.m_lights[global_id].intensity = 0.2;
     }
 
-    void add_rotating_lights(f32 scale) {
+    void add_rotating_lights(f32 scale, Vector3<f32> offset = {0,0,0}) {
         const auto l1_id = scene.m_lights.size();
         scene.m_lights.emplace_back(Light{});
-        systems.push_back(new Lambda([l1_id, scale](auto game, auto, auto time) {
+        systems.push_back(new Lambda([l1_id, scale, offset](auto game, auto, auto time) {
             game->scene.m_lights[l1_id].color = {1, 0.03, 0.03};
             game->scene.m_lights[l1_id].intensity = 20;
-            game->scene.m_lights[l1_id].position_or_direction.x() = std::sin((f32)time/10.f * M_PIf * 2)*scale;
-            game->scene.m_lights[l1_id].position_or_direction.z() = std::cos((f32)time/10.f * M_PIf * 2)*-scale;
+            game->scene.m_lights[l1_id].position_or_direction =
+                Vector3<f32>{std::sin((f32)time/10.f * M_PIf * 2), 0.0f, std::cos((f32)time/10.f * M_PIf * 2)}*scale+offset;
         }));
 
         const auto l2_id = scene.m_lights.size();
         scene.m_lights.emplace_back(Light{});
-        systems.push_back(new Lambda([l2_id, scale](auto game, auto, auto time) {
+        systems.push_back(new Lambda([l2_id, scale, offset](auto game, auto, auto time) {
             game->scene.m_lights[l2_id].color = {0.03, 1, 0.03};
             game->scene.m_lights[l2_id].intensity = 20;
-            game->scene.m_lights[l2_id].position_or_direction.y() = std::sin((f32)time/10.f * M_PIf * 2)*scale;
-            game->scene.m_lights[l2_id].position_or_direction.z() = std::cos((f32)time/10.f * M_PIf * 2)*-scale;
+            game->scene.m_lights[l2_id].position_or_direction =
+                Vector3<f32>{0.0f, std::sin((f32)time/10.f * M_PIf * 2), std::cos((f32)time/10.f * M_PIf * 2)}*scale+offset;
         }));
 
         const auto l3_id = scene.m_lights.size();
         scene.m_lights.emplace_back(Light{});
-        systems.push_back(new Lambda([l3_id, scale](auto game, auto, auto time) {
+        systems.push_back(new Lambda([l3_id, scale, offset](auto game, auto, auto time) {
             game->scene.m_lights[l3_id].color = {0.03, 0.03, 1};
             game->scene.m_lights[l3_id].intensity = 20;
-            game->scene.m_lights[l3_id].position_or_direction.y() = std::sin((f32)time/10.f * M_PIf * 2)*scale;
-            game->scene.m_lights[l3_id].position_or_direction.x() = std::cos((f32)time/10.f * M_PIf * 2)*-scale;
+            game->scene.m_lights[l3_id].position_or_direction =
+                Vector3<f32>{std::cos((f32)time/10.f * M_PIf * 2), std::sin((f32)time/10.f * M_PIf * 2), 0.0f}*scale+offset;
         }));
     }
 
     void add_halo() {
         auto halo = scene.add_object(Object::load("../assets/halo/spartan_armour_mkv_-_halo_reach.obj", resource_store));
-        scene[halo].m_position.z() = 0;
+        scene[halo].m_position.y() = -4;
     }
 
     void add_bricks() {
         const auto brick = scene.add_object(Object::load("../assets/bricks/Mauerrest_C.obj", resource_store));
         scene[brick].m_position.y() -= 10;
-
-        const auto city = scene.add_object(Object::load("../assets/city/full_gameready_city_buildings.obj", resource_store));
-        scene[city].m_position.y() -= 10;
     }
 
     void add_cube() {

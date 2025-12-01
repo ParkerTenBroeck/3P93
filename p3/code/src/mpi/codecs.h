@@ -135,13 +135,9 @@ namespace mpi {
                 .send(value.width)
                 .send(value.write_frames)
                 .send(value.frames)
+                .send(value.framerate)
+                .send(value.freecam)
                 .send(value.scene);
-        }
-
-        static Arguments receive(Receiver& receiver) {
-            Arguments args;
-            receive(&args, receiver);
-            return args;
         }
 
         static void receive(Arguments* value, Receiver& receiver) {
@@ -150,7 +146,15 @@ namespace mpi {
                 .receive(&value->width)
                 .receive(&value->write_frames)
                 .receive(&value->frames)
+                .receive(&value->framerate)
+                .receive(&value->freecam)
                 .receive(&value->scene);
+        }
+
+        static Arguments receive(Receiver& receiver) {
+            Arguments args;
+            receive(&args, receiver);
+            return args;
         }
     };
 

@@ -31,8 +31,8 @@ struct Pixel {
 
     INLINE void set_smaller_depth(Pixel pixel) {
 #ifdef USE_OPEN_MP
-        auto ptr = (std::atomic<u32>*)(&this->depth);
-        const u32 LOCK_VALUE = 0xFFFFFFFF;
+        const auto ptr = reinterpret_cast<std::atomic<u32> *>(&this->depth);
+        constexpr u32 LOCK_VALUE = 0xFFFFFFFF;
         u32 depth;
         while ((depth = ptr->exchange(LOCK_VALUE, std::memory_order_acquire)) == 0xFFFFFFFF){}
         if (depth > pixel.depth) {

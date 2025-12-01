@@ -40,6 +40,6 @@ inline std::string leading(T value, int total_length) {
     return ss.str();
 }
 
-void run_tui(Arguments& args);
+void run_tui(const Arguments& args);
 
 #endif //TUI_H

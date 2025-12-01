@@ -79,7 +79,7 @@ void glfw_error_callback(int error, const char *desc) {
     std::cerr << "GLFW Error " << error << ": " << desc << std::endl;
 }
 
-void handle_game_input(Game& game, f32 delta) {
+void handle_game_input(Game& game, bool freecam, f32 delta) {
     Vector3<f32> movement{0., 0., 0.};
     // project facing vector onto the plane defined by the up normal
     auto facing = (game.scene.m_camera.target-game.scene.m_camera.position);
@@ -111,7 +111,8 @@ void handle_game_input(Game& game, f32 delta) {
     game.scene.m_camera.fov -= input.scroll_y/10.f;
     game.scene.m_camera.fov = std::clamp(game.scene.m_camera.fov, 0.00001f, M_PIf);
 
-    game.scene.m_camera.position = game.scene.m_camera.position+movement*7;
+    if (freecam)
+        game.scene.m_camera.position = game.scene.m_camera.position+movement*7;
 
     static f32 yaw = 0.f;
     static f32 pitch = 0.f;
@@ -124,9 +125,10 @@ void handle_game_input(Game& game, f32 delta) {
     facing.z() = std::cos(yaw) * std::cos(pitch);
     facing.y() = std::sin(pitch);
     facing.x() = std::sin(yaw) * std::cos(pitch);
-    game.scene.m_camera.target = game.scene.m_camera.position+facing.normalize();
-
-    game.scene.m_camera.target = facing+game.scene.m_camera.position;
+    if (freecam)
+        game.scene.m_camera.target = game.scene.m_camera.position+facing.normalize();
+    if (freecam)
+        game.scene.m_camera.target = facing+game.scene.m_camera.position;
 
     if (input.keys[GLFW_KEY_C].pressed) {
         visual = VisualKind::Color;
@@ -405,7 +407,7 @@ void run_gui(Arguments& args) {
         frame_start = now;
 
 
-        handle_game_input(*game, delta);
+        handle_game_input(*game, args.freecam, delta);
 
         game->update(delta, time);
         game->render();
