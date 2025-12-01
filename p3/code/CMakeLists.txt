@@ -42,7 +42,7 @@ option(ENABLE_ADDRSAN "Enable the address sanitizer" OFF)
 option(ENABLE_UBSAN "Enable the ub sanitizer" OFF)
 option(ENABLE_TSAN "Enable the thread data race sanitizer" OFF)
 option(ENABLE_OPENGL "Enable OpenGL" OFF)
-option(ENABLE_OPENMP "Enable OpenMP" ON)
+option(ENABLE_OPENMP "Enable OpenMP" OFF)
 option(ENABLE_OPENMPI "Enable OpenMPI" OFF)
 
 if (ENABLE_OPENGL)
@@ -94,7 +94,7 @@ endif()
 
 
 if (ENABLE_OPENMPI)
-    find_package(MPI REQUIRED CXX)
+    find_package(MPI REQUIRED C)
     target_compile_definitions(${PROJECT_NAME} PUBLIC USE_OPEN_MPI)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${MPI_CXX_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${MPI_C_LIBRARIES})
 endif()

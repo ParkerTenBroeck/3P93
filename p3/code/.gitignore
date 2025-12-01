@@ -1,5 +1,6 @@
 animation/
 Testing/
 cmake-*/
+out/
 build/
 assets/bricks

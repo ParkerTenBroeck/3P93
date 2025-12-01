@@ -4,9 +4,11 @@
 #include <renderer/scene.h>
 #include <util/types.h>
 
+#ifdef USE_OPEN_MP
 #include <atomic>
+#endif
+
 #include <cstring>
-#include <stdatomic.h>
 
 struct Pixel {
     Vector3<f32> ambient;
