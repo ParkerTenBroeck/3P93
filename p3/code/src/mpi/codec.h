@@ -18,15 +18,18 @@ namespace mpi{
     struct codec : codec_base {
         static constexpr const types::type& type() noexcept = delete;
 
-        static void send(const T&, Sender&) {
-            static_assert(false, "no codec defined for this type");
-        }
-        static T receive(Receiver&) {
-            static_assert(false, "no codec defined for this type");
-        };
-        static void receive(T*, Receiver&) {
-            static_assert(false, "no codec defined for this type");
-        };
+        static void send(const T&, Sender&) = delete;
+        // {
+        //     static_assert(false, "no codec defined for this type");
+        // }
+        static T receive(Receiver&) = delete;
+        // {
+        //     static_assert(false, "no codec defined for this type");
+        // };
+        static void receive(T*, Receiver&) = delete;
+        // {
+        //     static_assert(false, "no codec defined for this type");
+        // };
     };
 }
 
