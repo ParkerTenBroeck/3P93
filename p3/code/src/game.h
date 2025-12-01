@@ -121,7 +121,11 @@ public:
 
         systems.push_back(new Lambda([obj_id](auto game, auto, auto time) {
             Mesh& mesh = std::get<Mesh>(game->scene[obj_id].m_kind);
-            for (auto& face : mesh.m_faces) {
+            #ifdef USE_OPEN_MP
+            #pragma omp parallel for schedule(static)
+            #endif
+            for (usize f = 0; f < mesh.m_faces.size(); f ++) {
+                auto& face = mesh.m_faces[f];
                 for (int i = 0; i < 3; i++) {
                     auto inner = face.points[i].x()*15 + face.points[i].z()*20 + (f32)time;
                     face.points[i].y() = std::sin(inner);
