@@ -117,8 +117,8 @@ struct Renderer {
         #ifdef USE_OPEN_MP
         #pragma omp parallel for schedule(static)
         #endif
-        for (const auto& face : mesh.m_faces) {
-            //const auto& face = mesh.m_faces[i];
+        for (usize i = 0; i < mesh.m_faces.size(); i ++) {
+            const auto& face = mesh.m_faces[i];
 
             auto ms0 = face.points[0].extend(1);
             auto ms1 = face.points[1].extend(1);
