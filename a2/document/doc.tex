@@ -1,0 +1,205 @@
+\documentclass[12pt]{article}
+
+
+\usepackage[pdftex,pdfpagelabels,bookmarks,hyperindex,hyperfigures]{hyperref}
+
+
+\usepackage[margin=1in]{geometry}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage[table]{xcolor}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{listings}
+
+\setlength{\parskip}{1em} % Add spacing between paragraphs
+\setlength{\parindent}{0em} % Remove indentation at the start of paragraphs
+
+
+\pagestyle{fancy}
+\fancyhf{} % Clear all headers/footers
+\lhead{Assignment 2}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+
+% --- Title and TOC ---
+
+\begin{document}
+
+\title{4P78 Assignment 2}
+\author{
+    Parker TenBroeck 7376726\\
+    pt21zs@brocku.ca
+}
+\date{\today}
+
+\makeatletter
+\begin{titlepage}
+	\def \LOGOPATH {brock.jpg}
+	\def \UNIVERSITY {Brock University}
+	\def \FACULTY {Faculty of Mathematics \& Science}
+	\def \DEPARTMENT {Department of Computer Science}
+	\def \COURSETITLE {COSC 3P93: Parallel Computing}
+	\def \SUPERVISOR {Robson De Grande}
+	
+	
+	\vfill
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{brock.jpg}
+		\fontsize{14pt}{14pt}\selectfont
+		\vfill
+		\UNIVERSITY \\
+		\FACULTY \\
+		\DEPARTMENT \\
+		\vfill
+		\fontsize{18pt}{18pt}\selectfont
+		\textbf{\COURSETITLE} \\[0.5cm]
+		\textbf{\@title}
+		\vfill
+		\fontsize{14pt}{14pt}\selectfont
+		Prepared By: \\[0.5cm]
+		
+		\begin{tabular}[t]{c}
+			\@author
+		\end{tabular}\par
+	
+	    \vfill
+		Instructor: \\
+		\SUPERVISOR
+		\vfill
+		\@date
+	\end{center}
+\end{titlepage}
+\makeatother
+
+\newpage
+
+
+\section{Performance}
+
+\subsection{}
+
+\begin{enumerate}
+	\item Define Task Latency and determine the Average Task Latency for the entire batch of 10 tasks \\
+	how long it takes for a system to start or complete a task after the task is issued.\\
+	$$
+	\frac{0+0+0+0+1+2+2.5+3+3.5+5}{10}=1.7s
+	$$
+	
+	\item Define Task Throughput and determine the Overall Task Throughput in the observed time interval \\
+	
+	The number of tasks the system can complete in a givin duration of time.\\
+	$$
+	\frac{10}{7}=1.43s
+	$$
+\end{enumerate}
+
+\section{Parallel Design Patterns}
+
+\subsection{}
+\begin{enumerate}
+	\item 
+	I3 : A[10] = X + 10 (T1 write) → I4 : Y = A[10] + 5 (T2 read)\\
+	True (Flow) a write to A[10] is later read by the other thread, so the flow of data is from I3 to I4
+	
+	\item I1 : P = P + 1 (T1 write) and I2 : P = P + 2 (T2 write) \\
+	Output (Write–Write) both instructions write the same scalar P\\~\\
+	I3 : X = A[5] (T1 read) → I4 : A[5] = 2 × Y (T2 write)\\
+	(Read→Write) — I3 reads A[5] and a later instruction writes A[5], so the read precedes the write (anti).\\
+	
+	\item I3 : M[0][1] = 1 (T1 write) and I4 : M[0][1] = 2 (T2 write)\\
+	Output (Write–Write) — both write the same matrix element, so there is an output dependency.
+	
+	\item No Dependency's for any instructions
+	
+	\item I3 : A[8] = Y (T1 write) → I4 : Y = A[8] + 1 (T2 read of A[8])\\
+	Type: True (Flow) — I3 writes A[8] and I4 reads that location.\\~\\
+	
+	I3 : A[8] = Y (T1 reads Y) and I4 : Y = A[8] + 1 (T2 writes Y)\\
+	Anti-Dependency (Read→Write) on Y — I3 reads Y while I4 later writes Y.
+\end{enumerate}
+
+\subsection{}
+\begin{enumerate}
+	\item 
+\end{enumerate}
+
+\subsection{}
+\begin{enumerate}
+	\item 
+\end{enumerate}
+
+\subsection{}
+\begin{enumerate}
+	\item 
+\end{enumerate}
+
+\section{OpenMPI}
+
+\subsection{}
+\begin{enumerate}
+	\item $[6]$ MPI\_Init: starts the MPI environment
+	\item $[7]$ MPI\_Comm\_rank:  gives each process its rank (ID) in MPI\_COMM\_WORLD
+	\item $[8]$ MPI\_Comm\_size: gives the total number of processes
+	\item $[16]$ MPI\_Sendrecv: Sends left\_send (1 double) to left\_neighbor with tag 0.\\
+	Simultaneously receives right\_recv (1 double) from right\_neighbor with tag 0.\\
+	Sendrecv is useful in situations where two processes both want to exchange data but it is not clear who should go first.
+	\item $[20]$ MPI\_Sendrecv: Sends right\_send to right\_neighbor with tag 1.\\
+	Simultaneously Receives left\_recv from left\_neighbor with tag 1.
+	
+	\item $[27]$ MPI\_Barrier: is a global synchronization, all processes must reach the boundary before any can proceed past it
+	
+	\item $[31]$ MPI\_Finalize: Cleans up the MPI environment
+\end{enumerate}
+
+\subsection{}
+\begin{enumerate}
+	\item $[9]$ MPI\_Init: starts the MPI environment
+	\item $[10]$ MPI\_Comm\_rank:  gives each process its rank (ID) in MPI\_COMM\_WORLD
+	\item $[11]$ MPI\_Comm\_size: gives the total number of processes
+	\item $[16]$ MPI\_Scatter: distribute the dataset by splitting global\_data into size blocks of length local\_N and sends a block to each process
+	\item $[21]$ MPI\_Bcast: Broadcast from rank 0 to all other processes so each process has a copy of the centroid array.
+	\item $[25]$ MPI\_Reduce: each process gives its local\_sum and the reduce operation sums all the values together.
+	\item $[32]$ MPI\_Gather: collect all local means on rank 0
+	\item $[36]$ MPI\_Allreduce: Reduce all values with MAX operation (so find the max of all values) and share it to all ranks
+	\item $[40]$ MPI\_Allgather: Collect all the sums from every process into the array.
+	
+	\item $[44]$ MPI\_Finalize: Cleans up the MPI environment
+\end{enumerate}
+
+\section{}
+
+\section{Tools}
+\subsection{}
+\begin{enumerate}
+	\item Factors for sequential performance include, time complecity, quality of implementation, CPU speed, ILP, Memory behavior(cache, memory bandwidth), Compiler optimizations, Instruction throughput
+	\item Factors for parallel performance include, Parallel fraction of the algorithm, load balancing, synchronization overhead, communication overhead, memory contention, scalability, thread mamagement overhead, cache coherence overhead.
+\end{enumerate}
+\section{Parallel Program Design}
+
+\subsection{}
+The methodological design of parallel programs is a structured approach that transforms a problem into an efficient parallel solution by identifying parallel work, organizing tasks, and minimizing communication and synchronization so the program scales and performs well on multiple processors\\
+\begin{enumerate}
+	\item Partitioning
+	\item Communication
+	\item Agglomeration
+	\item Mapping
+	\item Synchronization
+	\item Performance Tuning
+\end{enumerate}
+
+
+%\nocite{*}
+%\bibliographystyle{IEEEtran}
+%\bibliography{references}
+
+\end{document}

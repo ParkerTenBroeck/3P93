@@ -21,6 +21,8 @@ void mpi_coordinator(int argc, char** argv) {
 
     auto frame_buffer = new Vector4<u8>[args.height*args.width];
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     u32 frame = 0;
     u32 outstanding = mpi::worker_count();
     while (frame < args.frames || outstanding!=0) {
@@ -39,6 +41,8 @@ void mpi_coordinator(int argc, char** argv) {
             }
             break;
             case mpi::Tag::WorkerReady: {
+                if (frame == 0) start = std::chrono::high_resolution_clock::now();
+
                 if (frame < args.frames) {
                     receiver.receive<mpi::Empty>(nullptr).sender(mpi::Tag::BeginFrame).send(frame);
                     frame++;
@@ -57,6 +61,10 @@ void mpi_coordinator(int argc, char** argv) {
                 break;
         }
     }
+
+    const auto end = std::chrono::high_resolution_clock::now();
+    const auto duration = std::chrono::duration<f64>(end - start).count();
+    std::cerr << "" << duration << "" << std::endl;
 }
 
 void mpi_worker() {
