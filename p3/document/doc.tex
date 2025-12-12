@@ -85,6 +85,39 @@
 
 \section{Intro}
 
+\section{Performance Testing}
+
+triangle count
+wavy: 7212\\
+halo: 42600\\
+bricks: 752456\\
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c||c|c|c|}
+		\hline
+		&360x240 & 720x480 & 1080x1920 \\\hline\hline
+		halo&  2.863831261 & 7.661210509 & 30.610816487 \\\hline
+		bricks& 15.252794018 & 22.988769295 & 60.991727457 \\\hline
+		wavy& 2.615458843 & 9.626839493 & 47.173488550 \\\hline
+	\end{tabular}
+	\caption{Computer 1, Single Threaded, No Disk}
+\end{table}
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c||c|c|c|}
+		\hline
+		&360x240 & 720x480 & 1080x1920 \\\hline\hline
+		halo&  2.863831261 & 3.558991764 & 14.919492215 \\\hline
+		bricks& 15.252794018 & 22.988769295 & 60.991727457 \\\hline
+		wavy& 2.615458843 & 9.626839493 & 47.173488550 \\\hline
+	\end{tabular}
+	\caption{Computer 1, OpenMP, No Disk}
+\end{table}
+
+
+
 \nocite{*}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
