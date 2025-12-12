@@ -25,23 +25,23 @@ public class LatexGraph {
         });
     }
 
-    static String beep(List<Meow.Run> runs, Meow.Scene scene, Meow.Kind kind, int resolution, java.util.function.Function<Meow.Run, Double> mapping){
+    static String beep(List<Main.Run> runs, Main.Scene scene, Main.Kind kind, int resolution, java.util.function.Function<Main.Run, Double> mapping){
         return enumerate(
                 runs.stream()
                         .filter(r -> r.scene() == scene)
-                        .filter(r -> r.kind() == kind || (r.kind() == Meow.Kind.Single && kind== Meow.Kind.Mp))
+                        .filter(r -> r.kind() == kind || (r.kind() == Main.Kind.Single && kind== Main.Kind.Mp))
                         .filter(r -> r.resolution() == resolution)
-                        .sorted(Comparator.comparingInt(Meow.Run::parallelism)),
+                        .sorted(Comparator.comparingInt(Main.Run::parallelism)),
         (i, r) -> "("+i+","+mapping.apply(r)+")")
             .collect(Collectors.joining());
     }
 
 
-    public static String graph(List<Meow.Run> runs, Meow.Scene scene) {
+    public static String graph(List<Main.Run> runs, Main.Scene scene, Function<Main.Run, Double> time) {
 
 
-        double min = 0;//runs.stream().filter(run -> run.scene() == scene).mapToDouble(Meow.Run::time).min().getAsDouble();
-        double max = runs.stream().filter(run -> run.scene() == scene).mapToDouble(Meow.Run::time).max().getAsDouble();
+        double min = 0;//runs.stream().filter(run -> run.scene() == scene).mapToDouble(time::apply).min().getAsDouble();
+        double max = runs.stream().filter(run -> run.scene() == scene).mapToDouble(time::apply).max().getAsDouble();
         int run_count = 5-1;
         var str = """
 \\begin{tikzpicture}[font=\\tiny]
@@ -78,27 +78,27 @@ public class LatexGraph {
     \\addlegendimage{/pgfplots/refstyle=mpi360}\\addlegendentry{\\small 360 MPI}
 
     \\addplot[very thick,blue]
-    coordinates{"""+beep(runs, scene, Meow.Kind.Mp, 1080, Meow.Run::time)+"""
+    coordinates{"""+beep(runs, scene, Main.Kind.Mp, 1080, time)+"""
     }; \\label{mp1080}
 
     \\addplot[very thick,green]
-    coordinates{"""+beep(runs, scene, Meow.Kind.Mp, 720, Meow.Run::time)+"""
+    coordinates{"""+beep(runs, scene, Main.Kind.Mp, 720, time)+"""
     }; \\label{mp720}
 
     \\addplot[very thick,red]
-    coordinates{"""+beep(runs, scene, Meow.Kind.Mp, 360, Meow.Run::time)+"""
+    coordinates{"""+beep(runs, scene, Main.Kind.Mp, 360, time)+"""
     }; \\label{mp360}
     
     \\addplot[blue,dashed,very thick]
-    coordinates{"""+beep(runs, scene, Meow.Kind.Mpi, 1080, Meow.Run::time)+"""
+    coordinates{"""+beep(runs, scene, Main.Kind.Mpi, 1080, time)+"""
     }; \\label{mpi1080}
 
     \\addplot[green,dashed,very thick]
-    coordinates{"""+beep(runs, scene, Meow.Kind.Mpi, 720, Meow.Run::time)+"""
+    coordinates{"""+beep(runs, scene, Main.Kind.Mpi, 720, time)+"""
     };\\label{mpi720}
 
     \\addplot[red,dashed,very thick]
-    coordinates{"""+beep(runs, scene, Meow.Kind.Mpi, 360, Meow.Run::time)+"""
+    coordinates{"""+beep(runs, scene, Main.Kind.Mpi, 360, time)+"""
     };\\label{mpi360}
 \\end{axis}
 """
