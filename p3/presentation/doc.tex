@@ -1,0 +1,242 @@
+\documentclass{beamer}
+
+
+
+\usepackage{graphicx,subcaption,multicol}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage[table]{xcolor}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{listings}
+
+
+\title{COSC 3P93 Project Step 4}
+\author{
+    Parker TenBroeck 7376726\\
+    pt21zs@brocku.ca
+}
+\date{\today}
+\institute{\includegraphics[width=0.6\textwidth]{brock.jpg}}
+%\date{2025}
+
+\begin{document}
+	
+\frame{\titlepage}
+
+
+\begin{frame}
+	\frametitle{Intro}
+	Rendering Triangle Meshes is the process of taking pre-defined or generated meshes and transforming it into a displayable image with a variety of effects
+	\\~\\
+	\centering
+	\includegraphics[width=0.23\linewidth]{halo_obj}
+	\includegraphics[width=0.23\linewidth]{halo_pre}
+	\includegraphics[width=0.23\linewidth]{halo_before}
+	\includegraphics[width=0.23\linewidth]{halo_final}
+	\\~\\
+	You're probably familiar with this process if you've ever played a 3D game.
+	
+	
+	
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Problems}
+	\textbf{Mesh Representation: } \\
+	\hspace{1em} How do we represent a 3D mesh of triangles?
+	\\
+	\textbf{Projection: } \\
+	\hspace{1em} How do we take 3D triangles and project them onto our screen?
+	\\
+	\textbf{Rasterization: } \\
+	\hspace{1em} How do we draw these triangles to our screen taking into account the correct depths?
+	\\
+	\textbf{Lighting/Texturing: } \\
+	\hspace{1em} how do we shade/texture our triangles efficiently?
+	\\
+	\textbf{Pixel Updates: }\\
+	\hspace{1em} How do we ensure concurrent pixel writes select the closest pixel.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Solutions}
+	\textbf{Mesh Representation: } \\
+	\hspace{1em} Each mesh is a list of Faces, each face containing 3 3D points.
+	\\
+	\textbf{Projection: } \\
+	\includegraphics[width=1\linewidth]{coordinate_systems_long.png}
+	\\
+	\textbf{Rasterization: } \\
+	\hspace{1em} Min/Max box over the trinalges projected screen space coordinates. Conversion to barycentric coordinate to calculate linearly interpolated pixel information. Using the projected Z value to determine depth of each pixel.
+	\\
+	\textbf{Lighting/Texturing: } \\
+	\hspace{1em} Store needed information in pixel from material. Only calculate lighting on the pixels actually vidible(after all triangles have been rasterized). aka "Deferred rendering"
+	\\
+	\textbf{Pixel Updates: } \\
+	\hspace{1em} Per Pixel Lock.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Tools and Libraries}
+	STB libraries were used to read/write image files.\cite{stb-image}\cite{stb-image-write}\\~\\
+	Tiny OBJ Loader was used to parse obj files for 3d models.\cite{tinyobjloader}\\~\\
+	The 3D models used in the performance tests were sourced from SketchFab. \cite{bricks-model} \cite{halo-model}\\~\\
+	Learn OpenGL was a incredible resource which all techniques in this project were based off. \cite{learn-open-gl}.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Responsibilities}
+	Everything: Me, Myself, And I
+\end{frame}
+
+\begin{frame}
+	\frametitle{Opportunities of Parallelism}
+	
+	\textbf{Per Frame: } \\
+	\hspace{1em} Render seperate frames independently of eachother.
+	\\~\\
+
+	\textbf{Per Face(Triangle): } \\
+	\hspace{1em} Projection and Rasterization.
+	\\~\\
+	
+	\textbf{Per Fragment(Pixel): } \\
+	\hspace{1em} Each Fragment in the image can have lighting and textures calculated independently of eachother.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Parallelism Degree}
+	
+	\textbf{MP: } \\
+		\hspace{1em} Each fragment(pixel)'s lighting is calculated truly independently of eachother making this stage embarassingly parallel. Each triangle is projected independently of eachother but the rasterization step needs to ensure atomic stores for pixels in the frame buffer.\\~\\
+	
+	\textbf{MPI: } \\
+	\hspace{1em} Embarrassingly parallel (for rendering). Each frame is rendered completely independently from eachother making each frame embarassingly parallel. 
+\end{frame}
+
+\begin{frame}
+	\frametitle{Parallelism Design}
+	
+	\textbf{MP: } \\
+	\begin{itemize}
+		\item Triangle projection and rasterization is split statically per mesh. Through testing it was found that static scheduling works best in this case. 
+		\item Fragment shader is split statically as all fragments require the same calculations.
+	\end{itemize}
+	
+	
+	\textbf{MPI: } Coordinator/Worker model.\\
+	\begin{itemize}
+		\item Coordinator: is responsible for initiating workers with input parameters (scene, resolution), providing model/image data if requested, and instructing workers which frames to render.
+		\item Worker: Responsible for requesting needed model/texture data. Rendering requested frames.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{MP Implementation}
+	
+	Implementing MP was straight forward only requiring two parallel for clauses. The only synchronization needed was a spin-lock on each pixel to ensure updates happened synchronously\\~\\
+	
+	\centering
+	\includegraphics[width=0.7\linewidth]{fragment_par}
+	\includegraphics[width=0.7\linewidth]{vertex_par}
+	\includegraphics[width=0.7\linewidth]{spin_lock}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{MPI Implementation}
+	MPI was slightly more work necessitating workers to request files from the coordinator to load resources. Each worker notifies the coordinator when it is ready to start a new frame, and the coordinator responds with the frame number to render.
+	\\~\\
+	\centering
+	\includegraphics[width=0.7\linewidth]{mpi_recv}
+	\includegraphics[width=0.7\linewidth]{mpi_send}	
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Performance Testing}
+
+
+\begin{table}[H]
+	\caption{Performance Bench Parameters}
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Resolution& 360x240, 720x480, 1080x1920\\\hline
+		Scenes/Triangles& Wavy(7212), Halo(42600), Bricks(752456)\\\hline
+		Parallelism& Single Thread, MP/MPI(\#1, \#2, \#4, \#8, \#16)\\\hline
+		Frames&300\\\hline
+		CPU&AMD Ryzen 9 7950X (32) @ 5.883GHz\\\hline
+		OS&NixOS 25.05 (Warbler) x86\_64\\\hline
+		RAM&64GiB DDR5 \\\hline
+		Compiler&clang version 19\\\hline
+	\end{tabular}
+	\label{table:performance-720-brick}
+\end{table}
+\end{frame}
+
+\begin{frame}
+	\begin{figure}[hbt!]
+		\begin{subfigure}{.475\linewidth}
+			\centering
+			\textbf{\small Wavy}
+			\input{wavy_graph.tex}
+			\label{plot:wavy}
+		\end{subfigure}\hfill
+		\begin{subfigure}{.475\linewidth}
+			\centering
+			\textbf{\small Halo}
+			\input{halo_graph.tex}
+			\label{plot:halo}
+		\end{subfigure}
+		\medskip
+		\begin{subfigure}{.475\linewidth}
+			\centering
+			\textbf{\small Bricks}
+			\input{bricks_graph.tex}
+			\label{plot:bricks}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\newcommand{\SE}[2]{\footnotesize \(\begin{aligned}S&=#1\times \\[-5pt] E&=#2\% \end{aligned}\)}
+
+
+\begin{frame}
+	\frametitle{MP Performance Analysis}
+	\centering
+	\renewcommand{\arraystretch}{1.3}%
+	\input{mp_table.tex}
+\end{frame}
+
+\begin{frame}
+	\frametitle{MPI Performance Analysis}
+	\centering
+	\renewcommand{\arraystretch}{1.3}%
+	\input{mpi_table.tex}
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{Showcase}
+	\href{https://www.cosc.brocku.ca/~pt21zs/demo.html}{https://www.cosc.brocku.ca/~pt21zs/demo.html}
+\end{frame}
+
+\begin{frame}
+\frametitle{Citations}
+\nocite{*}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{frame}
+
+\end{document}
