@@ -3,7 +3,7 @@
 
 \usepackage[pdftex,pdfpagelabels,bookmarks,hyperindex,hyperfigures]{hyperref}
 
-
+\usepackage{graphicx,subcaption,multicol}
 \usepackage[margin=1in]{geometry}
 \usepackage{float}
 \usepackage{adjustbox}
@@ -18,6 +18,7 @@
 \usepackage{fancyhdr}
 \usepackage{color}
 \usepackage{listings}
+
 
 \setlength{\parskip}{1em} % Add spacing between paragraphs
 \setlength{\parindent}{0em} % Remove indentation at the start of paragraphs
@@ -84,38 +85,466 @@
 \newpage
 
 \section{Intro}
+My topic is rendering of triangle meshes. \\
+
+This topic is explored in great depth and has a wide array of different techniques and optimizations to produce varying levels of realism. Additionally parallelization often goes hand in hand when talking about these techniques as they are designed for GPUs. \\
+
+I heavily relied on material and techniques talked about on the Learn OpenGL\cite{learn-open-gl} website.\\
+
+The final rendered results for all three scenes (1080) can be seen here \href{https://cosc.brocku.ca/~pt21zs/demo.html}{demo}
+
+\section{Algorithm Overview}
+
+There are a 4 major steps involved in this process
+
+\begin{enumerate}
+	\item Transforming from local space to clip space through the Projection, View, and Model matrices
+	\item Clipping out of view verticies and triangles.
+	\item Rasterizing triangles to the frame buffer
+	\item Performing per fragment(pixel) lighting 
+\end{enumerate}
+
+
+\subsection{Projection}
+the projection matrix translates coordinates into clip space \eqref{clip-bounds}.
+\begin{gather*}\begin{align}
+		&fov = \text{the field of view for our camera} \notag\\
+		&far = \text{the farthest point our camera can see} \notag\\
+		&near = \text{the closest point our camera can see} \notag\\
+		&M_{projection} = 
+		\begin{bmatrix} 
+			\frac{1}{aspect*\tan(\frac{fov}2)}&0&0&0\\
+			0&\frac{1}{\tan(\frac{fov}2)}&0&0\\
+			0&0&-\frac{far+near}{far-near}&-\frac{2\times far \times near}{far-near}\\
+			0&0&-1&0
+		\end{bmatrix}
+\end{align}\end{gather*}
+
+
+\subsection{View}
+The view matrix transforms world space coordinates into view space coordinates where x is left and right, y is up and down, and z is depth.
+\begin{gather*}\begin{align}
+		&P_{target} = \text{Where the camera is looking} \notag\\
+		&P_{eye} = \text{Where the camera is} \notag\\
+		&\overrightarrow{V_{world\hspace{0.2em}up}} = \text{the up direction of the world }\left\langle \begin{matrix}0&1&0\end{matrix} \right\rangle \notag\\
+		&\overrightarrow{V_{cam\hspace{0.2em}forward}} = \left\langle P_{target}-P_{eye} \right\rangle \notag\\
+		&\overrightarrow{V_{cam\hspace{0.2em}right}} = \left\langle \overrightarrow{V_{cam\hspace{0.2em}forward}}\times  \overrightarrow{V_{world\hspace{0.2em}up}}\right\rangle \notag\\
+		&\overrightarrow{V_{cam\hspace{0.2em}up}} = \left\langle \overrightarrow{V_{cam\hspace{0.2em}right}}\times  \overrightarrow{V_{cam\hspace{0.2em}forward}}\right\rangle \notag\\
+		&M_{view}= 
+		\begin{bmatrix}
+			\overrightarrow{V_{cam\hspace{0.2em}right}}_x&\overrightarrow{V_{cam\hspace{0.2em}right}}_y&\overrightarrow{V_{cam\hspace{0.2em}right}}_z&\overrightarrow{V_{cam\hspace{0.2em}right}}\cdot P_{eye}\\
+			\overrightarrow{V_{cam\hspace{0.2em}up}}_x&\overrightarrow{V_{cam\hspace{0.2em}up}}_y&\overrightarrow{V_{cam\hspace{0.2em}up}}_z&\overrightarrow{V_{cam\hspace{0.2em}up}}\cdot P_{eye}\\
+			-\overrightarrow{V_{cam\hspace{0.2em}forward}}_x&-\overrightarrow{V_{cam\hspace{0.2em}forward}}_y&-\overrightarrow{V_{cam\hspace{0.2em}forward}}_z&\overrightarrow{V_{cam\hspace{0.2em}forward}}\cdot P_{eye}\\
+			0&0&0&1
+		\end{bmatrix}
+\end{align}\end{gather*}
+
+\subsection{Model}
+
+The model matrix transforms coordinates from their local model positions to world space. 
+\begin{gather}\begin{align}
+		&P_{pos} = \text{world space location of the object} \notag\\
+		&\overrightarrow{V_{scale}} = \text{x, y, z scale of object} \notag\\
+		&A_{rotation} = \text{euler angles of objects rotation, raw,pitch,roll} \notag\\
+		%
+		&M_{yaw} = \begin{bmatrix}
+			\cos(yaw)&-\sin(yaw)&0\\
+			\sin(yaw)&\cos(yaw)&0\\
+			0&0&1
+		\end{bmatrix} \notag\\
+		&M_{pitch} = \begin{bmatrix}
+			\cos{pitch}&0&\sin(pitch)\\
+			0&1&0\\
+			-\sin{pitch}&0&\cos{pitch}
+		\end{bmatrix} \notag\\
+		&M_{roll} = \begin{bmatrix}
+			1&0&0\\
+			0&\cos(roll)&-\sin(roll)\\
+			0&\sin(roll)&\cos(roll)
+		\end{bmatrix} \notag\\
+		%
+		&M_{rot} = M_{yaw} \cdot M_{pitch} \cdot M_{roll} \notag \\
+		%
+		&M_{scale} = \begin{bmatrix}
+			\overrightarrow{V_{scale}}_x&0&0\\
+			0&\overrightarrow{V_{scale}}_y&0\\
+			0&0&\overrightarrow{V_{scale}}_z
+		\end{bmatrix} \notag\\
+		&M_{rot\hspace{0.2em}scale} = M_{rot}\cdot M_{scale} \notag\\
+		&M_{model} = \begin{bmatrix}
+			{M_{rot\hspace{0.2em}scale}}_{11}&{M_{rot\hspace{0.2em}scale}}_{12}&{M_{rot\hspace{0.2em}scale}}_{13}&{P_{pos}}_x\\
+			{M_{rot\hspace{0.2em}scale}}_{21}&{M_{rot\hspace{0.2em}scale}}_{22}&{M_{rot\hspace{0.2em}scale}}_{23}&{P_{pos}}_y\\
+			{M_{rot\hspace{0.2em}scale}}_{31}&{M_{rot\hspace{0.2em}scale}}_{32}&{M_{rot\hspace{0.2em}scale}}_{33}&{P_{pos}}_z\\
+			0&0&0&1
+		\end{bmatrix}
+\end{align}\end{gather}
+
+\subsection{Clip}
+
+
+\begin{gather*}\begin{aligned}
+		V_{world} &= M_{model} \cdot V_{local} \notag\\
+		V_{clip} &= M_{projection} \cdot M_{view} \cdot M_{model} \cdot V_{local} \notag\\
+		%
+		M_{normal} &= {{M_{model}}^{-1}}^T \notag\\
+		\left\langle N_{world} \right\rangle &= M_{normal} \cdot \left\langle N_{local} \right\rangle \notag
+\end{aligned}\end{gather*}
+
+If the resulting vertex is outside this range it is not visible and can be clipped.
+\begin{gather}
+	-{V_{clip}}_w \leq {V_{clip}}_x \leq {V_{clip}}_w \label{clip-bounds}\\
+	-{V_{clip}}_w \leq {V_{clip}}_y \leq {V_{clip}}_w \notag\\
+	-{V_{clip}}_w \leq {V_{clip}}_z \leq {V_{clip}}_w \notag
+\end{gather}
+
+\subsection{Depth Perspective}
+After clipping each vertexs $x,y,z$ components are divided by their $w$ component to give depth perspective. 
+
+\subsection{Screen Space}
+After depth perspective the $x,y$ components are shifted over by $\frac12$ then scaled to the screen width and height.
+
+
+\subsection{Rasterization}
+The rasterizer first finds a bounding box around the screen space coordinates. Then iterates over each pixel in the box finding the barycentric coordinates at that pixel. It uses these to determine if the point is actually in the triangle or not. and if it is find the liniarly interpreted world position, uv, normal, tangent, and bitangent at that point from the three points defining the triangle.
+
+\subsubsection{Perspective Correction}
+World position, uv, normal, tangent, and bitangent all need to be perspective corrected when being linearly interpolated during rasterization. This is done by scaling each vector type by $\frac1w$, doing the linear interpolation between face points. then scaling the resulting interpolated vector again by a linearly interpolated $\frac1w$.
+
+\subsection{Fragment}
+The fragment uses Binn-Phong shading 
+\begin{gather*}\begin{aligned}
+		\left\langle \overrightarrow{V_{light\hspace{0.2em}dir}} \right\rangle
+		&=
+		\left\langle P_{light}-P_{fragment}\right\rangle \notag\\
+		%
+		\text{light power} 
+		&= 
+		\frac{\text{light intensity}}{| P_{light}-P_{fragment}|^2}\\
+		%
+		\text{lambertian} 
+		&= \max(0, \left\langle 
+		\overrightarrow{V_{light\hspace{0.2em}dir}} \right\rangle \cdot   \left\langle N_{fragment}\right\rangle) \\
+		%
+		\left\langle\overrightarrow{V_{view\hspace{0.2em}dir}} \right\rangle 
+		&= 
+		\left\langle P_{eye}-P_{fragment}\right\rangle\\
+		%
+		\left\langle\overrightarrow{V_{half\hspace{0.2em}dir}} \right\rangle 
+		&= 
+		\left\langle 
+		\left\langle\overrightarrow{V_{view\hspace{0.2em}dir}} \right\rangle
+		+
+		\left\langle \overrightarrow{V_{light\hspace{0.2em}dir}}  \right\rangle
+		\right\rangle \\
+		%
+		\text{specular} &= \max(0, 
+		\left\langle\overrightarrow{V_{half\hspace{0.2em}dir}} \right\rangle
+		\cdot
+		\left\langle N_{fragment}\right\rangle			
+		)^{\text{fragment shininess}}\\
+		%
+		C_{\text{spec}} &= C_{light}\times \text{specular} \times \text{light power}\\
+		%
+		C_{\text{diff}} &= C_{light}\times \text{lambertian} \times \text{light power}
+\end{aligned}\end{gather*}
+
+\section{Parallel Design}
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{commentcolor}{RGB}{0,120,0}
+\definecolor{stringcolor}{RGB}{160,0,0}
+\definecolor{linenumbercolor}{RGB}{120,120,120}
+
+\lstdefinestyle{cpp}{
+	language=C++,
+	backgroundcolor=\color{codebg},
+	basicstyle=\ttfamily\scriptsize,
+	keywordstyle=\color{keywordcolor}\bfseries,
+	commentstyle=\color{commentcolor}\itshape,
+	stringstyle=\color{stringcolor},
+	numbers=left,
+	numberstyle=\scriptsize\color{linenumbercolor},
+	stepnumber=1,
+	numbersep=8pt,
+	tabsize=2,
+	showstringspaces=false,
+	breaklines=true,
+	frame=single,
+	rulecolor=\color{black},
+	captionpos=b,
+	keepspaces=true,
+	columns=flexible
+}
+
+\subsection{OpenMP}
+
+
+Each fragment(pixel) has no dependencies and each fragment performs the same computation so we can statically split the frame up and run it in parallel.
+
+\begin{lstlisting}[language=C++, style=cpp]
+	void fragment(FrameBuffer& frame, const Scene& scene, const ResourceStore& resources) {
+		#pragma omp parallel for schedule(static)
+		for (usize i = 0; i < frame.size(); i ++) {
+			frame[i] = frame[i].fragment_shader(scene, resources);
+		}
+	}
+\end{lstlisting}
+
+The projection for each face also has no dependencies on eachother, the only step is rasterization which can potentially have multiple threads writing to the same pixel at the same time.
+
+\begin{lstlisting}[language=C++, style=cpp]
+void render_mesh(FrameBuffer& frame, const Mesh& mesh) {
+	#pragma omp parallel for schedule(static)
+	for (usize i = 0; i < mesh.faces.size(); ++i) {
+		Face face = mesh.faces[i];
+		project_rasterize_face(frame, face);
+	}
+}
+\end{lstlisting}
+
+Special consideration, setting pixels from many different threads in the same frame buffer can lead to race conditions and improper pixel writes.\\
+
+The naive solution would be to put a critical zone in the region where we check if the current pixels depth is farther than the new pixels depth. The issue with this is in the vast majority of the time we don't need this critical section. This operation happens millions of times per second so finding a better solution will be hugely beneficial. \\
+
+What if we have a per pixel lock? this solution is better but using a traditional pthread mutex would waste a significant about of time potentially putting an OS thread to sleep if it doesn't immediately aquire it and wastes a ton of space per pixel to store the mutex itself.\\
+
+ Per pixel spin lock? This is better as we know we will only be locking for a single comparason and few bytes written to memory so will only spin for a minimal number of cycles. but we still need extra space for the lock value.\\
+ 
+ Using values already in our pixel. If we use the depth value in our pixel (which can only go from \texttt{0x0} to \texttt{0xFFFFFFFE}) we can use a special value \texttt{0xFFFFFFFF} that signals "this pixel is locked". This is the final idea which lead to the code below\\
+
+\begin{lstlisting}[language=C++, style=cpp]
+void set_smaller_depth(Pixel pixel) {
+	constexpr u32 LOCK_VALUE = 0xFFFFFFFF;
+
+	const std::atomic<u32>* atomic = &this->depth;
+	u32 depth;
+	while ((depth = atomic->exchange(LOCK_VALUE, std::memory_order_acquire)) == LOCK_VALUE){}
+	if (depth > pixel.depth) {
+		depth = pixel.depth;
+		std::memcpy(this, &pixel, sizeof(Pixel)-sizeof(pixel.depth));
+	}
+	atomic->store(depth, std::memory_order_release);
+}
+\end{lstlisting}
+
+This works! it has very little to no noticable performance impact (less than 1\% difference between runs using OpenMP with a single thread and the serial version). Does not require extra data stored per pixel. and does not serialize writes to different pixels.
+
+
+\pagebreak
+\subsection{OpenMPI}
+
+Coordinator
+\begin{lstlisting}[language=C++, style=cpp]
+void mpi_coordinator(const Arguments& args) {
+	mpi::coordinator_broadcast(args, mpi::Tag::Arguments);
+	
+	u32 frame = 0;
+	u32 outstanding = mpi::worker_count();
+	
+	while (frame < args.frames || outstanding!=0) {
+		auto receiver = mpi::Receiver::probe();
+		
+		 switch (receiver.type()) {
+			case mpi::Tag::FrameComplete: {
+				const auto finished_frame = receiver.receive<u32>();
+				if (finished_frame == 0xFFFFFFFF) {
+					outstanding--;
+				}
+			}break;
+			case mpi::Tag::WorkerReady: 
+				if (frame < args.frames) {
+					receiver.receive<mpi::Empty>(nullptr).sender(mpi::Tag::BeginFrame).send(frame);
+					frame++;
+				}else {
+					receiver.receive<mpi::Empty>(nullptr).sender(mpi::Tag::BeginFrame).send(0xFFFFFFFF);
+				}break;
+			case mpi::Tag::LoadFile: {
+				auto path = receiver.receive<std::string>();
+				auto data = file_load_string(path);
+				receiver.sender().send(data);
+			}break;
+			
+			default:break;
+		}
+	}
+}
+\end{lstlisting}
+
+Worker
+\begin{lstlisting}[language=C++, style=cpp]
+void mpi_worker() {
+	const auto args = mpi::Receiver::begin(mpi::COORDINATOR, mpi::Tag::Arguments).receive<Arguments>();
+	auto game = Game::make_game(args);
+	
+	while (true) {
+		auto receiver = mpi::Sender::begin(mpi::COORDINATOR, mpi::Tag::WorkerReady).send(mpi::Empty{}).receiver(mpi::Tag::BeginFrame);
+		u32 frame = receiver.receive<u32>();
+		if (frame == 0xFFFFFFFF) {
+			receiver.sender(mpi::Tag::FrameComplete).send(frame);
+			return;
+		}
+		game->render();
+	}
+}
+\end{lstlisting}
+
+A custom typesafe wrapper around MPI calls was designed to help make development easier. Send and Receive wrap \texttt{MPI\_Recv} and \texttt{MPI\_Send} and provide the corresponding MPI type, count, and tag.\\
+
+The architecture is a single coordinator and many worker model where the coordinator coordinates which worker renders which frame and is also responsible for serving requested files.\\
+The worker is responsible for rendering requested frames and also requesting any resources (textures, model data) if needed from the coordinator.
+
 
 \section{Performance Testing}
 
-triangle count
-wavy: 7212\\
-halo: 42600\\
-bricks: 752456\\
-
-\begin{table}[h!]
+\begin{table}[H]
+	\caption{Performance Bench Parameters}
 	\centering
-	\begin{tabular}{|c||c|c|c|}
+	\begin{tabular}{|c|c|}
 		\hline
-		&360x240 & 720x480 & 1080x1920 \\\hline\hline
-		halo&  2.863831261 & 7.661210509 & 30.610816487 \\\hline
-		bricks& 15.252794018 & 22.988769295 & 60.991727457 \\\hline
-		wavy& 2.615458843 & 9.626839493 & 47.173488550 \\\hline
+		Resolution& 360x240, 720x480, 1080x1920\\\hline
+		Scenes/Triangles& Wavy(7212), Halo(42600), Bricks(752456)\\\hline
+		Parallelism& Single Thread, MP/MPI(\#1, \#2, \#4, \#8, \#16)\\\hline
+		Frames&300\\\hline
+		CPU&AMD Ryzen 9 7950X (32) @ 5.883GHz\\\hline
+		OS&NixOS 25.05 (Warbler) x86\_64\\\hline
+		RAM&64GiB DDR5 \\\hline
+		Compiler&clang version 19\\\hline
 	\end{tabular}
-	\caption{Computer 1, Single Threaded, No Disk}
+	\label{table:performance-720-brick}
 \end{table}
 
-\begin{table}[h!]
-	\centering
-	\begin{tabular}{|c||c|c|c|}
-		\hline
-		&360x240 & 720x480 & 1080x1920 \\\hline\hline
-		halo&  2.863831261 & 3.558991764 & 14.919492215 \\\hline
-		bricks& 15.252794018 & 22.988769295 & 60.991727457 \\\hline
-		wavy& 2.615458843 & 9.626839493 & 47.173488550 \\\hline
-	\end{tabular}
-	\caption{Computer 1, OpenMP, No Disk}
-\end{table}
+\subsection{Reproducibility} 
+each scene had 300 different frames rendered to ensure random variations in time were minimal.
 
+\section{Results}
+
+\subsection{Rendering Only}
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}{.475\linewidth}
+		\centering
+		\input{graph_wavy_render.tex}
+		\caption{Wavy}
+		\label{plot:wavy_render}
+	\end{subfigure}\hfill
+	\begin{subfigure}{.475\linewidth}
+		\centering
+		\input{graph_halo_render.tex}
+		\caption{Halo}
+		\label{plot:halo_render}
+	\end{subfigure}
+	\medskip
+	\begin{subfigure}{.475\linewidth}
+		\centering
+		\input{graph_bricks_render.tex}
+		\caption{Bricks}
+		\label{plot:bricks_render}
+	\end{subfigure}
+	\caption{Scene Render Times}
+	\label{plot:render}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\input{table_mp_render.tex}
+	\caption{MP Render Time}
+	\label{table:mp_render}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\input{table_mpi_render.tex}
+	\caption{MPI Render Time}
+	\label{table:mpi_render}
+\end{figure}
+
+
+
+\subsection{Rendering And Resource Loading}
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}{.475\linewidth}
+		\centering
+		\input{graph_wavy_all.tex}
+		\caption{Wavy}
+		\label{plot:wavy_all}
+	\end{subfigure}\hfill
+	\begin{subfigure}{.475\linewidth}
+		\centering
+		\input{graph_halo_all.tex}
+		\caption{Halo}
+		\label{plot:halo_all}
+	\end{subfigure}
+	\medskip
+	\begin{subfigure}{.475\linewidth}
+		\centering
+		\input{graph_bricks_all.tex}
+		\caption{Bricks}
+		\label{plot:bricks_all}
+	\end{subfigure}
+	\caption{Scene Total Times}
+	\label{plot:all}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\input{table_mp_all.tex}
+	\caption{MP Total Time}
+	\label{table:mp_all}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\input{table_mpi_all.tex}
+	\caption{MPI Total Time}
+	\label{table:mpi_all}
+\end{figure}
+
+\section{Analysis}
+
+Time was measured in two ways, "Render Time" which only accounts for the time it takes to render frames. and "Total Time" which accounts for asset loading and resource sharing. Both times were recorded from the exact same runs so the difference is entirely the extra time taken for resource loading.\\
+
+Also importantly, MPI and MP parallelize different parts of the program with differing levels of granularity. 
+
+\subsection{Render Time Only}
+
+The graphs which show these are \ref{plot:all}, \ref{table:mp_all}, and \ref{table:mpi_all}. Interestingly (and unexpectedly) the MPI version performs the same if not better than the MP version in almost all cases. This really caught me off guard when I first looked at the results (so much so I double checked I had the correct data points). But I think a reasonable explanation for this performance difference is true sharing(Cache Coherence). It cannot be false sharing because each pixel is larger than 64 bytes (the cache line on the benchmarking system) and is aligned to 128 byte boundaries. However, in the MP version each thread is rendering over the same image. This means that the L1 cache in particular (for each core) must sync its changes with other cores if they request the same address (to ensure cache coherence). In contrary the MPI implementation has each node(thread in our case) work in its own image. this means that each thread uses its own frame buffer and therefore does not have to constantly sync its L1 cache with other cores when rendering. \\
+
+Even so, once the degree of parallelism reaches 16 the overhead of MPI can be seen as the curves of MPI and MP begin to intersect again.\\
+
+Other than that the graphs and data is about what you'd expect. Both version have almost the exact same performance to begin with. Efficiency drops as parallelism increases. And the effective speed up begins to slow. \\
+ 
+\subsection{Total Time}
+
+These graphs \ref{plot:render}, and tables \ref{table:mp_render} \ref{table:mpi_render} show the total time benchmarks and performance.\\
+
+The MPI versions are almost always slower, with the only exception being in a few of the higher resolution tests.\\
+
+This is due to the overhead of sending/parsing the assets and textures $n$ times where $n$ is the degree of parallelism. Even in the cases where it has runs which are faster at first the performance quickly becomes dominated by the startup time of duplicated work and large data transfers. \\
+
+In both cases the efficiency decreases much quicker compared to render time only which makes sense as the quicker our render time is, the most we are benchmarking "how fast can we read and parse images and model data". 
+
+\subsection{Further Testing}
+I did not include this in my report (as I do not have an enviorment to test it in effectively). But MPI and MP can be used together with this program. Since they parallelize different sections of the code it is possible to compile the program with both librries/compiler options enabled(I also tested it to make sure it worked). This could be useful as each MPI node could take full advantage of all local CPU cores on its machine to limit bandwidth/re computation of loading and parsing assets. Additionally each MPI node would only need to request the assets it needs, which if different frames only need  certain assets it could be significant savings in communication overhead.
+
+\section{Building and Runing}
+
+Two seperate build files are provided for each respective compiler \texttt{build\_clang.sh} and \texttt{build\_gcc.sh}. \\
+\\
+\underline{Important}: to switch between building with gcc or clang you \texttt{must} completely delete all \texttt{cmake-build-*} folders if it has been created previously with the other build script.\\
+
+Also if MP, MPI, or OpenGL is not installed on the build system. that respective build will fail. It will not effect the other builds even if an error is shown when building.\\
+
+Once the project has been built you can perform the same benchmarks in this document by running \texttt{bench.sh}. It will run through all the permutations of the input parameters.\\
+
+Neither the halo nor bricks model is included in the submissions due to licensing reasons though the wavy scene will work just fine. If you wish to run them you must download the models \cite{halo-model} \cite{bricks-model} as OBJ files and place the extracted model in the \texttt{assets} folder nammed \texttt{halo} and \texttt{bricks} respectively.
 
 
 \nocite{*}

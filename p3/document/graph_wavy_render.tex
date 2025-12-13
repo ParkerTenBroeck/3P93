@@ -1,0 +1,50 @@
+\begin{tikzpicture}[font=\tiny]
+\pgfplotsset{
+    xmin=0, xmax=4,xticklabels={$0$,$1$,$2$,$4$,$8$,$16$},
+ ytick distance=10, 
+}
+
+\begin{axis}[
+    axis y line*=left,
+    ymin=0.0, ymax=47.7888,
+xlabel=parallelism,
+width=\textwidth,
+xlabel style={at={(ticklabel* cs:0.5,3)},anchor=south},
+ylabel=time (s),
+ylabel style={at={(ticklabel* cs:0.5,-10)},anchor=north},
+xmajorgrids=true,
+ymajorgrids=true,
+grid style=dashed,
+legend columns=3,
+legend style={nodes={scale=0.5}, at={(0.5,1.02)}, anchor=south},
+legend cell align={left}
+]
+
+\addlegendimage{/pgfplots/refstyle=mp1080}\addlegendentry{\small 1080 MP}
+\addlegendimage{/pgfplots/refstyle=mp720}\addlegendentry{\small 720 MP}
+\addlegendimage{/pgfplots/refstyle=mp360}\addlegendentry{\small 360 MP}
+
+\addlegendimage{/pgfplots/refstyle=mpi1080}\addlegendentry{\small 1080 MPI}
+\addlegendimage{/pgfplots/refstyle=mpi720}\addlegendentry{\small 720 MPI}
+\addlegendimage{/pgfplots/refstyle=mpi360}\addlegendentry{\small 360 MPI}
+
+\addplot[very thick,blue]
+coordinates{(0,47.7888)(1,26.368)(2,16.2411)(3,10.9613)(4,8.44716)}; \label{mp1080}
+
+\addplot[very thick,green]
+coordinates{(0,10.258)(1,5.49153)(2,3.11437)(3,1.73241)(4,1.1007)}; \label{mp720}
+
+\addplot[very thick,red]
+coordinates{(0,2.92)(1,1.40577)(2,0.697979)(3,0.512867)(4,0.336725)}; \label{mp360}
+
+\addplot[blue,dashed,very thick]
+coordinates{(0,47.1539)(1,25.6388)(2,14.8047)(3,9.57218)(4,7.63727)}; \label{mpi1080}
+
+\addplot[green,dashed,very thick]
+coordinates{(0,10.3965)(1,5.55979)(2,3.10742)(3,1.85908)(4,1.50748)};\label{mpi720}
+
+\addplot[red,dashed,very thick]
+coordinates{(0,2.9328)(1,1.56314)(2,0.876581)(3,0.473731)(4,0.409177)    };\label{mpi360}
+\end{axis}
+
+\end{tikzpicture}
