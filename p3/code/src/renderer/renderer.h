@@ -71,7 +71,7 @@ struct Renderer {
 
     static void fragment(ref_mut<FrameBuffer> frame, ref<Scene> scene, ref<ResourceStore> resources) {
         #ifdef USE_OPEN_MP
-        #pragma omp parallel for schedule(static)
+        #pragma omp parallel for schedule(static, frame.width())
         #endif
         for (usize i = 0; i < frame.size(); i ++) {
             frame[i] = frame[i].fragment_shader(scene, resources);

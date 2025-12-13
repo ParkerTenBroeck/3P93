@@ -36,7 +36,7 @@ struct Pixel {
         const auto ptr = reinterpret_cast<std::atomic<u32> *>(&this->depth);
         constexpr u32 LOCK_VALUE = 0xFFFFFFFF;
         u32 depth;
-        while ((depth = ptr->exchange(LOCK_VALUE, std::memory_order_acquire)) == 0xFFFFFFFF){}
+        while ((depth = ptr->exchange(LOCK_VALUE, std::memory_order_acquire)) == LOCK_VALUE){}
         if (depth > pixel.depth) {
             depth = pixel.depth;
             std::memcpy(this, &pixel, sizeof(Pixel)-sizeof(pixel.depth));
